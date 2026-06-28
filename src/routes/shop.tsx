@@ -98,10 +98,10 @@ function matchesCategory(product: Product, category: string | undefined) {
   const subjectKeys = productSubjectKeys({
     name: product.title,
     slug: product.slug,
-    author: product.author,
+    author: product.author ?? null,
     publisher: null,
     category: product.category,
-    category_id: product.categoryId,
+    category_id: product.categoryId ?? null,
     tags: product.tags ?? [],
     search_text: product.description,
   }).map((key) => (key === "dua-adhkar" ? "purification" : key));
