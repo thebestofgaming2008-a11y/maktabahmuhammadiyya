@@ -96,7 +96,7 @@ export async function deleteProduct(id: string): Promise<boolean> {
   return true;
 }
 
-export async function refreshPublicCatalog() {
+export async function refreshPublicCatalog(_product?: unknown) {
   return;
 }
 
