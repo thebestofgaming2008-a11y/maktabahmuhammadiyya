@@ -416,6 +416,22 @@ function Home() {
   const otherLanguages = otherLanguageMatches;
   const moreBooks = [...booksOnly].reverse();
 
+  // Special items: niqab, jilbab, kufi, pen
+  const specialRegex = /(niqab|jilbab|jilbāb|khimar|kufi|kufiyya|topi|pen|miswak)/i;
+  const specialItems = products
+    .filter((p) => {
+      const haystack = [
+        p.title,
+        p.category,
+        p.categoryId ?? "",
+        ...(p.tags ?? []),
+      ]
+        .join(" ")
+        .toLowerCase();
+      return specialRegex.test(haystack) || p.topCategory === "clothing" || p.topCategory === "children";
+    })
+    .slice(0, 10);
+
   return (
     <div>
       {/* HERO CAROUSEL */}
