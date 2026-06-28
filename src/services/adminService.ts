@@ -96,7 +96,7 @@ export async function deleteProduct(id: string): Promise<boolean> {
   return true;
 }
 
-export async function refreshPublicCatalog() {
+export async function refreshPublicCatalog(_product?: unknown) {
   return;
 }
 
@@ -166,7 +166,7 @@ export async function getStoreSettings(): Promise<Record<string, unknown>> {
   };
 }
 
-export async function saveStoreSettings(): Promise<boolean> {
+export async function saveStoreSettings(_settings?: unknown): Promise<boolean> {
   return true;
 }
 
@@ -264,11 +264,11 @@ export async function listPaymentRecoveries(): Promise<PaymentRecovery[]> {
   return [];
 }
 
-export async function updateOrderStatus(): Promise<boolean> {
+export async function updateOrderStatus(_id?: string, _status?: string): Promise<boolean> {
   return true;
 }
 
-export async function updateOrderTracking(): Promise<AdminOrder | null> {
+export async function updateOrderTracking(_id?: string, _patch?: unknown): Promise<AdminOrder | null> {
   return (await listAllOrders(1))[0] ?? null;
 }
 
@@ -283,7 +283,7 @@ export interface AdminCustomer {
   created_at: string | null;
 }
 
-export async function listAllCustomers(): Promise<AdminCustomer[]> {
+export async function listAllCustomers(_limit?: number): Promise<AdminCustomer[]> {
   return [
     {
       id: "local-customer-1",
@@ -313,7 +313,7 @@ export interface AdminReview {
   created_at: string | null;
 }
 
-export async function listAllReviews(): Promise<AdminReview[]> {
+export async function listAllReviews(_limit?: number): Promise<AdminReview[]> {
   return [
     {
       id: "local-review-1",
@@ -357,6 +357,6 @@ export async function createAdminReview(input: {
   };
 }
 
-export async function updateReviewStatus(): Promise<boolean> {
+export async function updateReviewStatus(_id?: string, _status?: string): Promise<boolean> {
   return true;
 }

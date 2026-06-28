@@ -396,7 +396,7 @@ function ProductPage() {
               <div>
                 <div className="mb-2 text-sm font-medium">Size</div>
                 <div className="flex flex-wrap gap-2">
-                  {product.sizes.map((option) => (
+                  {product.sizes?.map((option) => (
                     <button
                       key={option}
                       type="button"
