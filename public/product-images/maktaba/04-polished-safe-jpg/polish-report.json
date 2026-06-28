@@ -1,0 +1,578 @@
+[
+  {
+    "id": 1,
+    "file": "maktaba-product-001.jpg",
+    "source": "maktaba-product-001.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 2,
+    "file": "maktaba-product-002.jpg",
+    "source": "maktaba-product-002.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 3,
+    "file": "maktaba-product-003.jpg",
+    "source": "maktaba-product-003.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 4,
+    "file": "maktaba-product-004.jpg",
+    "source": "maktaba-product-004.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 5,
+    "file": "maktaba-product-005.jpg",
+    "source": "maktaba-product-005.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 6,
+    "file": "maktaba-product-006.jpg",
+    "source": "maktaba-product-006.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 7,
+    "file": "maktaba-product-007.jpg",
+    "source": "maktaba-product-007.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 8,
+    "file": "maktaba-product-008.jpg",
+    "source": "maktaba-product-008.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 9,
+    "file": "maktaba-product-009.jpg",
+    "source": "maktaba-product-009.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 10,
+    "file": "maktaba-product-010.jpg",
+    "source": "maktaba-product-010.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 11,
+    "file": "maktaba-product-011.jpg",
+    "source": "maktaba-product-011.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 12,
+    "file": "maktaba-product-012.jpg",
+    "source": "maktaba-product-012.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 13,
+    "file": "maktaba-product-013.jpg",
+    "source": "maktaba-product-013.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 14,
+    "file": "maktaba-product-014.jpg",
+    "source": "maktaba-product-014.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 15,
+    "file": "maktaba-product-015.jpg",
+    "source": "maktaba-product-015.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 16,
+    "file": "maktaba-product-016.jpg",
+    "source": "maktaba-product-016.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 17,
+    "file": "maktaba-product-017.jpg",
+    "source": "maktaba-product-017.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 18,
+    "file": "maktaba-product-018.jpg",
+    "source": "maktaba-product-018.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 19,
+    "file": "maktaba-product-019.jpg",
+    "source": "maktaba-product-019.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 20,
+    "file": "maktaba-product-020.jpg",
+    "source": "maktaba-product-020.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 21,
+    "file": "maktaba-product-021.jpg",
+    "source": "maktaba-product-021.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 22,
+    "file": "maktaba-product-022.jpg",
+    "source": "maktaba-product-022.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 23,
+    "file": "maktaba-product-023.jpg",
+    "source": "maktaba-product-023.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 24,
+    "file": "maktaba-product-024.jpg",
+    "source": "maktaba-product-024.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 25,
+    "file": "maktaba-product-025.jpg",
+    "source": "maktaba-product-025.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 26,
+    "file": "maktaba-product-026.jpg",
+    "source": "maktaba-product-026.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 27,
+    "file": "maktaba-product-027.jpg",
+    "source": "maktaba-product-027.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 28,
+    "file": "maktaba-product-028.jpg",
+    "source": "maktaba-product-028.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 29,
+    "file": "maktaba-product-029.jpg",
+    "source": "maktaba-product-029.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 30,
+    "file": "maktaba-product-030.jpg",
+    "source": "maktaba-product-030.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 31,
+    "file": "maktaba-product-031.jpg",
+    "source": "maktaba-product-031.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 32,
+    "file": "maktaba-product-032.jpg",
+    "source": "maktaba-product-032.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 33,
+    "file": "maktaba-product-033.jpg",
+    "source": "maktaba-product-033.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 34,
+    "file": "maktaba-product-034.jpg",
+    "source": "maktaba-product-034.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 35,
+    "file": "maktaba-product-035.jpg",
+    "source": "maktaba-product-035.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 36,
+    "file": "maktaba-product-036.jpg",
+    "source": "maktaba-product-036.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 37,
+    "file": "maktaba-product-037.jpg",
+    "source": "maktaba-product-037.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 38,
+    "file": "maktaba-product-038.jpg",
+    "source": "maktaba-product-038.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 39,
+    "file": "maktaba-product-039.jpg",
+    "source": "maktaba-product-039.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 40,
+    "file": "maktaba-product-040.jpg",
+    "source": "maktaba-product-040.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 41,
+    "file": "maktaba-product-041.jpg",
+    "source": "maktaba-product-041.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 42,
+    "file": "maktaba-product-042.jpg",
+    "source": "maktaba-product-042.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 43,
+    "file": "maktaba-product-043.jpg",
+    "source": "maktaba-product-043.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 44,
+    "file": "maktaba-product-044.jpg",
+    "source": "maktaba-product-044.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 45,
+    "file": "maktaba-product-045.jpg",
+    "source": "maktaba-product-045.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 46,
+    "file": "maktaba-product-046.jpg",
+    "source": "maktaba-product-046.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 47,
+    "file": "maktaba-product-047.jpg",
+    "source": "maktaba-product-047.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 48,
+    "file": "maktaba-product-048.jpg",
+    "source": "maktaba-product-048.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 49,
+    "file": "maktaba-product-049.jpg",
+    "source": "maktaba-product-049.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 50,
+    "file": "maktaba-product-050.jpg",
+    "source": "maktaba-product-050.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 51,
+    "file": "maktaba-product-051.jpg",
+    "source": "maktaba-product-051.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 52,
+    "file": "maktaba-product-052.jpg",
+    "source": "maktaba-product-052.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 53,
+    "file": "maktaba-product-053.jpg",
+    "source": "maktaba-product-053.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 54,
+    "file": "maktaba-product-054.jpg",
+    "source": "maktaba-product-054.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 55,
+    "file": "maktaba-product-055.jpg",
+    "source": "maktaba-product-055.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 56,
+    "file": "maktaba-product-056.jpg",
+    "source": "maktaba-product-056.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 57,
+    "file": "maktaba-product-057.jpg",
+    "source": "maktaba-product-057.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 58,
+    "file": "maktaba-product-058.jpg",
+    "source": "maktaba-product-058.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 59,
+    "file": "maktaba-product-059.jpg",
+    "source": "maktaba-product-059.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 60,
+    "file": "maktaba-product-060.jpg",
+    "source": "maktaba-product-060.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 61,
+    "file": "maktaba-product-061.jpg",
+    "source": "maktaba-product-061.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 62,
+    "file": "maktaba-product-062.jpg",
+    "source": "maktaba-product-062.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 63,
+    "file": "maktaba-product-063.jpg",
+    "source": "maktaba-product-063.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 64,
+    "file": "maktaba-product-064.jpg",
+    "source": "maktaba-product-064.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 65,
+    "file": "maktaba-product-065.jpg",
+    "source": "maktaba-product-065.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 66,
+    "file": "maktaba-product-066.jpg",
+    "source": "maktaba-product-066.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 67,
+    "file": "maktaba-product-067.jpg",
+    "source": "maktaba-product-067.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 68,
+    "file": "maktaba-product-068.jpg",
+    "source": "maktaba-product-068.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 69,
+    "file": "maktaba-product-069.jpg",
+    "source": "maktaba-product-069.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 70,
+    "file": "maktaba-product-070.jpg",
+    "source": "maktaba-product-070.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 71,
+    "file": "maktaba-product-071.jpg",
+    "source": "maktaba-product-071.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 72,
+    "file": "maktaba-product-072.jpg",
+    "source": "maktaba-product-072.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 73,
+    "file": "maktaba-product-073.jpg",
+    "source": "maktaba-product-073.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 74,
+    "file": "maktaba-product-074.jpg",
+    "source": "maktaba-product-074.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 75,
+    "file": "maktaba-product-075.jpg",
+    "source": "maktaba-product-075.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 76,
+    "file": "maktaba-product-076.jpg",
+    "source": "maktaba-product-076.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 77,
+    "file": "maktaba-product-077.jpg",
+    "source": "maktaba-product-077.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 78,
+    "file": "maktaba-product-078.jpg",
+    "source": "maktaba-product-078.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 79,
+    "file": "maktaba-product-079.jpg",
+    "source": "maktaba-product-079.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 80,
+    "file": "maktaba-product-080.jpg",
+    "source": "maktaba-product-080.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 81,
+    "file": "maktaba-product-081.jpg",
+    "source": "maktaba-product-081.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 82,
+    "file": "maktaba-product-082.jpg",
+    "source": "maktaba-product-082.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 83,
+    "file": "maktaba-product-083.jpg",
+    "source": "maktaba-product-083.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 84,
+    "file": "maktaba-product-084.jpg",
+    "source": "maktaba-product-084.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 85,
+    "file": "maktaba-product-085.jpg",
+    "source": "maktaba-product-085.png",
+    "used_ai_hard_case": true
+  },
+  {
+    "id": 86,
+    "file": "maktaba-product-086.jpg",
+    "source": "maktaba-product-086.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 87,
+    "file": "maktaba-product-087.jpg",
+    "source": "maktaba-product-087.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 88,
+    "file": "maktaba-product-088.jpg",
+    "source": "maktaba-product-088.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 89,
+    "file": "maktaba-product-089.jpg",
+    "source": "maktaba-product-089.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 90,
+    "file": "maktaba-product-090.jpg",
+    "source": "maktaba-product-090.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 91,
+    "file": "maktaba-product-091.jpg",
+    "source": "maktaba-product-091.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 92,
+    "file": "maktaba-product-092.jpg",
+    "source": "maktaba-product-092.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 93,
+    "file": "maktaba-product-093.jpg",
+    "source": "maktaba-product-093.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 94,
+    "file": "maktaba-product-094.jpg",
+    "source": "maktaba-product-094.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 95,
+    "file": "maktaba-product-095.jpg",
+    "source": "maktaba-product-095.png",
+    "used_ai_hard_case": false
+  },
+  {
+    "id": 96,
+    "file": "maktaba-product-096.jpg",
+    "source": "maktaba-product-096.png",
+    "used_ai_hard_case": false
+  }
+]
