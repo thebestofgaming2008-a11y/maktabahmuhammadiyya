@@ -158,14 +158,14 @@ function ProductRail({
       </div>
       <div
         ref={railRef}
-        className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-[max(1rem,calc((100vw-72rem)/2))]"
+        className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-[max(1rem,calc((100vw-72rem)/2))]"
         style={{ direction: "ltr" }}
       >
         {items.map((p) => (
           <div
             key={p.slug}
             data-rail-item
-            className="shrink-0 snap-start w-[62vw] sm:w-[40vw] md:w-[280px]"
+            className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
           >
             <ProductCard product={p} />
           </div>
@@ -173,14 +173,14 @@ function ProductRail({
         <Link
           to={seeAllTo}
           data-rail-item
-          className="shrink-0 snap-start w-[62vw] sm:w-[40vw] md:w-[280px] aspect-[3/4] rounded-xl border border-dashed border-border flex flex-col items-center justify-center gap-3 text-foreground hover:bg-muted/50 transition-colors group"
+          className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px] aspect-[4/5] rounded-lg bg-secondary/40 flex flex-col items-center justify-center gap-3 text-foreground hover:bg-secondary/70 transition-colors group"
         >
           <span className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center group-hover:translate-x-1 transition-transform">
             <ArrowRight className="h-5 w-5" />
           </span>
-          <span className="font-display text-xl">See all {title.toLowerCase()}</span>
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">
-            Browse the full collection
+          <span className="font-display text-lg text-center px-3">See all</span>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            Browse collection
           </span>
         </Link>
         <div className="shrink-0 w-1 md:hidden" />
@@ -279,7 +279,7 @@ function InfiniteRail({
           <div
             key={`${p.slug}-${i}`}
             data-rail-item
-            className="shrink-0 w-[52vw] sm:w-[34vw] md:w-[240px] transition-transform duration-300 hover:-translate-y-1"
+            className="shrink-0 w-[42vw] sm:w-[28vw] md:w-[210px] transition-transform duration-300 hover:-translate-y-1"
           >
             <ProductCard product={p} />
           </div>
