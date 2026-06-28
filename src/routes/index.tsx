@@ -614,13 +614,29 @@ function Home() {
         title="English books"
         desc="Translations, contemporary works and study guides."
         items={english}
+        seeAllTo="/shop"
       />
       <ProductRail
         eyebrow="Other languages"
-        title="Non-English books"
-        desc="Arabic, Urdu and other non-English titles selected in admin."
+        title="Arabic, Urdu & more"
+        desc="Non-English titles for native readers and students."
         items={otherLanguages}
+        seeAllTo="/shop"
       />
+
+      {/* SPECIAL ITEMS */}
+      {specialItems.length > 0 && (
+        <section className="bg-secondary/40 border-y">
+          <ProductRail
+            eyebrow="Special items"
+            title="Niqab, jilbab, kufi & pens"
+            desc="A small, considered selection of essentials beyond the bookshelf."
+            items={specialItems}
+            seeAllTo="/shop"
+          />
+        </section>
+      )}
+
 
       {/* MORE BOOKS - infinite, auto-scrolling */}
       <section className="py-12 md:py-20 bg-secondary/30 border-y">
