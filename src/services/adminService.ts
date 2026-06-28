@@ -357,6 +357,6 @@ export async function createAdminReview(input: {
   };
 }
 
-export async function updateReviewStatus(): Promise<boolean> {
+export async function updateReviewStatus(_id?: string, _status?: string): Promise<boolean> {
   return true;
 }
