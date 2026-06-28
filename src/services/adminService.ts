@@ -166,7 +166,7 @@ export async function getStoreSettings(): Promise<Record<string, unknown>> {
   };
 }
 
-export async function saveStoreSettings(): Promise<boolean> {
+export async function saveStoreSettings(_settings?: unknown): Promise<boolean> {
   return true;
 }
 
