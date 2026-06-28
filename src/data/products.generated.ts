@@ -2601,4 +2601,4 @@ export const LOCAL_PRODUCTS = [
     "created_at": null,
     "updated_at": null
   }
-] satisfies Product[];
+] as unknown as Product[];
