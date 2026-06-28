@@ -639,7 +639,8 @@ function Home() {
 
 
       {/* MORE BOOKS - infinite, auto-scrolling */}
-      <section className="py-12 md:py-20 bg-secondary/30 border-y">
+      <section className="py-12 md:py-20 border-b border-border">
+
         <div className="container-prose">
           <div className="flex items-end justify-between mb-6 md:mb-8 reveal gap-4">
             <div>
