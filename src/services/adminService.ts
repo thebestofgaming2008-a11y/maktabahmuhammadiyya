@@ -264,11 +264,11 @@ export async function listPaymentRecoveries(): Promise<PaymentRecovery[]> {
   return [];
 }
 
-export async function updateOrderStatus(): Promise<boolean> {
+export async function updateOrderStatus(_id?: string, _status?: string): Promise<boolean> {
   return true;
 }
 
-export async function updateOrderTracking(): Promise<AdminOrder | null> {
+export async function updateOrderTracking(_id?: string, _patch?: unknown): Promise<AdminOrder | null> {
   return (await listAllOrders(1))[0] ?? null;
 }
 
