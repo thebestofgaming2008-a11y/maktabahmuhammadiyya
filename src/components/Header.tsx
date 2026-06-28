@@ -1,4 +1,4 @@
-﻿import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { LayoutDashboard, LogOut, Menu, Package, Search, ShoppingBag, User, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
@@ -7,12 +7,17 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/brand/maktabah-logo-navy.png";
 
-const nav = [
-  { to: "/shop", label: "Shop All" },
-  { to: "/shop?c=quran", label: "Qur'an" },
-  { to: "/shop?c=tafsir", label: "Tafsir" },
-  { to: "/shop?c=hadith", label: "Hadith" },
-  { to: "/shop?c=fiqh", label: "Fiqh" },
+const primaryNav = [
+  { to: "/shop", label: "Shop all", search: undefined as Record<string, string> | undefined },
+  { to: "/shop", label: "Books", search: { c: "books" } },
+  { to: "/shop", label: "Other languages", search: { c: "other-languages" } },
+  { to: "/shop", label: "Clothing", search: { c: "clothing" } },
+  { to: "/shop", label: "Special items", search: { c: "children" } },
+];
+
+const utilityNav = [
+  { to: "/about", label: "About" },
+  { to: "/contact", label: "Contact" },
   { to: "/track", label: "Track order" },
 ];
 
@@ -59,31 +64,28 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-background/85 backdrop-blur border-b border-border">
-        <div className="container-prose grid grid-cols-[1fr_auto_1fr] items-center h-14 md:h-16">
-          {/* Left */}
-          <div className="flex items-center gap-1">
+      {/* Announcement bar (Shopify-style) */}
+      <div className="bg-primary text-primary-foreground text-[11px] md:text-xs">
+        <div className="container-prose py-2 text-center tracking-[0.18em] uppercase font-medium">
+          Free shipping over ₹2000 · Carefully packed Islamic books & essentials
+        </div>
+      </div>
+
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
+        <div className="container-prose grid grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_auto_1fr] items-center h-14 md:h-[68px] gap-2">
+          {/* Left: mobile menu + logo space / desktop empty */}
+          <div className="flex items-center">
             <button
-              className="md:hidden -ml-2 p-2 text-black transition-transform active:scale-90"
+              className="md:hidden -ml-2 p-2 transition-transform active:scale-90"
               onClick={openMenu}
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <nav className="hidden md:flex items-center gap-6 text-sm">
-              {nav.slice(0, 3).map((n) => (
-                <Link
-                  key={n.to}
-                  to={n.to}
-                  className="relative text-black/80 transition-colors hover:text-black after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100"
-                >
-                  {n.label}
-                </Link>
-              ))}
-            </nav>
+            <div className="hidden md:block" />
           </div>
 
-          {/* Center logo */}
+          {/* Center: logo */}
           <Link
             to="/"
             className="justify-self-center transition-opacity hover:opacity-85"
@@ -92,26 +94,15 @@ export function Header() {
             <img
               src={logo}
               alt="Maktabah Muhammadiya"
-              className="h-10 w-auto object-contain md:h-12"
+              className="h-9 w-auto object-contain md:h-12"
             />
           </Link>
 
-          {/* Right */}
-          <div className="flex items-center gap-1 justify-end">
-            <nav className="hidden md:flex items-center gap-6 text-sm mr-2">
-              {nav.slice(3).map((n) => (
-                <Link
-                  key={n.to}
-                  to={n.to}
-                  className="relative text-black/80 transition-colors hover:text-black after:absolute after:left-0 after:-bottom-1 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100"
-                >
-                  {n.label}
-                </Link>
-              ))}
-            </nav>
+          {/* Right: icons */}
+          <div className="flex items-center gap-0.5 justify-end">
             <Link
               to="/search"
-              className="p-2 text-black hover:bg-muted rounded-full transition-colors active:scale-90"
+              className="p-2 hover:bg-muted rounded-full transition-colors active:scale-90"
               aria-label="Search"
             >
               <Search className="h-5 w-5" />
@@ -120,7 +111,7 @@ export function Header() {
               <button
                 type="button"
                 onClick={handleAccountClick}
-                className="p-2 text-black hover:bg-muted rounded-full transition-colors active:scale-90"
+                className="p-2 hover:bg-muted rounded-full transition-colors active:scale-90"
                 aria-label={user ? "Open account menu" : "Sign in"}
                 aria-expanded={accountOpen}
               >
@@ -186,7 +177,7 @@ export function Header() {
             </div>
             <button
               onClick={() => setOpen(true)}
-              className="relative p-2 text-black hover:bg-muted rounded-full transition-colors active:scale-90"
+              className="relative p-2 hover:bg-muted rounded-full transition-colors active:scale-90"
               aria-label="Cart"
             >
               <ShoppingBag className="h-5 w-5" />
@@ -198,6 +189,32 @@ export function Header() {
             </button>
           </div>
         </div>
+
+        {/* Desktop category nav row (Shopify-style) */}
+        <nav className="hidden md:block border-t border-border/60">
+          <div className="container-prose flex items-center justify-center gap-8 h-11 text-[13px]">
+            {primaryNav.map((n) => (
+              <Link
+                key={n.label}
+                to={n.to}
+                search={n.search as never}
+                className="relative text-foreground/75 transition-colors hover:text-foreground font-medium tracking-wide after:absolute after:left-0 after:-bottom-3 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 hover:after:scale-x-100"
+              >
+                {n.label}
+              </Link>
+            ))}
+            <span className="h-3 w-px bg-border" />
+            {utilityNav.map((n) => (
+              <Link
+                key={n.label}
+                to={n.to}
+                className="text-foreground/60 transition-colors hover:text-foreground text-[12px]"
+              >
+                {n.label}
+              </Link>
+            ))}
+          </div>
+        </nav>
       </header>
 
       {/* Mobile menu */}
@@ -218,32 +235,36 @@ export function Header() {
               <span className="font-display text-lg">Menu</span>
               <button
                 onClick={closeMenu}
-                className="p-2 text-black transition-transform active:scale-90 hover:rotate-90 duration-300"
+                className="p-2 transition-transform active:scale-90 hover:rotate-90 duration-300"
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <nav className="flex-1 overflow-y-auto p-2">
-              {nav.map((n, i) => (
+              {primaryNav.map((n, i) => (
                 <Link
-                  key={n.to}
+                  key={n.label}
                   to={n.to}
+                  search={n.search as never}
                   onClick={closeMenu}
-                  className="menu-item block border-b border-border/60 px-4 py-4 text-lg text-black transition-colors hover:bg-muted/50"
+                  className="menu-item block border-b border-border/60 px-4 py-4 text-lg transition-colors hover:bg-muted/50"
                   style={{ animationDelay: `${0.08 + i * 0.05}s` }}
                 >
                   {n.label}
                 </Link>
               ))}
-              <Link
-                to="/contact"
-                onClick={closeMenu}
-                className="menu-item block border-b border-border/60 px-4 py-4 text-lg text-black transition-colors hover:bg-muted/50"
-                style={{ animationDelay: `${0.08 + nav.length * 0.05}s` }}
-              >
-                Help & Contact
-              </Link>
+              {utilityNav.map((n, i) => (
+                <Link
+                  key={n.label}
+                  to={n.to}
+                  onClick={closeMenu}
+                  className="menu-item block border-b border-border/60 px-4 py-4 text-base text-foreground/80 transition-colors hover:bg-muted/50"
+                  style={{ animationDelay: `${0.08 + (primaryNav.length + i) * 0.05}s` }}
+                >
+                  {n.label}
+                </Link>
+              ))}
               <Link
                 to="/account"
                 onClick={(event) => {
@@ -255,8 +276,8 @@ export function Header() {
                   }
                   closeMenu();
                 }}
-                className="menu-item block border-b border-border/60 px-4 py-4 text-lg text-black transition-colors hover:bg-muted/50"
-                style={{ animationDelay: `${0.08 + (nav.length + 1) * 0.05}s` }}
+                className="menu-item block border-b border-border/60 px-4 py-4 text-base text-foreground/80 transition-colors hover:bg-muted/50"
+                style={{ animationDelay: `${0.08 + (primaryNav.length + utilityNav.length) * 0.05}s` }}
               >
                 {user ? "Account" : "Sign in"}
               </Link>
@@ -264,8 +285,8 @@ export function Header() {
                 <Link
                   to="/admin"
                   onClick={closeMenu}
-                  className="menu-item block px-4 py-4 text-lg font-semibold text-primary border-b border-border/60 hover:bg-muted/50 transition-colors"
-                  style={{ animationDelay: `${0.08 + (nav.length + 2) * 0.05}s` }}
+                  className="menu-item block px-4 py-4 text-base font-semibold text-primary border-b border-border/60 hover:bg-muted/50 transition-colors"
+                  style={{ animationDelay: `${0.08 + (primaryNav.length + utilityNav.length + 1) * 0.05}s` }}
                 >
                   Admin dashboard
                 </Link>
@@ -273,7 +294,7 @@ export function Header() {
               <div
                 className="menu-item px-4 py-5 border-b border-border/60"
                 style={{
-                  animationDelay: `${0.08 + (nav.length + (user && isAdmin ? 3 : 2)) * 0.05}s`,
+                  animationDelay: `${0.08 + (primaryNav.length + utilityNav.length + (user && isAdmin ? 2 : 1)) * 0.05}s`,
                 }}
               >
                 <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
