@@ -283,7 +283,7 @@ export interface AdminCustomer {
   created_at: string | null;
 }
 
-export async function listAllCustomers(): Promise<AdminCustomer[]> {
+export async function listAllCustomers(_limit?: number): Promise<AdminCustomer[]> {
   return [
     {
       id: "local-customer-1",
