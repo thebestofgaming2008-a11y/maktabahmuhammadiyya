@@ -313,7 +313,7 @@ export interface AdminReview {
   created_at: string | null;
 }
 
-export async function listAllReviews(): Promise<AdminReview[]> {
+export async function listAllReviews(_limit?: number): Promise<AdminReview[]> {
   return [
     {
       id: "local-review-1",
