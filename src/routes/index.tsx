@@ -158,14 +158,14 @@ function ProductRail({
       </div>
       <div
         ref={railRef}
-        className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-[max(1rem,calc((100vw-72rem)/2))]"
+        className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-[max(1rem,calc((100vw-72rem)/2))]"
         style={{ direction: "ltr" }}
       >
         {items.map((p) => (
           <div
             key={p.slug}
             data-rail-item
-            className="shrink-0 snap-start w-[62vw] sm:w-[40vw] md:w-[280px]"
+            className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
           >
             <ProductCard product={p} />
           </div>
@@ -173,14 +173,14 @@ function ProductRail({
         <Link
           to={seeAllTo}
           data-rail-item
-          className="shrink-0 snap-start w-[62vw] sm:w-[40vw] md:w-[280px] aspect-[3/4] rounded-xl border border-dashed border-border flex flex-col items-center justify-center gap-3 text-foreground hover:bg-muted/50 transition-colors group"
+          className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px] aspect-[4/5] rounded-lg bg-secondary/40 flex flex-col items-center justify-center gap-3 text-foreground hover:bg-secondary/70 transition-colors group"
         >
           <span className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center group-hover:translate-x-1 transition-transform">
             <ArrowRight className="h-5 w-5" />
           </span>
-          <span className="font-display text-xl">See all {title.toLowerCase()}</span>
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">
-            Browse the full collection
+          <span className="font-display text-lg text-center px-3">See all</span>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            Browse collection
           </span>
         </Link>
         <div className="shrink-0 w-1 md:hidden" />
@@ -279,7 +279,7 @@ function InfiniteRail({
           <div
             key={`${p.slug}-${i}`}
             data-rail-item
-            className="shrink-0 w-[52vw] sm:w-[34vw] md:w-[240px] transition-transform duration-300 hover:-translate-y-1"
+            className="shrink-0 w-[42vw] sm:w-[28vw] md:w-[210px] transition-transform duration-300 hover:-translate-y-1"
           >
             <ProductCard product={p} />
           </div>
@@ -416,11 +416,27 @@ function Home() {
   const otherLanguages = otherLanguageMatches;
   const moreBooks = [...booksOnly].reverse();
 
+  // Special items: niqab, jilbab, kufi, pen
+  const specialRegex = /(niqab|jilbab|jilbāb|khimar|kufi|kufiyya|topi|pen|miswak)/i;
+  const specialItems = products
+    .filter((p) => {
+      const haystack = [
+        p.title,
+        p.category,
+        p.categoryId ?? "",
+        ...(p.tags ?? []),
+      ]
+        .join(" ")
+        .toLowerCase();
+      return specialRegex.test(haystack) || p.topCategory === "clothing" || p.topCategory === "children";
+    })
+    .slice(0, 10);
+
   return (
     <div>
       {/* HERO CAROUSEL */}
       <section className="relative">
-        <div className="relative h-[78vh] min-h-[520px] md:h-[88vh] overflow-hidden">
+        <div className="relative h-[68vh] min-h-[460px] md:h-[78vh] md:max-h-[720px] overflow-hidden">
           {heroSlides.map((s, i) => (
             <div
               key={i}
@@ -433,30 +449,30 @@ function Home() {
                 style={{ objectPosition: s.position }}
                 fetchPriority={i === 0 ? "high" : "low"}
               />
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,7,18,0.72)_0%,rgba(3,7,18,0.42)_34%,rgba(3,7,18,0.12)_66%,rgba(3,7,18,0.02)_100%)]" />
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-foreground/45 via-foreground/10 to-transparent" />
+              {/* Cleaner single overlay: subtle vignette bottom-left */}
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/30 to-transparent md:bg-[linear-gradient(100deg,rgba(20,12,4,0.62)_0%,rgba(20,12,4,0.28)_42%,rgba(20,12,4,0)_70%)]" />
               <div className="absolute inset-0 flex flex-col justify-end">
                 <div
                   key={`${i}-${slide}`}
-                  className="container-prose pb-14 md:pb-20 text-background hero-rise"
+                  className="container-prose pb-14 md:pb-24 text-background hero-rise"
                 >
-                  <span className="inline-block text-[11px] uppercase tracking-[0.22em] mb-3 opacity-90 font-medium">
+                  <span className="inline-block text-[11px] uppercase tracking-[0.28em] mb-4 opacity-90 font-medium">
                     {s.eyebrow}
                   </span>
-                  <h1 className="font-display text-4xl md:text-6xl lg:text-7xl max-w-3xl leading-[1.02]">
+                  <h1 className="font-display text-[34px] md:text-6xl lg:text-[68px] max-w-3xl leading-[1.02]">
                     {s.title}
                   </h1>
-                  <p className="mt-4 max-w-md text-base md:text-lg opacity-90 leading-relaxed">
+                  <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
                     {s.sub}
                   </p>
                   <div className="mt-7 flex flex-wrap gap-3">
                     <Link
                       to="/shop"
                       search={{ c: s.category } as never}
-                      className="btn-cta inline-flex items-center gap-2 bg-background text-foreground rounded-full px-7 py-3.5 text-sm font-semibold"
+                      className="inline-flex items-center gap-2 bg-background text-foreground rounded-none px-8 py-3.5 text-[12px] font-semibold uppercase tracking-[0.16em] transition hover:bg-foreground hover:text-background"
                     >
-                      {s.cta}{" "}
-                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-[.btn-cta]:translate-x-0" />
+                      {s.cta}
+                      <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
                 </div>
@@ -470,12 +486,30 @@ function Home() {
                 key={i}
                 onClick={() => setSlide(i)}
                 aria-label={`Go to slide ${i + 1}`}
-                className={`h-1.5 rounded-full transition-all duration-500 ${i === slide ? "w-8 bg-background" : "w-4 bg-background/50 hover:bg-background/75"}`}
+                className={`h-1 rounded-full transition-all duration-500 ${i === slide ? "w-8 bg-background" : "w-4 bg-background/50 hover:bg-background/75"}`}
               />
             ))}
           </div>
         </div>
       </section>
+
+      {/* Trust strip (Shopify-style) */}
+      <section className="border-b border-border bg-secondary/30">
+        <div className="container-prose grid grid-cols-2 md:grid-cols-4 divide-x divide-border/60">
+          {[
+            { t: "Curated", d: "Hand-picked titles" },
+            { t: "Authentic", d: "Trusted publishers" },
+            { t: "Worldwide", d: "Careful packing" },
+            { t: "Support", d: "Personal order help" },
+          ].map((f) => (
+            <div key={f.t} className="px-4 py-5 text-center">
+              <p className="text-[11px] uppercase tracking-[0.18em] font-semibold">{f.t}</p>
+              <p className="text-xs text-muted-foreground mt-1">{f.d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
 
       {/* BROWSE COLLECTIONS */}
       <section className="py-12 md:py-20">
@@ -580,16 +614,33 @@ function Home() {
         title="English books"
         desc="Translations, contemporary works and study guides."
         items={english}
+        seeAllTo="/shop"
       />
       <ProductRail
         eyebrow="Other languages"
-        title="Non-English books"
-        desc="Arabic, Urdu and other non-English titles selected in admin."
+        title="Arabic, Urdu & more"
+        desc="Non-English titles for native readers and students."
         items={otherLanguages}
+        seeAllTo="/shop"
       />
 
+      {/* SPECIAL ITEMS */}
+      {specialItems.length > 0 && (
+        <section className="bg-secondary/40 border-y">
+          <ProductRail
+            eyebrow="Special items"
+            title="Niqab, jilbab, kufi & pens"
+            desc="A small, considered selection of essentials beyond the bookshelf."
+            items={specialItems}
+            seeAllTo="/shop"
+          />
+        </section>
+      )}
+
+
       {/* MORE BOOKS - infinite, auto-scrolling */}
-      <section className="py-12 md:py-20 bg-secondary/30 border-y">
+      <section className="py-12 md:py-20 border-b border-border">
+
         <div className="container-prose">
           <div className="flex items-end justify-between mb-6 md:mb-8 reveal gap-4">
             <div>
