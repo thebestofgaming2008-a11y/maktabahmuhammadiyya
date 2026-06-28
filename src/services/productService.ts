@@ -1,0 +1,250 @@
+import { LOCAL_PRODUCTS } from "@/data/products.generated";
+
+export interface Product {
+  id: string;
+  name: string;
+  slug: string | null;
+  short_description: string | null;
+  description: string | null;
+  author: string | null;
+  publisher: string | null;
+  language: string | null;
+  pages: number | null;
+  isbn: string | null;
+  binding: string | null;
+  edition: string | null;
+  weight_g: number | null;
+  length_cm: number | null;
+  width_cm: number | null;
+  height_cm: number | null;
+  shipping_class: string | null;
+  weight_source_url: string | null;
+  weight_confidence: string | null;
+  price: number;
+  price_inr: number;
+  sale_price: number | null;
+  sale_price_inr: number | null;
+  sku: string | null;
+  stock_quantity: number | null;
+  category: string | null;
+  category_id: string | null;
+  tags: string[] | null;
+  cover_image_url: string | null;
+  images: string[] | null;
+  linked_product_ids?: string[] | null;
+  variant_label?: string | null;
+  color_options?: string[] | null;
+  size_options?: string[] | null;
+  option_types?: Array<{ name: string; values: string[] }> | null;
+  badge: string | null;
+  rating: number | null;
+  reviews_count: number | null;
+  is_active: boolean | null;
+  is_featured: boolean | null;
+  show_in_category_section?: boolean | null;
+  is_new_arrival: boolean | null;
+  is_bestseller: boolean | null;
+  is_on_sale: boolean | null;
+  in_stock: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
+  search_text?: string | null;
+}
+
+const ACTIVE_PRODUCTS_CACHE_KEY = "maktabah_active_products_v13_second_shop";
+const OLD_ACTIVE_PRODUCTS_CACHE_KEYS = [
+  "he_active_products_v3",
+  "he_active_products_v4",
+  "he_active_products_v5",
+  "he_active_products_v6",
+  "he_active_products_v7",
+  "he_active_products_v8",
+  "he_active_products_v9",
+  "maktabah_active_products_v10_second_shop",
+  "maktabah_active_products_v11_second_shop",
+  "maktabah_active_products_v12_second_shop",
+];
+const ACTIVE_PRODUCTS_TTL_MS = 15 * 1000;
+const TOP_LEVEL_CATEGORY_KEYS = new Set(["books", "clothing", "children", "essentials"]);
+const BOOK_SUBJECT_KEYS = new Set([
+  "aqeedah",
+  "arabic",
+  "fiqh",
+  "hadith",
+  "purification",
+  "quran",
+  "seerah",
+  "tafsir",
+  "urdu",
+  "character-development",
+  "womens-issues",
+  "islamic-history",
+  "family-marriage",
+]);
+
+let activeProductsMemoryCache: { expiresAt: number; products: Product[] } | null = null;
+let activeProductsInFlight: Promise<Product[]> | null = null;
+
+export function normalizeProductImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  return url.replace(
+    "/product-images/maktaba/01-final-shop-jpg/",
+    "/product-images/maktaba/04-polished-safe-jpg/",
+  );
+}
+
+function normalize(p: unknown): Product {
+  const r = p as Record<string, unknown>;
+  const images = Array.isArray(r.images)
+    ? (r.images as string[]).map((image) => normalizeProductImageUrl(image)).filter(Boolean)
+    : [];
+  return {
+    ...(r as object),
+    cover_image_url: normalizeProductImageUrl(r.cover_image_url as string | null | undefined),
+    images,
+    tags: Array.isArray(r.tags) ? (r.tags as string[]) : [],
+    color_options: Array.isArray(r.color_options) ? (r.color_options as string[]) : [],
+    size_options: Array.isArray(r.size_options) ? (r.size_options as string[]) : [],
+    option_types: Array.isArray(r.option_types)
+      ? (r.option_types as Array<{ name: string; values: string[] }>)
+      : [],
+  } as Product;
+}
+
+function readActiveProductsCache(): Product[] | null {
+  if (typeof window === "undefined") return null;
+  if (activeProductsMemoryCache && activeProductsMemoryCache.expiresAt > Date.now()) {
+    if (activeProductsMemoryCache.products.length > 0) {
+      return activeProductsMemoryCache.products;
+    }
+    activeProductsMemoryCache = null;
+  }
+  try {
+    const cached = window.localStorage.getItem(ACTIVE_PRODUCTS_CACHE_KEY);
+    if (!cached) return null;
+    const parsed = JSON.parse(cached) as { expiresAt?: number; products?: unknown[] };
+    if (
+      !parsed.expiresAt ||
+      parsed.expiresAt <= Date.now() ||
+      !Array.isArray(parsed.products) ||
+      parsed.products.length === 0
+    ) {
+      window.localStorage.removeItem(ACTIVE_PRODUCTS_CACHE_KEY);
+      return null;
+    }
+    const products = parsed.products.map(normalize);
+    activeProductsMemoryCache = { expiresAt: parsed.expiresAt, products };
+    return products;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeProductList(raw: unknown): Product[] {
+  if (!Array.isArray(raw)) throw new Error("Catalog response was not an array.");
+  const products = raw.map(normalize);
+  if (products.length === 0) throw new Error("Catalog response was empty.");
+  return products;
+}
+
+function writeActiveProductsCache(products: Product[]) {
+  if (!products.length) return;
+  const expiresAt = Date.now() + ACTIVE_PRODUCTS_TTL_MS;
+  activeProductsMemoryCache = { expiresAt, products };
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(ACTIVE_PRODUCTS_CACHE_KEY, JSON.stringify({ expiresAt, products }));
+  } catch {
+    // Cache is a performance optimization only.
+  }
+}
+
+function topCategory(product: Pick<Product, "category" | "category_id">): string | null {
+  const category = String(product.category ?? "")
+    .trim()
+    .toLowerCase();
+  const categoryId = String(product.category_id ?? "")
+    .trim()
+    .toLowerCase();
+  if (categoryId === "essentials" || category === "essentials") return "children";
+  if (TOP_LEVEL_CATEGORY_KEYS.has(categoryId))
+    return categoryId === "essentials" ? "children" : categoryId;
+  if (TOP_LEVEL_CATEGORY_KEYS.has(category))
+    return category === "essentials" ? "children" : category;
+  if (BOOK_SUBJECT_KEYS.has(categoryId) || BOOK_SUBJECT_KEYS.has(category)) return "books";
+  return category || categoryId || null;
+}
+
+export async function listActiveProducts(): Promise<Product[]> {
+  const cached = readActiveProductsCache();
+  if (cached) return cached;
+  if (activeProductsInFlight) return activeProductsInFlight;
+
+  activeProductsInFlight = Promise.resolve(LOCAL_PRODUCTS)
+    .then((raw) => {
+      const products = normalizeProductList(raw).filter((product) => product.is_active !== false);
+      writeActiveProductsCache(products);
+      return products;
+    })
+    .finally(() => {
+      activeProductsInFlight = null;
+    });
+
+  return activeProductsInFlight;
+}
+
+export function clearProductListCache() {
+  activeProductsMemoryCache = null;
+  activeProductsInFlight = null;
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.removeItem(ACTIVE_PRODUCTS_CACHE_KEY);
+      OLD_ACTIVE_PRODUCTS_CACHE_KEYS.forEach((key) => window.localStorage.removeItem(key));
+    } catch {
+      // Ignore storage failures.
+    }
+  }
+}
+
+export async function getProductById(id: string): Promise<Product | null> {
+  const products = await listActiveProducts();
+  return products.find((product) => product.id === id) ?? null;
+}
+
+export async function getProductBySlug(slug: string): Promise<Product | null> {
+  const products = await listActiveProducts();
+  return products.find((product) => product.slug === slug) ?? null;
+}
+
+export async function listFeatured(limit = 8): Promise<Product[]> {
+  const data = await listActiveProducts();
+  return data.filter((product) => product.is_featured).slice(0, limit);
+}
+
+export async function listByCategory(categorySlug: string): Promise<Product[]> {
+  const categoryKey = categorySlug === "essentials" ? "children" : categorySlug;
+  const data = await listActiveProducts();
+  return data.filter(
+    (product) =>
+      topCategory(product) === categoryKey ||
+      product.category_id === categorySlug ||
+      product.category === categorySlug,
+  );
+}
+
+export async function listByIds(ids: string[]): Promise<Product[]> {
+  if (!ids.length) return [];
+  const cached = readActiveProductsCache();
+  if (cached) {
+    const byId = new Map(cached.map((product) => [product.id, product]));
+    if (ids.every((id) => byId.has(id))) {
+      return ids.map((id) => byId.get(id)).filter(Boolean) as Product[];
+    }
+  }
+  const products = await listActiveProducts();
+  const byId = new Map(products.map((product) => [product.id, product]));
+  if (ids.every((id) => byId.has(id))) {
+    return ids.map((id) => byId.get(id)).filter(Boolean) as Product[];
+  }
+  return [];
+}

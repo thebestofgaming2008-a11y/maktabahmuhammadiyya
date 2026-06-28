@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /account
+Disallow: /cart
+Disallow: /checkout
+Disallow: /track
+Disallow: /search
+
+Sitemap: https://maktabahmuhammadiya.pages.dev/sitemap.xml
