@@ -808,25 +808,6 @@ function Home() {
         </section>
       )}
 
-      {/* MORE BOOKS - infinite, auto-scrolling */}
-      <section className="py-12 md:py-20 border-b border-border">
-        <div className="container-prose">
-          <div className="flex items-end justify-between mb-6 md:mb-8 reveal gap-4">
-            <div>
-              <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
-                Keep browsing
-              </span>
-              <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
-                More from the catalog
-              </h2>
-              <p className="text-muted-foreground mt-1.5 text-sm">
-                Carefully chosen titles, always being added to.
-              </p>
-            </div>
-          </div>
-        </div>
-        <InfiniteRail items={moreBooks} />
-      </section>
 
 
       {/* REVIEWS */}
