@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { LayoutDashboard, LogOut, Menu, Package, Search, ShoppingBag, User, X } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ChevronRight, LayoutDashboard, LogOut, Menu, Package, Search, ShoppingBag, User, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
@@ -25,11 +25,16 @@ export function Header() {
   const [menu, setMenu] = useState(false);
   const [menuClosing, setMenuClosing] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   const [authOpen, setAuthOpen] = useState(false);
   const menuTimer = useRef<number | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
   const { count, setOpen } = useCart();
   const { user, profile, isAdmin, signOut } = useAuth();
   const accountLabel = profile?.full_name || user?.name || user?.email || "Account";
+  const initials = (accountLabel || "?").trim().slice(0, 1).toUpperCase();
 
   function handleAccountClick() {
     if (!user) {
@@ -71,9 +76,9 @@ export function Header() {
         </div>
       </div>
 
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border text-neutral-900">
         <div className="container-prose grid grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_auto_1fr] items-center h-14 md:h-[68px] gap-2">
-          {/* Left: mobile menu + logo space / desktop empty */}
+          {/* Left: mobile menu */}
           <div className="flex items-center">
             <button
               className="md:hidden -ml-2 p-2 transition-transform active:scale-90"
@@ -100,13 +105,103 @@ export function Header() {
 
           {/* Right: icons */}
           <div className="flex items-center gap-0.5 justify-end">
-            <Link
-              to="/search"
-              className="p-2 hover:bg-muted rounded-full transition-colors active:scale-90"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
-            </Link>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchOpen((o) => !o);
+                  setAccountOpen(false);
+                  setTimeout(() => searchInputRef.current?.focus(), 50);
+                }}
+                className="p-2 hover:bg-muted rounded-full transition-colors active:scale-90"
+                aria-label="Search"
+                aria-expanded={searchOpen}
+              >
+                <Search className="h-5 w-5" />
+              </button>
+              {searchOpen && (
+                <>
+                  <button
+                    type="button"
+                    className="fixed inset-0 z-40 cursor-default"
+                    aria-label="Close search"
+                    onClick={() => setSearchOpen(false)}
+                    tabIndex={-1}
+                  />
+                  <div className="absolute right-0 top-full z-50 mt-3 w-[88vw] max-w-[420px] origin-top-right overflow-hidden rounded-2xl border border-border/70 bg-popover/95 text-popover-foreground shadow-pop backdrop-blur-xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const v = searchValue.trim();
+                        setSearchOpen(false);
+                        navigate({ to: "/search" });
+                        if (v) {
+                          setTimeout(() => {
+                            const input = document.querySelector<HTMLInputElement>(
+                              'input[type="search"], input[placeholder*="Search" i]',
+                            );
+                            if (input) {
+                              input.value = v;
+                              input.dispatchEvent(new Event("input", { bubbles: true }));
+                              input.focus();
+                            }
+                          }, 80);
+                        }
+                      }}
+                      className="flex items-center gap-2 border-b border-border/60 px-4 py-3"
+                    >
+                      <Search className="h-4 w-4 text-muted-foreground" />
+                      <input
+                        ref={searchInputRef}
+                        type="search"
+                        value={searchValue}
+                        onChange={(e) => setSearchValue(e.target.value)}
+                        placeholder="Search titles, authors, subjects…"
+                        className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                      />
+                      {searchValue && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchValue("")}
+                          aria-label="Clear"
+                          className="text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </form>
+                    <div className="px-4 py-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        Popular
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {["Tafsir", "Hadith", "Aqeedah", "Seerah", "Quran", "Niqab", "Kufi"].map(
+                          (t) => (
+                            <Link
+                              key={t}
+                              to="/shop"
+                              search={{ q: t.toLowerCase() } as never}
+                              onClick={() => setSearchOpen(false)}
+                              className="rounded-full border border-border bg-background px-3 py-1 text-xs hover:bg-foreground hover:text-background transition"
+                            >
+                              {t}
+                            </Link>
+                          ),
+                        )}
+                      </div>
+                      <Link
+                        to="/search"
+                        onClick={() => setSearchOpen(false)}
+                        className="mt-4 flex items-center justify-between rounded-lg bg-muted/60 px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] transition hover:bg-muted"
+                      >
+                        Advanced search
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
             <div className="relative">
               <button
                 type="button"
@@ -126,46 +221,62 @@ export function Header() {
                     onClick={() => setAccountOpen(false)}
                     tabIndex={-1}
                   />
-                  <div className="absolute right-0 top-full z-50 mt-3 w-64 overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow-pop animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
-                    <div className="border-b px-4 py-3">
-                      <p className="truncate text-sm font-semibold">{accountLabel}</p>
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">{user.email}</p>
+                  <div className="absolute right-0 top-full z-50 mt-3 w-72 origin-top-right overflow-hidden rounded-2xl border border-border/70 bg-popover/95 text-popover-foreground shadow-pop backdrop-blur-xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
+                    <div className="flex items-center gap-3 border-b border-border/60 px-4 py-4">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                        {initials}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">{accountLabel}</p>
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">{user.email}</p>
+                      </div>
                     </div>
-                    <div className="p-1">
+                    <nav className="p-1.5">
                       <Link
                         to="/account"
                         search={{ tab: "orders" } as never}
                         onClick={() => setAccountOpen(false)}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition hover:bg-muted"
+                        className="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-muted"
                       >
-                        <User className="h-4 w-4" />
-                        My account
+                        <span className="flex items-center gap-3">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          My account
+                        </span>
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
                       </Link>
                       <Link
                         to="/account"
                         onClick={() => setAccountOpen(false)}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition hover:bg-muted"
+                        className="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-muted"
                       >
-                        <Package className="h-4 w-4" />
-                        My orders
+                        <span className="flex items-center gap-3">
+                          <Package className="h-4 w-4 text-muted-foreground" />
+                          My orders
+                        </span>
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
                       </Link>
                       {isAdmin && (
                         <Link
                           to="/admin"
                           onClick={() => setAccountOpen(false)}
-                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-primary transition hover:bg-muted"
+                          className="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-primary transition hover:bg-muted"
                         >
-                          <LayoutDashboard className="h-4 w-4" />
-                          Admin dashboard
+                          <span className="flex items-center gap-3">
+                            <LayoutDashboard className="h-4 w-4" />
+                            Admin dashboard
+                          </span>
+                          <ChevronRight className="h-3.5 w-3.5 opacity-0 transition group-hover:opacity-100" />
                         </Link>
                       )}
+                    </nav>
+                    <div className="border-t border-border/60 p-1.5">
                       <button
                         type="button"
                         onClick={() => {
                           setAccountOpen(false);
                           void signOut();
                         }}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50"
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50"
                       >
                         <LogOut className="h-4 w-4" />
                         Sign out
@@ -198,7 +309,7 @@ export function Header() {
                 key={n.label}
                 to={n.to}
                 search={n.search as never}
-                className="relative text-foreground/75 transition-colors hover:text-foreground font-medium tracking-wide after:absolute after:left-0 after:-bottom-3 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative text-neutral-900/80 transition-colors hover:text-neutral-900 font-medium tracking-wide after:absolute after:left-0 after:-bottom-3 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:bg-neutral-900 after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 {n.label}
               </Link>
@@ -208,7 +319,7 @@ export function Header() {
               <Link
                 key={n.label}
                 to={n.to}
-                className="text-foreground/60 transition-colors hover:text-foreground text-[12px]"
+                className="text-neutral-900/65 transition-colors hover:text-neutral-900 text-[12px]"
               >
                 {n.label}
               </Link>

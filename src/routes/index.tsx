@@ -418,16 +418,16 @@ function Home() {
         </div>
       </section>
 
-      {/* Trust strip (Shopify-style) */}
-      <section className="border-b border-border bg-secondary/30">
-        <div className="container-prose grid grid-cols-2 md:grid-cols-4 divide-x divide-border/60">
+      {/* Guarantee strip — cream, no dividers */}
+      <section className="border-b border-border/60 bg-background">
+        <div className="container-prose grid grid-cols-2 md:grid-cols-4 gap-y-4">
           {[
             { t: "Curated", d: "Hand-picked titles" },
             { t: "Authentic", d: "Trusted publishers" },
             { t: "Worldwide", d: "Careful packing" },
             { t: "Support", d: "Personal order help" },
           ].map((f) => (
-            <div key={f.t} className="px-4 py-5 text-center">
+            <div key={f.t} className="px-4 py-6 text-center">
               <p className="text-[11px] uppercase tracking-[0.18em] font-semibold">{f.t}</p>
               <p className="text-xs text-muted-foreground mt-1">{f.d}</p>
             </div>
@@ -458,7 +458,7 @@ function Home() {
         </div>
         <div
           ref={collectionsRef}
-          className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4"
+          className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
           style={{ direction: "ltr" }}
         >
           {collections.map((s) => (
@@ -563,7 +563,7 @@ function Home() {
 
         <div
           ref={libraryRef}
-          className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+          className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
           style={{ direction: "ltr" }}
         >
           {libraryItems.length ? (
@@ -610,7 +610,7 @@ function Home() {
             tone="dark"
           />
           <div
-            className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+            className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
             style={{ direction: "ltr" }}
           >
             {setsItems.map((p) => (
@@ -668,7 +668,7 @@ function Home() {
 
           {specialItems.length > 0 ? (
             <div
-              className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+              className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
               style={{ direction: "ltr" }}
             >
               {specialItems.map((p) => (
