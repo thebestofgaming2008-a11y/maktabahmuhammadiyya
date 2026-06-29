@@ -405,35 +405,40 @@ function Home() {
         </div>
       </section>
 
-      {/* THE LIBRARY — unified language-filterable rail */}
-      {/* THE LIBRARY — image banner + horizontal rail */}
+      {/* THE LIBRARY — full-bleed banner + horizontal rail */}
       <section className="pb-12 md:pb-20 border-t border-border/60">
-        <div className="container-prose pt-10 md:pt-14">
-          <div className="relative overflow-hidden rounded-2xl reveal">
-            <img
-              src={heroBooks}
-              alt="The library"
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{ objectPosition: "center 40%" }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-foreground/75 via-foreground/40 to-transparent" />
-            <div className="relative px-6 py-10 md:px-12 md:py-16 text-background max-w-2xl">
-              <span className="text-[11px] uppercase tracking-[0.22em] opacity-85 font-medium">
+        <div className="relative w-full h-[42vh] min-h-[320px] md:h-[56vh] md:min-h-[460px] overflow-hidden reveal">
+          <img
+            src={heroBooks}
+            alt="The library"
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: "center 40%" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/45 to-transparent" />
+          <div className="relative h-full container-prose flex items-center">
+            <div className="text-background max-w-xl">
+              <span className="text-[11px] md:text-xs uppercase tracking-[0.28em] opacity-85 font-medium">
                 The library
               </span>
-              <h2 className="font-display text-3xl md:text-5xl mt-2 leading-[1.05]">
-                Browse books by language
+              <h2 className="font-display text-4xl md:text-6xl lg:text-7xl mt-3 leading-[0.98]">
+                Books by language
               </h2>
+              <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
+                English, Arabic, Urdu and beyond — filter to find your edition.
+              </p>
               <Link
                 to="/shop"
-                className="mt-5 inline-flex items-center gap-2 bg-background text-foreground px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-foreground hover:text-background"
+                className="mt-6 inline-flex items-center gap-2 bg-background text-foreground px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-foreground hover:text-background"
               >
                 Shop the library
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
+        </div>
+
+        <div className="container-prose mt-8 md:mt-10">
 
           {/* Filter chips */}
           <div className="mt-6 md:mt-8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
