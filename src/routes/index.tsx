@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { useCatalogProducts } from "@/lib/catalog";
 import type { Product } from "@/lib/products";
 import { productSubjectKeys } from "@/data/products";
-import { Star, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ArrowRight } from "lucide-react";
+
 import heroImage from "@/assets/hero.jpg";
 import heroBooks from "@/assets/hero-books-real.jpg";
 import heroStudy from "@/assets/hero-study-real.jpg";
