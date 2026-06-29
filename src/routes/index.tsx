@@ -91,6 +91,86 @@ export const Route = createFileRoute("/")({
 
 // (Legacy rail helpers removed — homepage rails are plain horizontal scrollers.)
 
+type MosaicTone = "dark" | "brand";
+
+function MosaicBanner({
+  products,
+  eyebrow,
+  title,
+  description,
+  ctaLabel,
+  ctaTo,
+  ctaSearch,
+  tone = "dark",
+}: {
+  products: Product[];
+  eyebrow: string;
+  title: string;
+  description: string;
+  ctaLabel: string;
+  ctaTo: string;
+  ctaSearch?: Record<string, string>;
+  tone?: MosaicTone;
+}) {
+  // Pick up to 8 unique covers from real catalog products
+  const covers = products
+    .map((p) => p.images?.[0])
+    .filter((src): src is string => Boolean(src))
+    .slice(0, 8);
+  // Pad if fewer (shouldn't usually happen)
+  while (covers.length > 0 && covers.length < 4) covers.push(covers[0]);
+
+  const overlay =
+    tone === "brand"
+      ? "bg-gradient-to-r from-primary/95 via-primary/75 to-primary/30"
+      : "bg-gradient-to-r from-foreground/85 via-foreground/55 to-foreground/15";
+  const textColor = "text-background";
+  const ctaClass =
+    tone === "brand"
+      ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+      : "bg-background text-foreground hover:bg-foreground hover:text-background";
+
+  return (
+    <div className="relative w-full h-[44vh] min-h-[340px] md:h-[58vh] md:min-h-[480px] overflow-hidden reveal bg-secondary">
+      {/* Mosaic of real product covers */}
+      <div className="absolute inset-0 grid grid-cols-4 md:grid-cols-8 grid-rows-2 md:grid-rows-1 gap-[2px]">
+        {covers.map((src, i) => (
+          <div key={i} className="relative overflow-hidden bg-secondary">
+            <img
+              src={src}
+              alt=""
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+      <div className={`absolute inset-0 ${overlay}`} />
+      <div className="relative h-full container-prose flex items-end md:items-center pb-10 md:pb-0">
+        <div className={`${textColor} max-w-xl`}>
+          <span className="text-[11px] md:text-xs uppercase tracking-[0.28em] opacity-90 font-medium">
+            {eyebrow}
+          </span>
+          <h2 className="font-display text-4xl md:text-6xl lg:text-7xl mt-3 leading-[0.98]">
+            {title}
+          </h2>
+          <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
+            {description}
+          </p>
+          <Link
+            to={ctaTo}
+            search={ctaSearch as never}
+            className={`mt-6 inline-flex items-center gap-2 px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition ${ctaClass}`}
+          >
+            {ctaLabel}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 
 const SPECIAL_FILTERS = [
@@ -405,38 +485,17 @@ function Home() {
         </div>
       </section>
 
-      {/* THE LIBRARY — full-bleed banner + horizontal rail */}
+      {/* THE LIBRARY — mosaic banner of real book covers + horizontal rail */}
       <section className="pb-12 md:pb-20 border-t border-border/60">
-        <div className="relative w-full h-[42vh] min-h-[320px] md:h-[56vh] md:min-h-[460px] overflow-hidden reveal">
-          <img
-            src={heroBooks}
-            alt="The library"
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: "center 40%" }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/45 to-transparent" />
-          <div className="relative h-full container-prose flex items-center">
-            <div className="text-background max-w-xl">
-              <span className="text-[11px] md:text-xs uppercase tracking-[0.28em] opacity-85 font-medium">
-                The library
-              </span>
-              <h2 className="font-display text-4xl md:text-6xl lg:text-7xl mt-3 leading-[0.98]">
-                Books by language
-              </h2>
-              <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
-                English, Arabic, Urdu and beyond — filter to find your edition.
-              </p>
-              <Link
-                to="/shop"
-                className="mt-6 inline-flex items-center gap-2 bg-background text-foreground px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-foreground hover:text-background"
-              >
-                Shop the library
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
+        <MosaicBanner
+          products={libraryAll.slice(0, 8)}
+          eyebrow="The library"
+          title="Books by language"
+          description="English, Arabic, Urdu and beyond — filter to find your edition."
+          ctaLabel="Shop the library"
+          ctaTo="/shop"
+          tone="dark"
+        />
 
         <div className="container-prose mt-8 md:mt-10">
           {/* Filter chips */}
@@ -505,36 +564,15 @@ function Home() {
       {/* SETS / BUNDLES — image banner + rail */}
       {setsItems.length > 0 && (
         <section className="pb-12 md:pb-20 border-t border-border/60">
-          <div className="relative w-full h-[42vh] min-h-[320px] md:h-[56vh] md:min-h-[460px] overflow-hidden reveal">
-            <img
-              src={heroStudy}
-              alt="Sets and bundles"
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{ objectPosition: "center 35%" }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/45 to-transparent" />
-            <div className="relative h-full container-prose flex items-center">
-              <div className="text-background max-w-xl">
-                <span className="text-[11px] md:text-xs uppercase tracking-[0.28em] opacity-85 font-medium">
-                  Sets &amp; bundles
-                </span>
-                <h2 className="font-display text-4xl md:text-6xl lg:text-7xl mt-3 leading-[0.98]">
-                  Build a shelf in one order
-                </h2>
-                <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
-                  Multi-volume sets and curated bundles, ready to ship together.
-                </p>
-                <Link
-                  to="/shop"
-                  className="mt-6 inline-flex items-center gap-2 bg-background text-foreground px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-foreground hover:text-background"
-                >
-                  Shop all sets
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
+          <MosaicBanner
+            products={setsItems.slice(0, 8)}
+            eyebrow="Sets & bundles"
+            title="Build a shelf in one order"
+            description="Multi-volume sets and curated bundles, ready to ship together."
+            ctaLabel="Shop all sets"
+            ctaTo="/shop"
+            tone="dark"
+          />
           <div
             className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
             style={{ direction: "ltr" }}
@@ -557,36 +595,16 @@ function Home() {
       {/* SPECIAL ITEMS — brown contrast + image banner */}
       {baseSpecial.length > 0 && (
         <section className="bg-primary text-primary-foreground pb-14 md:pb-20">
-          <div className="relative w-full h-[42vh] min-h-[320px] md:h-[56vh] md:min-h-[460px] overflow-hidden reveal">
-            <img
-              src={subjectClothing}
-              alt="Special items"
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/60 to-primary/15" />
-            <div className="relative h-full container-prose flex items-center">
-              <div className="max-w-xl">
-                <span className="text-[11px] md:text-xs uppercase tracking-[0.28em] opacity-85 font-medium">
-                  Special items
-                </span>
-                <h2 className="font-display text-4xl md:text-6xl lg:text-7xl mt-3 leading-[0.98]">
-                  Niqab, jilbab, kufi &amp; pens
-                </h2>
-                <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
-                  A small, considered selection beyond the bookshelf.
-                </p>
-                <Link
-                  to="/shop"
-                  search={{ c: "clothing" } as never}
-                  className="mt-6 inline-flex items-center gap-2 bg-primary-foreground text-primary px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground/90"
-                >
-                  Shop all special
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
+          <MosaicBanner
+            products={baseSpecial.slice(0, 8)}
+            eyebrow="Special items"
+            title="Niqab, jilbab, kufi & pens"
+            description="A small, considered selection beyond the bookshelf."
+            ctaLabel="Shop all special"
+            ctaTo="/shop"
+            ctaSearch={{ c: "clothing" }}
+            tone="brand"
+          />
 
           <div className="container-prose mt-8 md:mt-10">
             {/* Filter chips */}
