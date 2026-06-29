@@ -453,6 +453,19 @@ function Home() {
           })
           .slice(0, 12);
 
+  // Sets / bundles: any product whose title, tags or category hint at a bundle
+  const setsItems = products
+    .filter((p) => {
+      const haystack = [p.title, p.category, p.categoryId ?? "", ...(p.tags ?? [])]
+        .join(" ")
+        .toLowerCase();
+      return /\b(set|sets|bundle|collection set|volumes?|vol\.?|\d\s*[-x]\s*books?|box ?set|pack)\b/.test(
+        haystack,
+      );
+    })
+    .slice(0, 8);
+
+
   return (
     <div>
       {/* HERO CAROUSEL */}
