@@ -439,9 +439,8 @@ function Home() {
         </div>
 
         <div className="container-prose mt-8 md:mt-10">
-
           {/* Filter chips */}
-          <div className="mt-6 md:mt-8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
+          <div className="-mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
             <div className="flex gap-2 border-b border-border">
               {visibleLanguageFilters.map((f) => {
                 const active = languageFilter === f.key;
