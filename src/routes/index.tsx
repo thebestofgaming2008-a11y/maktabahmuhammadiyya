@@ -340,7 +340,8 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>(".reveal");
+    const els = document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)");
+    if (!els.length) return;
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
@@ -354,7 +355,8 @@ function Home() {
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [products.length, loading]);
+
 
   useEffect(() => {
     document.body.classList.add("is-landing");
