@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { LayoutDashboard, LogOut, Menu, Package, Search, ShoppingBag, User, X } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ChevronRight, LayoutDashboard, LogOut, Menu, Package, Search, ShoppingBag, User, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
@@ -25,11 +25,16 @@ export function Header() {
   const [menu, setMenu] = useState(false);
   const [menuClosing, setMenuClosing] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   const [authOpen, setAuthOpen] = useState(false);
   const menuTimer = useRef<number | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
   const { count, setOpen } = useCart();
   const { user, profile, isAdmin, signOut } = useAuth();
   const accountLabel = profile?.full_name || user?.name || user?.email || "Account";
+  const initials = (accountLabel || "?").trim().slice(0, 1).toUpperCase();
 
   function handleAccountClick() {
     if (!user) {
