@@ -330,7 +330,9 @@ function Home() {
   const featured = (featuredPool.length ? featuredPool : products).slice(0, 8);
   const [slide, setSlide] = useState(0);
   const [specialFilter, setSpecialFilter] = useState<(typeof SPECIAL_FILTERS)[number]["key"]>("all");
+  const [languageFilter, setLanguageFilter] = useState<"all" | "english" | "arabic" | "urdu" | "other">("all");
   const collectionsRef = useRef<HTMLDivElement>(null);
+  const libraryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const t = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 6000);
@@ -370,26 +372,6 @@ function Home() {
       Number(Boolean(a.showInCategorySection || a.isFeatured || a.isNewArrival)) ||
     Number(Boolean(b.isBestseller)) - Number(Boolean(a.isBestseller)) ||
     a.title.localeCompare(b.title);
-  const productLanguage = (product: Product) => {
-    const adminLanguage = String(product.language ?? "")
-      .trim()
-      .toLowerCase();
-    if (adminLanguage) {
-      if (adminLanguage === "english") return "english";
-      return "other";
-    }
-
-    const text = [product.title, product.description, ...(product.tags ?? [])]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-    if (/\burdu\b/.test(text)) return "other";
-    if (/\barabic\b|\bعربي\b/.test(text) || /[\u0600-\u06ff]/.test(product.title)) {
-      return "other";
-    }
-    if (/\benglish\b/.test(text)) return "english";
-    return "";
-  };
   const subjectKeysForProduct = (product: Product) =>
     productSubjectKeys({
       name: product.title,
@@ -401,21 +383,49 @@ function Home() {
       tags: product.tags ?? [],
       search_text: product.description,
     }).map((key) => (key === "dua-adhkar" ? "purification" : key));
-  const englishMatches = booksOnly
-    .filter((product) => productLanguage(product) === "english")
-    .sort(byHomepagePriority)
-    .slice(0, 8);
-  const otherLanguageMatches = booksOnly
-    .filter(
-      (product) =>
-        productLanguage(product) === "other" ||
-        subjectKeysForProduct(product).some((key) => ["arabic", "urdu"].includes(key)),
-    )
-    .sort(byHomepagePriority)
-    .slice(0, 8);
-  const english = englishMatches.length ? englishMatches : booksOnly.slice(0, 8);
-  const otherLanguages = otherLanguageMatches;
-  const moreBooks = [...booksOnly].reverse();
+  const productLanguage = (product: Product): "english" | "arabic" | "urdu" | "other" => {
+    const adminLanguage = String(product.language ?? "").trim().toLowerCase();
+    if (adminLanguage.includes("english")) return "english";
+    if (adminLanguage.includes("arab")) return "arabic";
+    if (adminLanguage.includes("urdu")) return "urdu";
+    if (adminLanguage) return "other";
+
+    const subjects = subjectKeysForProduct(product);
+    if (subjects.includes("urdu")) return "urdu";
+    if (subjects.includes("arabic")) return "arabic";
+
+    const text = [product.title, product.description, ...(product.tags ?? [])]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    if (/\burdu\b/.test(text)) return "urdu";
+    if (/\barabic\b|\bعربي\b/.test(text) || /[\u0600-\u06ff]/.test(product.title)) return "arabic";
+    return "english";
+  };
+
+  const libraryAll = [...booksOnly].sort(byHomepagePriority);
+  const libraryCounts = {
+    all: libraryAll.length,
+    english: libraryAll.filter((p) => productLanguage(p) === "english").length,
+    arabic: libraryAll.filter((p) => productLanguage(p) === "arabic").length,
+    urdu: libraryAll.filter((p) => productLanguage(p) === "urdu").length,
+    other: libraryAll.filter((p) => productLanguage(p) === "other").length,
+  } as const;
+  type LanguageKey = keyof typeof libraryCounts;
+  const LANGUAGE_FILTERS: ReadonlyArray<{ key: LanguageKey; label: string }> = [
+    { key: "all", label: "All books" },
+    { key: "english", label: "English" },
+    { key: "arabic", label: "Arabic" },
+    { key: "urdu", label: "Urdu" },
+    { key: "other", label: "Other" },
+  ];
+  const visibleLanguageFilters = LANGUAGE_FILTERS.filter(
+    (f) => f.key === "all" || libraryCounts[f.key] > 0,
+  );
+  const libraryItems =
+    languageFilter === "all"
+      ? libraryAll.slice(0, 16)
+      : libraryAll.filter((p) => productLanguage(p) === languageFilter).slice(0, 16);
 
   // Special items pool: niqab, jilbab, kufi, pen
   const baseSpecial = products.filter((p) => {
@@ -617,35 +627,119 @@ function Home() {
         </div>
       </section>
 
-      {/* LANGUAGE SECTIONS */}
-      <ProductRail
-        eyebrow="English"
-        title="English books"
-        desc="Translations, contemporary works and study guides."
-        items={english}
-        seeAllTo="/shop"
-      />
-      <ProductRail
-        eyebrow="Other languages"
-        title="Arabic, Urdu & more"
-        desc="Non-English titles for native readers and students."
-        items={otherLanguages}
-        seeAllTo="/shop"
-      />
+      {/* THE LIBRARY — unified language-filterable rail */}
+      <section className="py-12 md:py-20 border-t border-border/60">
+        <div className="container-prose">
+          <div className="flex flex-col gap-6 reveal md:flex-row md:items-end md:justify-between">
+            <div className="max-w-xl">
+              <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
+                The library
+              </span>
+              <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
+                Browse books by language
+              </h2>
+              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                One bookshelf, every language. Filter to find the right edition for you.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => libraryRef.current?.scrollBy({ left: -getCardStep(libraryRef.current), behavior: "smooth" })}
+                aria-label="Scroll left"
+                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => libraryRef.current?.scrollBy({ left: getCardStep(libraryRef.current!), behavior: "smooth" })}
+                aria-label="Scroll right"
+                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Filter chips */}
+          <div className="mt-6 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
+            <div className="flex gap-2 border-b border-border">
+              {visibleLanguageFilters.map((f) => {
+                const active = languageFilter === f.key;
+                const count = libraryCounts[f.key];
+                return (
+                  <button
+                    key={f.key}
+                    onClick={() => setLanguageFilter(f.key)}
+                    className={`shrink-0 inline-flex items-center gap-2 px-1 pb-3 -mb-px text-[12px] font-semibold uppercase tracking-[0.14em] border-b-2 transition ${
+                      active
+                        ? "border-foreground text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {f.label}
+                    <span className={`text-[10px] font-medium normal-case tracking-normal ${active ? "text-muted-foreground" : "text-muted-foreground/70"}`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div
+          ref={libraryRef}
+          className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+          style={{ direction: "ltr" }}
+        >
+          {libraryItems.length ? (
+            <>
+              {libraryItems.map((p) => (
+                <div
+                  key={p.slug}
+                  data-rail-item
+                  className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
+                >
+                  <ProductCard product={p} />
+                </div>
+              ))}
+              <Link
+                to="/shop"
+                data-rail-item
+                className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px] aspect-[4/5] rounded-lg bg-secondary/40 flex flex-col items-center justify-center gap-3 text-foreground hover:bg-secondary/70 transition-colors group"
+              >
+                <span className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                  <ArrowRight className="h-5 w-5" />
+                </span>
+                <span className="font-display text-lg text-center px-3">See all</span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Browse the shop
+                </span>
+              </Link>
+              <div className="shrink-0 w-1 md:hidden" />
+            </>
+          ) : (
+            <div className="container-prose py-8 text-sm text-muted-foreground">
+              No titles for this language yet — try another filter.
+            </div>
+          )}
+        </div>
+      </section>
+
 
       {/* SPECIAL ITEMS — brown contrast section */}
       {baseSpecial.length > 0 && (
         <section className="bg-primary text-primary-foreground">
-          <div className="container-prose pt-14 md:pt-24 pb-4 md:pb-6">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 reveal">
+          <div className="container-prose pt-10 md:pt-16 pb-4 md:pb-6">
+            <div className="flex flex-col gap-4 reveal md:flex-row md:items-end md:justify-between md:gap-6">
               <div className="max-w-xl">
                 <span className="text-[11px] uppercase tracking-[0.22em] font-medium opacity-70">
                   Special items
                 </span>
-                <h2 className="font-display text-[32px] md:text-5xl mt-2 leading-[1.02]">
+                <h2 className="font-display text-[28px] md:text-5xl mt-1.5 leading-[1.05]">
                   Niqab, jilbab, kufi &amp; pens.
                 </h2>
-                <p className="mt-3 text-sm md:text-base opacity-80 leading-relaxed">
+                <p className="mt-2.5 text-sm md:text-base opacity-80 leading-relaxed">
                   A small, considered selection of essentials beyond the bookshelf — modest wear and
                   the tools of a student.
                 </p>
@@ -653,7 +747,7 @@ function Home() {
               <Link
                 to="/shop"
                 search={{ c: "clothing" } as never}
-                className="inline-flex items-center gap-2 self-start md:self-auto border border-primary-foreground/40 px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground hover:text-primary"
+                className="inline-flex items-center gap-2 self-start md:self-auto border border-primary-foreground/40 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground hover:text-primary"
               >
                 Shop all special
                 <ArrowRight className="h-4 w-4" />
@@ -661,8 +755,9 @@ function Home() {
             </div>
 
             {/* Filter chips */}
-            <div className="mt-8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
+            <div className="mt-5 md:mt-6 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
               <div className="flex gap-2">
+
                 {SPECIAL_FILTERS.map((f) => {
                   const active = specialFilter === f.key;
                   return (
@@ -714,25 +809,6 @@ function Home() {
         </section>
       )}
 
-      {/* MORE BOOKS - infinite, auto-scrolling */}
-      <section className="py-12 md:py-20 border-b border-border">
-        <div className="container-prose">
-          <div className="flex items-end justify-between mb-6 md:mb-8 reveal gap-4">
-            <div>
-              <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
-                Keep browsing
-              </span>
-              <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
-                More from the catalog
-              </h2>
-              <p className="text-muted-foreground mt-1.5 text-sm">
-                Carefully chosen titles, always being added to.
-              </p>
-            </div>
-          </div>
-        </div>
-        <InfiniteRail items={moreBooks} />
-      </section>
 
 
       {/* REVIEWS */}
