@@ -348,22 +348,13 @@ function Home() {
                 Books, clothing and curated Islamic study collections.
               </p>
             </div>
-            <div className="flex gap-2 shrink-0 md:hidden">
-              <button
-                onClick={() => scrollCollections(-1)}
-                aria-label="Scroll left"
-                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => scrollCollections(1)}
-                aria-label="Scroll right"
-                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
+            <Link
+              to="/shop"
+              className="hidden md:inline-flex shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
+            >
+              View all
+            </Link>
+
           </div>
         </div>
         <div
