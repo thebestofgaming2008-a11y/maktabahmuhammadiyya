@@ -143,11 +143,6 @@ function Home() {
     return () => document.body.classList.remove("is-landing");
   }, []);
 
-  const scrollCollections = (dir: 1 | -1) => {
-    const el = collectionsRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * getCardStep(el), behavior: "smooth" });
-  };
 
   const byHomepagePriority = (a: Product, b: Product) =>
     Number(Boolean(b.showInCategorySection || b.isFeatured || b.isNewArrival)) -
