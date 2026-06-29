@@ -313,6 +313,14 @@ function InfiniteRail({
   );
 }
 
+const SPECIAL_FILTERS = [
+  { key: "all", label: "All", regex: /(niqab|jilbab|jilbāb|khimar|kufi|kufiyya|topi|pen|miswak)/i },
+  { key: "niqab", label: "Niqab", regex: /(niqab|khimar)/i },
+  { key: "jilbab", label: "Jilbab", regex: /(jilbab|jilbāb|abaya)/i },
+  { key: "kufi", label: "Kufi", regex: /(kufi|kufiyya|topi)/i },
+  { key: "pen", label: "Pen", regex: /(pen|miswak)/i },
+] as const;
+
 function Home() {
   const { products, loading } = useCatalogProducts();
   const booksOnly = products.filter((product) => product.topCategory === "books");
@@ -320,15 +328,8 @@ function Home() {
     (product) => product.isNewArrival || product.isFeatured || product.showInCategorySection,
   );
   const featured = (featuredPool.length ? featuredPool : products).slice(0, 8);
-  const addOnPool = products.filter(
-    (product) =>
-      product.isBestseller ||
-      product.tags?.some((tag) => /add[-\s]?on|extra|accessor/i.test(tag)) ||
-      product.topCategory === "children" ||
-      product.topCategory === "clothing",
-  );
-  const addOns = (addOnPool.length ? addOnPool : products.slice(2)).slice(0, 8);
   const [slide, setSlide] = useState(0);
+  const [specialFilter, setSpecialFilter] = useState<(typeof SPECIAL_FILTERS)[number]["key"]>("all");
   const collectionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -416,21 +417,29 @@ function Home() {
   const otherLanguages = otherLanguageMatches;
   const moreBooks = [...booksOnly].reverse();
 
-  // Special items: niqab, jilbab, kufi, pen
-  const specialRegex = /(niqab|jilbab|jilbāb|khimar|kufi|kufiyya|topi|pen|miswak)/i;
-  const specialItems = products
-    .filter((p) => {
-      const haystack = [
-        p.title,
-        p.category,
-        p.categoryId ?? "",
-        ...(p.tags ?? []),
-      ]
-        .join(" ")
-        .toLowerCase();
-      return specialRegex.test(haystack) || p.topCategory === "clothing" || p.topCategory === "children";
-    })
-    .slice(0, 10);
+  // Special items pool: niqab, jilbab, kufi, pen
+  const baseSpecial = products.filter((p) => {
+    const haystack = [p.title, p.category, p.categoryId ?? "", ...(p.tags ?? [])]
+      .join(" ")
+      .toLowerCase();
+    return (
+      SPECIAL_FILTERS[0].regex.test(haystack) ||
+      p.topCategory === "clothing" ||
+      p.topCategory === "children"
+    );
+  });
+  const activeSpecial = SPECIAL_FILTERS.find((f) => f.key === specialFilter)!;
+  const specialItems =
+    specialFilter === "all"
+      ? baseSpecial.slice(0, 12)
+      : baseSpecial
+          .filter((p) => {
+            const haystack = [p.title, p.category, p.categoryId ?? "", ...(p.tags ?? [])]
+              .join(" ")
+              .toLowerCase();
+            return activeSpecial.regex.test(haystack);
+          })
+          .slice(0, 12);
 
   return (
     <div>
@@ -624,34 +633,100 @@ function Home() {
         seeAllTo="/shop"
       />
 
-      {/* SPECIAL ITEMS */}
-      {specialItems.length > 0 && (
-        <section className="bg-secondary/40 border-y">
-          <ProductRail
-            eyebrow="Special items"
-            title="Niqab, jilbab, kufi & pens"
-            desc="A small, considered selection of essentials beyond the bookshelf."
-            items={specialItems}
-            seeAllTo="/shop"
-          />
+      {/* SPECIAL ITEMS — brown contrast section */}
+      {baseSpecial.length > 0 && (
+        <section className="bg-primary text-primary-foreground">
+          <div className="container-prose pt-14 md:pt-24 pb-4 md:pb-6">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 reveal">
+              <div className="max-w-xl">
+                <span className="text-[11px] uppercase tracking-[0.22em] font-medium opacity-70">
+                  Special items
+                </span>
+                <h2 className="font-display text-[32px] md:text-5xl mt-2 leading-[1.02]">
+                  Niqab, jilbab, kufi &amp; pens.
+                </h2>
+                <p className="mt-3 text-sm md:text-base opacity-80 leading-relaxed">
+                  A small, considered selection of essentials beyond the bookshelf — modest wear and
+                  the tools of a student.
+                </p>
+              </div>
+              <Link
+                to="/shop"
+                search={{ c: "clothing" } as never}
+                className="inline-flex items-center gap-2 self-start md:self-auto border border-primary-foreground/40 px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground hover:text-primary"
+              >
+                Shop all special
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            {/* Filter chips */}
+            <div className="mt-8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
+              <div className="flex gap-2">
+                {SPECIAL_FILTERS.map((f) => {
+                  const active = specialFilter === f.key;
+                  return (
+                    <button
+                      key={f.key}
+                      onClick={() => setSpecialFilter(f.key)}
+                      className={`shrink-0 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] border transition ${
+                        active
+                          ? "bg-primary-foreground text-primary border-primary-foreground"
+                          : "border-primary-foreground/30 text-primary-foreground/85 hover:border-primary-foreground"
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {specialItems.length > 0 ? (
+            <div className="pb-14 md:pb-20">
+              {/* product cards keep their own contrast — wrap to invert only chrome */}
+              <div className="text-primary-foreground">
+                <div
+                  className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+                  style={{ direction: "ltr" }}
+                >
+                  {specialItems.map((p) => (
+                    <div
+                      key={p.slug}
+                      data-rail-item
+                      className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px] bg-background text-foreground rounded-lg p-3 transition-transform duration-300 hover:-translate-y-1"
+                    >
+                      <ProductCard product={p} />
+                    </div>
+                  ))}
+                  <div className="shrink-0 w-1 md:hidden" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="container-prose pb-14 md:pb-20">
+              <p className="text-sm opacity-70">
+                No items match this filter yet. Try another category.
+              </p>
+            </div>
+          )}
         </section>
       )}
 
-
       {/* MORE BOOKS - infinite, auto-scrolling */}
       <section className="py-12 md:py-20 border-b border-border">
-
         <div className="container-prose">
           <div className="flex items-end justify-between mb-6 md:mb-8 reveal gap-4">
             <div>
               <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
-                More books
+                Keep browsing
               </span>
               <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
-                More books
+                More from the catalog
               </h2>
               <p className="text-muted-foreground mt-1.5 text-sm">
-                Keep browsing carefully chosen titles from the catalog.
+                Carefully chosen titles, always being added to.
               </p>
             </div>
           </div>
@@ -659,33 +734,6 @@ function Home() {
         <InfiniteRail items={moreBooks} />
       </section>
 
-      {/* BESTSELLERS */}
-      <section className="container-prose pb-12 md:pb-20 pt-12 md:pt-20">
-        <div className="flex items-end justify-between mb-6 md:mb-8 reveal">
-          <div>
-            <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
-              Complete the order
-            </span>
-            <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
-              Add-on items
-            </h2>
-            <p className="text-muted-foreground mt-1.5 text-sm">
-              Useful extras and small items customers can add before sending their request.
-            </p>
-          </div>
-          <Link
-            to="/shop"
-            className="text-sm font-medium underline underline-offset-4 hover:text-accent transition-colors"
-          >
-            Shop all
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-          {addOns.slice(0, 6).map((p) => (
-            <ProductCard key={p.slug} product={p} />
-          ))}
-        </div>
-      </section>
 
       {/* REVIEWS */}
       <section className="bg-secondary/50 border-y">
