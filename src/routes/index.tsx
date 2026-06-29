@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { useCatalogProducts } from "@/lib/catalog";
 import type { Product } from "@/lib/products";
 import { productSubjectKeys } from "@/data/products";
-import { Star, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ArrowRight } from "lucide-react";
+
 import heroImage from "@/assets/hero.jpg";
 import heroBooks from "@/assets/hero-books-real.jpg";
 import heroStudy from "@/assets/hero-study-real.jpg";
@@ -88,230 +89,9 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-// Round-trip helper: scroll by one card width
-function getCardStep(el: HTMLDivElement) {
-  const first = el.querySelector<HTMLElement>("[data-rail-item]");
-  if (!first) return el.clientWidth * 0.8;
-  const style = window.getComputedStyle(el);
-  const gap = parseFloat(style.columnGap || style.gap || "16") || 16;
-  return first.getBoundingClientRect().width + gap;
-}
+// (Legacy rail helpers removed — homepage rails are plain horizontal scrollers.)
 
-// Reusable horizontally-scrolling product rail with mobile controls + "See all"
-function ProductRail({
-  eyebrow,
-  title,
-  desc,
-  items,
-  seeAllTo = "/shop",
-}: {
-  eyebrow: string;
-  title: string;
-  desc?: string;
-  items: Product[];
-  seeAllTo?: string;
-}) {
-  const railRef = useRef<HTMLDivElement>(null);
-  const scroll = (dir: 1 | -1) => {
-    const el = railRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * getCardStep(el), behavior: "smooth" });
-  };
 
-  useEffect(() => {
-    const el = railRef.current;
-    if (!el) return;
-    const frame = requestAnimationFrame(() => {
-      el.scrollLeft = 0;
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [items, title]);
-
-  return (
-    <section className="py-10 md:py-16">
-      <div className="container-prose">
-        <div className="flex items-end justify-between mb-5 md:mb-7 reveal gap-4">
-          <div className="min-w-0">
-            <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
-              {eyebrow}
-            </span>
-            <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">{title}</h2>
-            {desc && <p className="text-muted-foreground mt-1.5 text-sm max-w-md">{desc}</p>}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => scroll(-1)}
-              aria-label="Scroll left"
-              className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => scroll(1)}
-              aria-label="Scroll right"
-              className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-      <div
-        ref={railRef}
-        className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-[max(1rem,calc((100vw-72rem)/2))]"
-        style={{ direction: "ltr" }}
-      >
-        {items.map((p) => (
-          <div
-            key={p.slug}
-            data-rail-item
-            className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
-          >
-            <ProductCard product={p} />
-          </div>
-        ))}
-        <Link
-          to={seeAllTo}
-          data-rail-item
-          className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px] aspect-[4/5] rounded-lg bg-secondary/40 flex flex-col items-center justify-center gap-3 text-foreground hover:bg-secondary/70 transition-colors group"
-        >
-          <span className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center group-hover:translate-x-1 transition-transform">
-            <ArrowRight className="h-5 w-5" />
-          </span>
-          <span className="font-display text-lg text-center px-3">See all</span>
-          <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-            Browse collection
-          </span>
-        </Link>
-        <div className="shrink-0 w-1 md:hidden" />
-      </div>
-    </section>
-  );
-}
-
-// Infinite, smoothly auto-scrolling rail (loops both directions)
-function InfiniteRail({
-  items,
-  speed = 0.35, // px per frame (~21 px/s at 60fps)
-}: {
-  items: Product[];
-  speed?: number;
-}) {
-  const railRef = useRef<HTMLDivElement>(null);
-  const pausedRef = useRef(false);
-  const dirRef = useRef<1 | -1>(1);
-  const looped = [...items, ...items, ...items];
-
-  // Keep scroll in the middle copy for seamless looping
-  const recenter = useCallback(() => {
-    const el = railRef.current;
-    if (!el) return;
-    const third = el.scrollWidth / 3;
-    if (el.scrollLeft < third * 0.4) {
-      el.scrollLeft += third;
-    } else if (el.scrollLeft > third * 1.8) {
-      el.scrollLeft -= third;
-    }
-  }, []);
-
-  useEffect(() => {
-    const el = railRef.current;
-    if (!el) return;
-    requestAnimationFrame(() => {
-      el.scrollLeft = el.scrollWidth / 3;
-    });
-
-    let raf = 0;
-    const tick = () => {
-      if (!pausedRef.current && el) {
-        el.scrollLeft += speed * dirRef.current;
-        recenter();
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-
-    const onScroll = () => recenter();
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      cancelAnimationFrame(raf);
-      el.removeEventListener("scroll", onScroll);
-    };
-  }, [recenter, speed]);
-
-  const pause = () => {
-    pausedRef.current = true;
-  };
-  const resume = () => {
-    pausedRef.current = false;
-  };
-
-  const nudge = (dir: 1 | -1) => {
-    dirRef.current = dir;
-    const el = railRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * getCardStep(el), behavior: "smooth" });
-  };
-
-  if (!items.length) {
-    return (
-      <div className="container-prose rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-        More books will appear here once products are available.
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative group/rail">
-      {/* Edge fades */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-24 bg-gradient-to-r from-secondary/30 to-transparent z-10" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-24 bg-gradient-to-l from-secondary/30 to-transparent z-10" />
-
-      <div
-        ref={railRef}
-        onMouseEnter={pause}
-        onMouseLeave={resume}
-        onTouchStart={pause}
-        onTouchEnd={resume}
-        className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))]"
-      >
-        {looped.map((p, i) => (
-          <div
-            key={`${p.slug}-${i}`}
-            data-rail-item
-            className="shrink-0 w-[42vw] sm:w-[28vw] md:w-[210px] transition-transform duration-300 hover:-translate-y-1"
-          >
-            <ProductCard product={p} />
-          </div>
-        ))}
-      </div>
-
-      {/* Controls */}
-      <div className="container-prose mt-5 flex items-center justify-between gap-3">
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent animate-pulse mr-2 align-middle" />
-          Auto-scrolling - hover to pause
-        </p>
-        <div className="flex gap-2">
-          <button
-            onClick={() => nudge(-1)}
-            aria-label="Previous"
-            className="h-10 w-10 rounded-full border border-border bg-background flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => nudge(1)}
-            aria-label="Next"
-            className="h-10 w-10 rounded-full border border-border bg-background flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 const SPECIAL_FILTERS = [
   { key: "all", label: "All", regex: /(niqab|jilbab|jilbāb|khimar|kufi|kufiyya|topi|pen|miswak)/i },
@@ -340,7 +120,8 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>(".reveal");
+    const els = document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)");
+    if (!els.length) return;
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
@@ -354,18 +135,14 @@ function Home() {
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [products.length, loading]);
+
 
   useEffect(() => {
     document.body.classList.add("is-landing");
     return () => document.body.classList.remove("is-landing");
   }, []);
 
-  const scrollCollections = (dir: 1 | -1) => {
-    const el = collectionsRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * getCardStep(el), behavior: "smooth" });
-  };
 
   const byHomepagePriority = (a: Product, b: Product) =>
     Number(Boolean(b.showInCategorySection || b.isFeatured || b.isNewArrival)) -
@@ -450,6 +227,19 @@ function Home() {
             return activeSpecial.regex.test(haystack);
           })
           .slice(0, 12);
+
+  // Sets / bundles: any product whose title, tags or category hint at a bundle
+  const setsItems = products
+    .filter((p) => {
+      const haystack = [p.title, p.category, p.categoryId ?? "", ...(p.tags ?? [])]
+        .join(" ")
+        .toLowerCase();
+      return /\b(set|sets|bundle|collection set|volumes?|vol\.?|\d\s*[-x]\s*books?|box ?set|pack)\b/.test(
+        haystack,
+      );
+    })
+    .slice(0, 8);
+
 
   return (
     <div>
@@ -545,22 +335,13 @@ function Home() {
                 Books, clothing and curated Islamic study collections.
               </p>
             </div>
-            <div className="flex gap-2 shrink-0 md:hidden">
-              <button
-                onClick={() => scrollCollections(-1)}
-                aria-label="Scroll left"
-                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => scrollCollections(1)}
-                aria-label="Scroll right"
-                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
+            <Link
+              to="/shop"
+              className="hidden md:inline-flex shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
+            >
+              View all
+            </Link>
+
           </div>
         </div>
         <div
@@ -642,22 +423,13 @@ function Home() {
                 One bookshelf, every language. Filter to find the right edition for you.
               </p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => libraryRef.current?.scrollBy({ left: -getCardStep(libraryRef.current), behavior: "smooth" })}
-                aria-label="Scroll left"
-                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => libraryRef.current?.scrollBy({ left: getCardStep(libraryRef.current!), behavior: "smooth" })}
-                aria-label="Scroll right"
-                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
+            <Link
+              to="/shop"
+              className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
+            >
+              Shop the library
+            </Link>
+
           </div>
 
           {/* Filter chips */}
@@ -725,6 +497,48 @@ function Home() {
           )}
         </div>
       </section>
+
+      {/* SETS / BUNDLES */}
+      {setsItems.length > 0 && (
+        <section className="py-12 md:py-20 border-t border-border/60">
+          <div className="container-prose">
+            <div className="flex flex-col gap-3 reveal md:flex-row md:items-end md:justify-between md:gap-6 mb-6 md:mb-8">
+              <div className="max-w-xl">
+                <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
+                  Sets &amp; bundles
+                </span>
+                <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
+                  Build a shelf in one order
+                </h2>
+                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                  Multi-volume sets and curated bundles — start a subject library in a single purchase.
+                </p>
+              </div>
+              <Link
+                to="/shop"
+                className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
+              >
+                Shop all sets
+              </Link>
+            </div>
+          </div>
+          <div
+            className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+            style={{ direction: "ltr" }}
+          >
+            {setsItems.map((p) => (
+              <div
+                key={p.slug}
+                data-rail-item
+                className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
+              >
+                <ProductCard product={p} />
+              </div>
+            ))}
+            <div className="shrink-0 w-1 md:hidden" />
+          </div>
+        </section>
+      )}
 
 
       {/* SPECIAL ITEMS — brown contrast section */}
