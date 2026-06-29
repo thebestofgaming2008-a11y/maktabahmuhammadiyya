@@ -351,7 +351,7 @@ function Home() {
               to="/shop"
               search={{ c: s.slug } as never}
               data-rail-item
-              className="group relative shrink-0 snap-start w-[68vw] sm:w-[44vw] md:w-[300px] lg:w-[340px] aspect-[3/4] rounded-2xl overflow-hidden"
+              className="group relative shrink-0 snap-start w-[44vw] sm:w-[30vw] md:w-[240px] lg:w-[280px] xl:w-[300px] aspect-[3/4] rounded-xl overflow-hidden"
             >
               <img
                 src={s.image}
