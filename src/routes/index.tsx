@@ -379,23 +379,18 @@ function Home() {
       Number(Boolean(a.showInCategorySection || a.isFeatured || a.isNewArrival)) ||
     Number(Boolean(b.isBestseller)) - Number(Boolean(a.isBestseller)) ||
     a.title.localeCompare(b.title);
-  const productLanguage = (product: Product) => {
-    const adminLanguage = String(product.language ?? "")
-      .trim()
-      .toLowerCase();
-    if (adminLanguage) {
-      if (adminLanguage === "english") return "english";
-      return "other";
-    }
+  const productLanguage = (product: Product): "english" | "arabic" | "urdu" | "" => {
+    const adminLanguage = String(product.language ?? "").trim().toLowerCase();
+    if (adminLanguage === "english") return "english";
+    if (adminLanguage === "arabic") return "arabic";
+    if (adminLanguage === "urdu") return "urdu";
 
     const text = [product.title, product.description, ...(product.tags ?? [])]
       .filter(Boolean)
       .join(" ")
       .toLowerCase();
-    if (/\burdu\b/.test(text)) return "other";
-    if (/\barabic\b|\bعربي\b/.test(text) || /[\u0600-\u06ff]/.test(product.title)) {
-      return "other";
-    }
+    if (/\burdu\b/.test(text)) return "urdu";
+    if (/\barabic\b|\bعربي\b/.test(text) || /[\u0600-\u06ff]/.test(product.title)) return "arabic";
     if (/\benglish\b/.test(text)) return "english";
     return "";
   };
@@ -410,21 +405,30 @@ function Home() {
       tags: product.tags ?? [],
       search_text: product.description,
     }).map((key) => (key === "dua-adhkar" ? "purification" : key));
-  const englishMatches = booksOnly
-    .filter((product) => productLanguage(product) === "english")
-    .sort(byHomepagePriority)
-    .slice(0, 8);
-  const otherLanguageMatches = booksOnly
-    .filter(
-      (product) =>
-        productLanguage(product) === "other" ||
-        subjectKeysForProduct(product).some((key) => ["arabic", "urdu"].includes(key)),
-    )
-    .sort(byHomepagePriority)
-    .slice(0, 8);
-  const english = englishMatches.length ? englishMatches : booksOnly.slice(0, 8);
-  const otherLanguages = otherLanguageMatches;
-  const moreBooks = [...booksOnly].reverse();
+
+  const productLanguageEnhanced = (p: Product): "english" | "arabic" | "urdu" | "" => {
+    const base = productLanguage(p);
+    if (base) return base;
+    const keys = subjectKeysForProduct(p);
+    if (keys.includes("urdu")) return "urdu";
+    if (keys.includes("arabic")) return "arabic";
+    return "english"; // default assumption for the library
+  };
+
+  const libraryBooks = booksOnly
+    .filter((p) => (language === "all" ? true : productLanguageEnhanced(p) === language))
+    .sort(byHomepagePriority);
+
+  const languageCounts = LANGUAGE_FILTERS.reduce<Record<LanguageKey, number>>(
+    (acc, f) => {
+      acc[f.key] =
+        f.key === "all"
+          ? booksOnly.length
+          : booksOnly.filter((p) => productLanguageEnhanced(p) === f.key).length;
+      return acc;
+    },
+    { all: 0, english: 0, arabic: 0, urdu: 0 },
+  );
 
   // Special items pool: niqab, jilbab, kufi, pen
   const baseSpecial = products.filter((p) => {
