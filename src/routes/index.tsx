@@ -406,31 +406,37 @@ function Home() {
       </section>
 
       {/* THE LIBRARY — unified language-filterable rail */}
-      <section className="py-12 md:py-20 border-t border-border/60">
-        <div className="container-prose">
-          <div className="flex flex-col gap-6 reveal md:flex-row md:items-end md:justify-between">
-            <div className="max-w-xl">
-              <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
+      {/* THE LIBRARY — image banner + horizontal rail */}
+      <section className="pb-12 md:pb-20 border-t border-border/60">
+        <div className="container-prose pt-10 md:pt-14">
+          <div className="relative overflow-hidden rounded-2xl reveal">
+            <img
+              src={heroBooks}
+              alt="The library"
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ objectPosition: "center 40%" }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-foreground/75 via-foreground/40 to-transparent" />
+            <div className="relative px-6 py-10 md:px-12 md:py-16 text-background max-w-2xl">
+              <span className="text-[11px] uppercase tracking-[0.22em] opacity-85 font-medium">
                 The library
               </span>
-              <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
+              <h2 className="font-display text-3xl md:text-5xl mt-2 leading-[1.05]">
                 Browse books by language
               </h2>
-              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-                One bookshelf, every language. Filter to find the right edition for you.
-              </p>
+              <Link
+                to="/shop"
+                className="mt-5 inline-flex items-center gap-2 bg-background text-foreground px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-foreground hover:text-background"
+              >
+                Shop the library
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-            <Link
-              to="/shop"
-              className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
-            >
-              Shop the library
-            </Link>
-
           </div>
 
           {/* Filter chips */}
-          <div className="mt-6 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
+          <div className="mt-6 md:mt-8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
             <div className="flex gap-2 border-b border-border">
               {visibleLanguageFilters.map((f) => {
                 const active = languageFilter === f.key;
@@ -481,9 +487,6 @@ function Home() {
                   <ArrowRight className="h-5 w-5" />
                 </span>
                 <span className="font-display text-lg text-center px-3">See all</span>
-                <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Browse the shop
-                </span>
               </Link>
               <div className="shrink-0 w-1 md:hidden" />
             </>
@@ -495,32 +498,38 @@ function Home() {
         </div>
       </section>
 
-      {/* SETS / BUNDLES */}
+      {/* SETS / BUNDLES — image banner + rail */}
       {setsItems.length > 0 && (
-        <section className="py-12 md:py-20 border-t border-border/60">
-          <div className="container-prose">
-            <div className="flex flex-col gap-3 reveal md:flex-row md:items-end md:justify-between md:gap-6 mb-6 md:mb-8">
-              <div className="max-w-xl">
-                <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
+        <section className="pb-12 md:pb-20 border-t border-border/60">
+          <div className="container-prose pt-10 md:pt-14">
+            <div className="relative overflow-hidden rounded-2xl reveal">
+              <img
+                src={heroStudy}
+                alt="Sets and bundles"
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{ objectPosition: "center 35%" }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-foreground/75 via-foreground/40 to-transparent" />
+              <div className="relative px-6 py-10 md:px-12 md:py-16 text-background max-w-2xl">
+                <span className="text-[11px] uppercase tracking-[0.22em] opacity-85 font-medium">
                   Sets &amp; bundles
                 </span>
-                <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
+                <h2 className="font-display text-3xl md:text-5xl mt-2 leading-[1.05]">
                   Build a shelf in one order
                 </h2>
-                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-                  Multi-volume sets and curated bundles — start a subject library in a single purchase.
-                </p>
+                <Link
+                  to="/shop"
+                  className="mt-5 inline-flex items-center gap-2 bg-background text-foreground px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-foreground hover:text-background"
+                >
+                  Shop all sets
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
-              <Link
-                to="/shop"
-                className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
-              >
-                Shop all sets
-              </Link>
             </div>
           </div>
           <div
-            className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+            className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
             style={{ direction: "ltr" }}
           >
             {setsItems.map((p) => (
@@ -538,37 +547,39 @@ function Home() {
       )}
 
 
-      {/* SPECIAL ITEMS — brown contrast section */}
+      {/* SPECIAL ITEMS — brown contrast + image banner */}
       {baseSpecial.length > 0 && (
-        <section className="bg-primary text-primary-foreground">
-          <div className="container-prose pt-10 md:pt-16 pb-4 md:pb-6">
-            <div className="flex flex-col gap-4 reveal md:flex-row md:items-end md:justify-between md:gap-6">
-              <div className="max-w-xl">
-                <span className="text-[11px] uppercase tracking-[0.22em] font-medium opacity-70">
+        <section className="bg-primary text-primary-foreground pb-14 md:pb-20">
+          <div className="container-prose pt-10 md:pt-14">
+            <div className="relative overflow-hidden rounded-2xl reveal">
+              <img
+                src={heroImage}
+                alt="Special items"
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/55 to-primary/20" />
+              <div className="relative px-6 py-10 md:px-12 md:py-16 max-w-2xl">
+                <span className="text-[11px] uppercase tracking-[0.22em] opacity-85 font-medium">
                   Special items
                 </span>
-                <h2 className="font-display text-[28px] md:text-5xl mt-1.5 leading-[1.05]">
-                  Niqab, jilbab, kufi &amp; pens.
+                <h2 className="font-display text-3xl md:text-5xl mt-2 leading-[1.05]">
+                  Niqab, jilbab, kufi &amp; pens
                 </h2>
-                <p className="mt-2.5 text-sm md:text-base opacity-80 leading-relaxed">
-                  A small, considered selection of essentials beyond the bookshelf — modest wear and
-                  the tools of a student.
-                </p>
+                <Link
+                  to="/shop"
+                  search={{ c: "clothing" } as never}
+                  className="mt-5 inline-flex items-center gap-2 bg-primary-foreground text-primary px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground/90"
+                >
+                  Shop all special
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
-              <Link
-                to="/shop"
-                search={{ c: "clothing" } as never}
-                className="inline-flex items-center gap-2 self-start md:self-auto border border-primary-foreground/40 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground hover:text-primary"
-              >
-                Shop all special
-                <ArrowRight className="h-4 w-4" />
-              </Link>
             </div>
 
             {/* Filter chips */}
-            <div className="mt-5 md:mt-6 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
+            <div className="mt-6 md:mt-8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
               <div className="flex gap-2">
-
                 {SPECIAL_FILTERS.map((f) => {
                   const active = specialFilter === f.key;
                   return (
@@ -590,28 +601,23 @@ function Home() {
           </div>
 
           {specialItems.length > 0 ? (
-            <div className="pb-14 md:pb-20">
-              {/* product cards keep their own contrast — wrap to invert only chrome */}
-              <div className="text-primary-foreground">
+            <div
+              className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+              style={{ direction: "ltr" }}
+            >
+              {specialItems.map((p) => (
                 <div
-                  className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
-                  style={{ direction: "ltr" }}
+                  key={p.slug}
+                  data-rail-item
+                  className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px] bg-background text-foreground rounded-lg p-3 transition-transform duration-300 hover:-translate-y-1"
                 >
-                  {specialItems.map((p) => (
-                    <div
-                      key={p.slug}
-                      data-rail-item
-                      className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px] bg-background text-foreground rounded-lg p-3 transition-transform duration-300 hover:-translate-y-1"
-                    >
-                      <ProductCard product={p} />
-                    </div>
-                  ))}
-                  <div className="shrink-0 w-1 md:hidden" />
+                  <ProductCard product={p} />
                 </div>
-              </div>
+              ))}
+              <div className="shrink-0 w-1 md:hidden" />
             </div>
           ) : (
-            <div className="container-prose pb-14 md:pb-20">
+            <div className="container-prose mt-6">
               <p className="text-sm opacity-70">
                 No items match this filter yet. Try another category.
               </p>
