@@ -498,6 +498,48 @@ function Home() {
         </div>
       </section>
 
+      {/* SETS / BUNDLES */}
+      {setsItems.length > 0 && (
+        <section className="py-12 md:py-20 border-t border-border/60">
+          <div className="container-prose">
+            <div className="flex flex-col gap-3 reveal md:flex-row md:items-end md:justify-between md:gap-6 mb-6 md:mb-8">
+              <div className="max-w-xl">
+                <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
+                  Sets &amp; bundles
+                </span>
+                <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
+                  Build a shelf in one order
+                </h2>
+                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                  Multi-volume sets and curated bundles — start a subject library in a single purchase.
+                </p>
+              </div>
+              <Link
+                to="/shop"
+                className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
+              >
+                Shop all sets
+              </Link>
+            </div>
+          </div>
+          <div
+            className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+            style={{ direction: "ltr" }}
+          >
+            {setsItems.map((p) => (
+              <div
+                key={p.slug}
+                data-rail-item
+                className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
+              >
+                <ProductCard product={p} />
+              </div>
+            ))}
+            <div className="shrink-0 w-1 md:hidden" />
+          </div>
+        </section>
+      )}
+
 
       {/* SPECIAL ITEMS — brown contrast section */}
       {baseSpecial.length > 0 && (
