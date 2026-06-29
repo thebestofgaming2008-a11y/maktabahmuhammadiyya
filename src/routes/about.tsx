@@ -61,7 +61,7 @@ function About() {
         ].map(({ i: Icon, t, d }) => (
           <div key={t} className="border rounded-lg p-6">
             <Icon className="h-6 w-6 text-accent mb-3" />
-            <h3 className="font-display text-xl">{t}</h3>
+            <h2 className="font-display text-xl">{t}</h2>
             <p className="text-sm text-muted-foreground mt-2">{d}</p>
           </div>
         ))}

@@ -6,18 +6,6 @@ import { seo } from "@/lib/seo";
 const WHATSAPP_CHANNEL = "https://whatsapp.com/channel/0029VbB3VMzCBtx88CK0Hm3Y";
 const INSTAGRAM_URL = "https://www.instagram.com/maktabamuhammadiya.__/";
 
-export const Route = createFileRoute("/contact")({
-  head: () => ({
-    ...seo({
-      title: "Contact Maktabah Muhammadiya",
-      description:
-        "Contact Maktabah Muhammadiya for book availability, shipping support and customer questions.",
-      path: "/contact",
-    }),
-  }),
-  component: Contact,
-});
-
 const faqs = [
   {
     q: "How do I place an order?",
@@ -36,6 +24,33 @@ const faqs = [
     a: "Yes. Send a message or use Instagram to ask about editions, availability, photos or recommendations.",
   },
 ];
+
+export const Route = createFileRoute("/contact")({
+  head: () => ({
+    ...seo({
+      title: "Contact Maktabah Muhammadiya",
+      description:
+        "Contact Maktabah Muhammadiya for book availability, shipping support and customer questions.",
+      path: "/contact",
+    }),
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      },
+    ],
+  }),
+  component: Contact,
+});
+
 
 function Contact() {
   const [open, setOpen] = useState<number | null>(0);
