@@ -112,64 +112,83 @@ function MosaicBanner({
   ctaSearch?: Record<string, string>;
   tone?: MosaicTone;
 }) {
-  // Pick up to 8 unique covers from real catalog products
+  // Pick the strongest single hero cover + one supporting cover for depth.
   const covers = products
     .map((p) => p.images?.[0])
-    .filter((src): src is string => Boolean(src))
-    .slice(0, 8);
-  // Pad if fewer (shouldn't usually happen)
-  while (covers.length > 0 && covers.length < 4) covers.push(covers[0]);
+    .filter((src): src is string => Boolean(src));
+  const heroCover = covers[0];
+  const supportCover = covers.find((src, i) => i > 0 && src !== heroCover) ?? covers[1];
 
-  const overlay =
-    tone === "brand"
-      ? "bg-gradient-to-r from-primary/95 via-primary/75 to-primary/30"
-      : "bg-gradient-to-r from-foreground/85 via-foreground/55 to-foreground/15";
-  const textColor = "text-background";
-  const ctaClass =
-    tone === "brand"
-      ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-      : "bg-background text-foreground hover:bg-foreground hover:text-background";
+  const isBrand = tone === "brand";
+  const panelBg = isBrand ? "bg-primary text-primary-foreground" : "bg-foreground text-background";
+  const ctaClass = isBrand
+    ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+    : "bg-background text-foreground hover:bg-background/90";
+  const rule = isBrand ? "bg-primary-foreground/30" : "bg-background/30";
 
   return (
-    <div className="relative w-full h-[44vh] min-h-[340px] md:h-[58vh] md:min-h-[480px] overflow-hidden reveal bg-secondary">
-      {/* Mosaic of real product covers */}
-      <div className="absolute inset-0 grid grid-cols-4 md:grid-cols-8 grid-rows-2 md:grid-rows-1 gap-[2px]">
-        {covers.map((src, i) => (
-          <div key={i} className="relative overflow-hidden bg-secondary">
-            <img
-              src={src}
-              alt=""
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
+    <div className="relative w-full reveal">
+      <div className="grid grid-cols-1 md:grid-cols-12 min-h-[420px] md:min-h-[560px]">
+        {/* Text panel */}
+        <div className={`${panelBg} md:col-span-5 flex items-center`}>
+          <div className="w-full px-6 py-14 md:px-12 lg:px-16 md:py-20 max-w-xl ml-auto md:mr-0">
+            <div className="flex items-center gap-3">
+              <span className={`h-px w-8 ${rule}`} />
+              <span className="text-[11px] uppercase tracking-[0.32em] font-medium opacity-90">
+                {eyebrow}
+              </span>
+            </div>
+            <h2 className="font-display font-light text-4xl md:text-5xl lg:text-6xl mt-5 leading-[1.02] tracking-[-0.01em]">
+              {title}
+            </h2>
+            <p className="mt-5 text-[14px] md:text-[15px] leading-relaxed opacity-80 max-w-sm">
+              {description}
+            </p>
+            <Link
+              to={ctaTo}
+              search={ctaSearch as never}
+              className={`mt-8 inline-flex items-center gap-2 px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
+            >
+              {ctaLabel}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-        ))}
-      </div>
-      <div className={`absolute inset-0 ${overlay}`} />
-      <div className="relative h-full container-prose flex items-end md:items-center pb-10 md:pb-0">
-        <div className={`${textColor} max-w-xl`}>
-          <span className="text-[11px] md:text-xs uppercase tracking-[0.28em] opacity-90 font-medium">
-            {eyebrow}
-          </span>
-          <h2 className="font-display text-4xl md:text-6xl lg:text-7xl mt-3 leading-[0.98]">
-            {title}
-          </h2>
-          <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
-            {description}
-          </p>
-          <Link
-            to={ctaTo}
-            search={ctaSearch as never}
-            className={`mt-6 inline-flex items-center gap-2 px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition ${ctaClass}`}
-          >
-            {ctaLabel}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+        </div>
+
+        {/* Image panel — single editorial hero with subtle layered cover */}
+        <div className="md:col-span-7 relative bg-secondary overflow-hidden min-h-[280px] md:min-h-0">
+          {heroCover && (
+            <>
+              {/* Soft blurred fill so any aspect looks intentional */}
+              <img
+                src={heroCover}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl opacity-60"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary/40 via-transparent to-secondary/60" />
+              {/* Crisp hero cover */}
+              <img
+                src={heroCover}
+                alt=""
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[78%] md:h-[80%] w-auto object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.25)]"
+              />
+              {/* Supporting cover, offset for editorial depth */}
+              {supportCover && supportCover !== heroCover && (
+                <img
+                  src={supportCover}
+                  alt=""
+                  className="hidden md:block absolute right-[8%] bottom-[10%] h-[44%] w-auto object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.3)] rotate-[4deg]"
+                />
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
 
 
 
