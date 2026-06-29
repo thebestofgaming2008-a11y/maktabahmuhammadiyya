@@ -117,7 +117,6 @@ function MosaicBanner({
     .map((p) => p.images?.[0])
     .filter((src): src is string => Boolean(src));
   const heroCover = covers[0];
-  const supportCover = covers.find((src, i) => i > 0 && src !== heroCover) ?? covers[1];
 
   const isBrand = tone === "brand";
   const panelBg = isBrand ? "bg-primary text-primary-foreground" : "bg-foreground text-background";
