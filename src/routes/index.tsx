@@ -557,35 +557,40 @@ function Home() {
       {/* SPECIAL ITEMS — brown contrast + image banner */}
       {baseSpecial.length > 0 && (
         <section className="bg-primary text-primary-foreground pb-14 md:pb-20">
-          <div className="container-prose pt-10 md:pt-14">
-            <div className="relative overflow-hidden rounded-2xl reveal">
-              <img
-                src={heroImage}
-                alt="Special items"
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/55 to-primary/20" />
-              <div className="relative px-6 py-10 md:px-12 md:py-16 max-w-2xl">
-                <span className="text-[11px] uppercase tracking-[0.22em] opacity-85 font-medium">
+          <div className="relative w-full h-[42vh] min-h-[320px] md:h-[56vh] md:min-h-[460px] overflow-hidden reveal">
+            <img
+              src={subjectClothing}
+              alt="Special items"
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/60 to-primary/15" />
+            <div className="relative h-full container-prose flex items-center">
+              <div className="max-w-xl">
+                <span className="text-[11px] md:text-xs uppercase tracking-[0.28em] opacity-85 font-medium">
                   Special items
                 </span>
-                <h2 className="font-display text-3xl md:text-5xl mt-2 leading-[1.05]">
+                <h2 className="font-display text-4xl md:text-6xl lg:text-7xl mt-3 leading-[0.98]">
                   Niqab, jilbab, kufi &amp; pens
                 </h2>
+                <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
+                  A small, considered selection beyond the bookshelf.
+                </p>
                 <Link
                   to="/shop"
                   search={{ c: "clothing" } as never}
-                  className="mt-5 inline-flex items-center gap-2 bg-primary-foreground text-primary px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground/90"
+                  className="mt-6 inline-flex items-center gap-2 bg-primary-foreground text-primary px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground/90"
                 >
                   Shop all special
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
+          </div>
 
+          <div className="container-prose mt-8 md:mt-10">
             {/* Filter chips */}
-            <div className="mt-6 md:mt-8 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
+            <div className="-mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
               <div className="flex gap-2">
                 {SPECIAL_FILTERS.map((f) => {
                   const active = specialFilter === f.key;
