@@ -630,45 +630,110 @@ function Home() {
         </div>
       </section>
 
-      {/* LANGUAGE SECTIONS */}
-      <ProductRail
-        eyebrow="English"
-        title="English books"
-        desc="Translations, contemporary works and study guides."
-        items={english}
-        seeAllTo="/shop"
-      />
-      <ProductRail
-        eyebrow="Other languages"
-        title="Arabic, Urdu & more"
-        desc="Non-English titles for native readers and students."
-        items={otherLanguages}
-        seeAllTo="/shop"
-      />
+      {/* THE LIBRARY — unified books section with language filter */}
+      <section className="py-14 md:py-20 border-t border-border">
+        <div className="container-prose">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-8 md:mb-10 reveal">
+            <div className="max-w-xl">
+              <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
+                The library
+              </span>
+              <h2 className="font-display text-[30px] md:text-5xl mt-2 leading-[1.02]">
+                Browse books by language
+              </h2>
+              <p className="text-muted-foreground mt-2 text-sm md:text-base">
+                One shelf for every reader — English translations, original Arabic and selected Urdu titles.
+              </p>
+            </div>
+            <Link
+              to="/shop"
+              search={{ c: "books" } as never}
+              className="inline-flex items-center gap-2 self-start md:self-auto text-[11px] font-semibold uppercase tracking-[0.18em] border border-foreground/20 px-5 py-3 transition hover:bg-foreground hover:text-background"
+            >
+              Shop all books
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          {/* Language tabs */}
+          <div className="-mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar border-b border-border">
+            <div className="flex gap-1 md:gap-2">
+              {LANGUAGE_FILTERS.map((f) => {
+                const active = language === f.key;
+                const count = languageCounts[f.key];
+                return (
+                  <button
+                    key={f.key}
+                    onClick={() => setLanguage(f.key)}
+                    className={`relative shrink-0 px-4 md:px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                      active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {f.label}
+                    <span className="ml-2 text-[10px] tabular-nums opacity-60">{count}</span>
+                    <span
+                      className={`absolute left-3 right-3 -bottom-px h-[2px] transition-all ${
+                        active ? "bg-foreground" : "bg-transparent"
+                      }`}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Grid */}
+          <div className="mt-8 md:mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+            {loading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="aspect-[4/5] rounded-lg bg-muted animate-pulse" />
+              ))
+            ) : libraryBooks.length ? (
+              libraryBooks.slice(0, 12).map((p) => <ProductCard key={p.slug} product={p} />)
+            ) : (
+              <div className="col-span-full rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
+                No titles in this language yet.
+              </div>
+            )}
+          </div>
+
+          {libraryBooks.length > 12 && (
+            <div className="mt-10 text-center reveal">
+              <Link
+                to="/shop"
+                search={{ c: "books" } as never}
+                className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] underline underline-offset-[6px] hover:text-accent"
+              >
+                View all {libraryBooks.length} titles
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* SPECIAL ITEMS — brown contrast section */}
       {baseSpecial.length > 0 && (
         <section className="bg-primary text-primary-foreground">
-          <div className="container-prose pt-14 md:pt-24 pb-4 md:pb-6">
+          <div className="container-prose pt-14 md:pt-24 pb-8 md:pb-10">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 reveal">
               <div className="max-w-xl">
                 <span className="text-[11px] uppercase tracking-[0.22em] font-medium opacity-70">
                   Special items
                 </span>
-                <h2 className="font-display text-[32px] md:text-5xl mt-2 leading-[1.02]">
+                <h2 className="font-display text-[30px] md:text-5xl mt-2 leading-[1.02]">
                   Niqab, jilbab, kufi &amp; pens.
                 </h2>
                 <p className="mt-3 text-sm md:text-base opacity-80 leading-relaxed">
-                  A small, considered selection of essentials beyond the bookshelf — modest wear and
-                  the tools of a student.
+                  A small, considered selection of essentials beyond the bookshelf.
                 </p>
               </div>
               <Link
                 to="/shop"
                 search={{ c: "clothing" } as never}
-                className="inline-flex items-center gap-2 self-start md:self-auto border border-primary-foreground/40 px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground hover:text-primary"
+                className="inline-flex items-center gap-2 self-start md:self-auto border border-primary-foreground/40 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground hover:text-primary"
               >
-                Shop all special
+                Shop all
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -682,10 +747,10 @@ function Home() {
                     <button
                       key={f.key}
                       onClick={() => setSpecialFilter(f.key)}
-                      className={`shrink-0 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] border transition ${
+                      className={`shrink-0 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] rounded-full border transition ${
                         active
                           ? "bg-primary-foreground text-primary border-primary-foreground"
-                          : "border-primary-foreground/30 text-primary-foreground/85 hover:border-primary-foreground"
+                          : "border-primary-foreground/25 text-primary-foreground/80 hover:border-primary-foreground/70"
                       }`}
                     >
                       {f.label}
@@ -696,25 +761,23 @@ function Home() {
             </div>
           </div>
 
+          {/* Light band beneath: cards sit naturally on cream within the brown section */}
           {specialItems.length > 0 ? (
-            <div className="pb-14 md:pb-20">
-              {/* product cards keep their own contrast — wrap to invert only chrome */}
-              <div className="text-primary-foreground">
-                <div
-                  className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
-                  style={{ direction: "ltr" }}
-                >
-                  {specialItems.map((p) => (
-                    <div
-                      key={p.slug}
-                      data-rail-item
-                      className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px] bg-background text-foreground rounded-lg p-3 transition-transform duration-300 hover:-translate-y-1"
-                    >
-                      <ProductCard product={p} />
-                    </div>
-                  ))}
-                  <div className="shrink-0 w-1 md:hidden" />
-                </div>
+            <div className="bg-background text-foreground py-10 md:py-14">
+              <div
+                className="flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+                style={{ direction: "ltr" }}
+              >
+                {specialItems.map((p) => (
+                  <div
+                    key={p.slug}
+                    data-rail-item
+                    className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
+                  >
+                    <ProductCard product={p} />
+                  </div>
+                ))}
+                <div className="shrink-0 w-1 md:hidden" />
               </div>
             </div>
           ) : (
@@ -727,25 +790,6 @@ function Home() {
         </section>
       )}
 
-      {/* MORE BOOKS - infinite, auto-scrolling */}
-      <section className="py-12 md:py-20 border-b border-border">
-        <div className="container-prose">
-          <div className="flex items-end justify-between mb-6 md:mb-8 reveal gap-4">
-            <div>
-              <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
-                Keep browsing
-              </span>
-              <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
-                More from the catalog
-              </h2>
-              <p className="text-muted-foreground mt-1.5 text-sm">
-                Carefully chosen titles, always being added to.
-              </p>
-            </div>
-          </div>
-        </div>
-        <InfiniteRail items={moreBooks} />
-      </section>
 
 
       {/* REVIEWS */}
