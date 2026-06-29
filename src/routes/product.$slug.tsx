@@ -271,7 +271,7 @@ function ProductPage() {
   ];
 
   return (
-    <div className="page-soft-enter pb-28 md:pb-0">
+    <div className="page-soft-enter pb-28 md:pb-24">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, breadcrumbSchema]) }}
