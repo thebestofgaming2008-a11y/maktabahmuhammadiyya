@@ -411,6 +411,21 @@ function Home() {
     urdu: libraryAll.filter((p) => productLanguage(p) === "urdu").length,
     other: libraryAll.filter((p) => productLanguage(p) === "other").length,
   } as const;
+  type LanguageKey = keyof typeof libraryCounts;
+  const LANGUAGE_FILTERS: ReadonlyArray<{ key: LanguageKey; label: string }> = [
+    { key: "all", label: "All books" },
+    { key: "english", label: "English" },
+    { key: "arabic", label: "Arabic" },
+    { key: "urdu", label: "Urdu" },
+    { key: "other", label: "Other" },
+  ];
+  const visibleLanguageFilters = LANGUAGE_FILTERS.filter(
+    (f) => f.key === "all" || libraryCounts[f.key] > 0,
+  );
+  const libraryItems =
+    languageFilter === "all"
+      ? libraryAll.slice(0, 16)
+      : libraryAll.filter((p) => productLanguage(p) === languageFilter).slice(0, 16);
 
   // Special items pool: niqab, jilbab, kufi, pen
   const baseSpecial = products.filter((p) => {
