@@ -140,6 +140,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "msapplication-TileImage", content: "/icon-192.png" },
       { name: "format-detection", content: "telephone=no" },
       { name: "author", content: BRAND_NAME },
+      { title: "maktabahmuhammadiyya" },
+      { property: "og:title", content: "maktabahmuhammadiyya" },
+      { name: "twitter:title", content: "maktabahmuhammadiyya" },
+      { name: "description", content: "Worldwide Islamic Store: books in multiple languages, modest apparel (niqab, khimar, kufi), plus stationery, notebooks & pens. Fast global shipping!" },
+      { property: "og:description", content: "Worldwide Islamic Store: books in multiple languages, modest apparel (niqab, khimar, kufi), plus stationery, notebooks & pens. Fast global shipping!" },
+      { name: "twitter:description", content: "Worldwide Islamic Store: books in multiple languages, modest apparel (niqab, khimar, kufi), plus stationery, notebooks & pens. Fast global shipping!" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/exeSw4qYuJaqSyFyyVnVqcmkJnF2/social-images/social-1782769714247-image_(2).webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/exeSw4qYuJaqSyFyyVnVqcmkJnF2/social-images/social-1782769714247-image_(2).webp" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:type", content: "website" },
     ],
     links: [
       {
