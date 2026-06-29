@@ -320,10 +320,10 @@ function Home() {
       </section>
 
 
-      {/* BROWSE COLLECTIONS */}
+      {/* BROWSE COLLECTIONS — horizontal scroll on all formats */}
       <section className="py-12 md:py-20">
         <div className="container-prose">
-          <div className="flex items-end justify-between mb-6 md:mb-8 reveal gap-4">
+          <div className="flex items-end justify-between mb-6 md:mb-10 reveal gap-4">
             <div>
               <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
                 Collections
@@ -331,22 +331,19 @@ function Home() {
               <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
                 Browse collections
               </h2>
-              <p className="text-muted-foreground mt-1.5 text-sm">
-                Books, clothing and curated Islamic study collections.
-              </p>
             </div>
             <Link
               to="/shop"
-              className="hidden md:inline-flex shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
+              className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
             >
               View all
             </Link>
-
           </div>
         </div>
         <div
           ref={collectionsRef}
-          className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory px-4 scroll-pl-4 md:grid md:grid-cols-4 lg:grid-cols-6 md:gap-5 md:overflow-visible md:px-[max(2rem,calc((100vw-72rem)/2))]"
+          className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4"
+          style={{ direction: "ltr" }}
         >
           {collections.map((s) => (
             <Link
@@ -354,7 +351,7 @@ function Home() {
               to="/shop"
               search={{ c: s.slug } as never}
               data-rail-item
-              className="group relative shrink-0 snap-start w-[44vw] sm:w-[30vw] md:w-auto aspect-[3/4] rounded-xl overflow-hidden"
+              className="group relative shrink-0 snap-start w-[68vw] sm:w-[44vw] md:w-[300px] lg:w-[340px] aspect-[3/4] rounded-2xl overflow-hidden"
             >
               <img
                 src={s.image}
@@ -363,9 +360,9 @@ function Home() {
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
-              <div className="absolute bottom-3 left-3 right-3 text-background">
-                <div className="font-display text-xl md:text-2xl leading-tight">{s.title}</div>
-                <div className="text-[11px] uppercase tracking-wider opacity-80 mt-0.5">
+              <div className="absolute bottom-5 left-5 right-5 text-background">
+                <div className="font-display text-2xl md:text-3xl leading-tight">{s.title}</div>
+                <div className="text-[11px] uppercase tracking-[0.16em] opacity-85 mt-1">
                   {s.desc}
                 </div>
               </div>
