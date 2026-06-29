@@ -313,6 +313,14 @@ function InfiniteRail({
   );
 }
 
+const SPECIAL_FILTERS = [
+  { key: "all", label: "All", regex: /(niqab|jilbab|jilbāb|khimar|kufi|kufiyya|topi|pen|miswak)/i },
+  { key: "niqab", label: "Niqab", regex: /(niqab|khimar)/i },
+  { key: "jilbab", label: "Jilbab", regex: /(jilbab|jilbāb|abaya)/i },
+  { key: "kufi", label: "Kufi", regex: /(kufi|kufiyya|topi)/i },
+  { key: "pen", label: "Pen", regex: /(pen|miswak)/i },
+] as const;
+
 function Home() {
   const { products, loading } = useCatalogProducts();
   const booksOnly = products.filter((product) => product.topCategory === "books");
@@ -320,15 +328,8 @@ function Home() {
     (product) => product.isNewArrival || product.isFeatured || product.showInCategorySection,
   );
   const featured = (featuredPool.length ? featuredPool : products).slice(0, 8);
-  const addOnPool = products.filter(
-    (product) =>
-      product.isBestseller ||
-      product.tags?.some((tag) => /add[-\s]?on|extra|accessor/i.test(tag)) ||
-      product.topCategory === "children" ||
-      product.topCategory === "clothing",
-  );
-  const addOns = (addOnPool.length ? addOnPool : products.slice(2)).slice(0, 8);
   const [slide, setSlide] = useState(0);
+  const [specialFilter, setSpecialFilter] = useState<(typeof SPECIAL_FILTERS)[number]["key"]>("all");
   const collectionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
