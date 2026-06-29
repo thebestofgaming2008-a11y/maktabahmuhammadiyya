@@ -436,22 +436,13 @@ function Home() {
                 One bookshelf, every language. Filter to find the right edition for you.
               </p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => libraryRef.current?.scrollBy({ left: -getCardStep(libraryRef.current), behavior: "smooth" })}
-                aria-label="Scroll left"
-                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => libraryRef.current?.scrollBy({ left: getCardStep(libraryRef.current!), behavior: "smooth" })}
-                aria-label="Scroll right"
-                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
+            <Link
+              to="/shop"
+              className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
+            >
+              Shop the library
+            </Link>
+
           </div>
 
           {/* Filter chips */}
