@@ -138,22 +138,12 @@ function ProductRail({
             <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">{title}</h2>
             {desc && <p className="text-muted-foreground mt-1.5 text-sm max-w-md">{desc}</p>}
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => scroll(-1)}
-              aria-label="Scroll left"
-              className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => scroll(1)}
-              aria-label="Scroll right"
-              className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
+          <Link
+            to={seeAllTo}
+            className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] underline underline-offset-4 hover:text-accent transition-colors"
+          >
+            View all
+          </Link>
         </div>
       </div>
       <div
@@ -170,24 +160,12 @@ function ProductRail({
             <ProductCard product={p} />
           </div>
         ))}
-        <Link
-          to={seeAllTo}
-          data-rail-item
-          className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px] aspect-[4/5] rounded-lg bg-secondary/40 flex flex-col items-center justify-center gap-3 text-foreground hover:bg-secondary/70 transition-colors group"
-        >
-          <span className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center group-hover:translate-x-1 transition-transform">
-            <ArrowRight className="h-5 w-5" />
-          </span>
-          <span className="font-display text-lg text-center px-3">See all</span>
-          <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-            Browse collection
-          </span>
-        </Link>
         <div className="shrink-0 w-1 md:hidden" />
       </div>
     </section>
   );
 }
+
 
 // Infinite, smoothly auto-scrolling rail (loops both directions)
 function InfiniteRail({
