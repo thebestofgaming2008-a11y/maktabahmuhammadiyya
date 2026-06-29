@@ -309,7 +309,7 @@ export function Header() {
                 key={n.label}
                 to={n.to}
                 search={n.search as never}
-                className="relative text-foreground/75 transition-colors hover:text-foreground font-medium tracking-wide after:absolute after:left-0 after:-bottom-3 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:bg-accent after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className="relative text-neutral-900/80 transition-colors hover:text-neutral-900 font-medium tracking-wide after:absolute after:left-0 after:-bottom-3 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:bg-neutral-900 after:transition-transform after:duration-300 hover:after:scale-x-100"
               >
                 {n.label}
               </Link>
@@ -319,7 +319,7 @@ export function Header() {
               <Link
                 key={n.label}
                 to={n.to}
-                className="text-foreground/60 transition-colors hover:text-foreground text-[12px]"
+                className="text-neutral-900/65 transition-colors hover:text-neutral-900 text-[12px]"
               >
                 {n.label}
               </Link>
