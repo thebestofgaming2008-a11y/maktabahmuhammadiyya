@@ -117,7 +117,6 @@ function MosaicBanner({
     .map((p) => p.images?.[0])
     .filter((src): src is string => Boolean(src));
   const heroCover = covers[0];
-  const supportCover = covers.find((src, i) => i > 0 && src !== heroCover) ?? covers[1];
 
   const isBrand = tone === "brand";
   const panelBg = isBrand ? "bg-primary text-primary-foreground" : "bg-foreground text-background";
@@ -126,63 +125,75 @@ function MosaicBanner({
     : "bg-background text-foreground hover:bg-background/90";
   const rule = isBrand ? "bg-primary-foreground/30" : "bg-background/30";
 
+  // Build a strip of covers for the background collage
+  const stripCovers = covers.slice(0, 6);
+
+  const overlayClass = isBrand
+    ? "bg-[linear-gradient(180deg,rgba(58,32,16,0.55)_0%,rgba(58,32,16,0.78)_60%,rgba(58,32,16,0.92)_100%)]"
+    : "bg-[linear-gradient(180deg,rgba(20,12,4,0.45)_0%,rgba(20,12,4,0.72)_60%,rgba(20,12,4,0.88)_100%)]";
+  const textColor = isBrand ? "text-primary-foreground" : "text-background";
+
   return (
-    <div className="relative w-full reveal">
-      <div className="grid grid-cols-1 md:grid-cols-12 min-h-[420px] md:min-h-[560px]">
-        {/* Text panel */}
-        <div className={`${panelBg} md:col-span-5 flex items-center`}>
-          <div className="w-full px-6 py-14 md:px-12 lg:px-16 md:py-20 max-w-xl ml-auto md:mr-0">
-            <div className="flex items-center gap-3">
+    <div className="relative w-full reveal overflow-hidden">
+      <div className="relative min-h-[520px] md:min-h-[620px]">
+        {/* BACKGROUND — blurred hero cover for color + atmosphere */}
+        {heroCover ? (
+          <img
+            src={heroCover}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl"
+          />
+        ) : (
+          <div className={`absolute inset-0 ${panelBg}`} />
+        )}
+
+        {/* Mid-layer: subtle floating covers strip behind the text */}
+        {stripCovers.length > 0 && (
+          <div className="absolute inset-0 flex items-center justify-center gap-4 md:gap-6 px-4 opacity-[0.55] md:opacity-60">
+            {stripCovers.map((src, i) => (
+              <img
+                key={`${src}-${i}`}
+                src={src}
+                alt=""
+                aria-hidden
+                className="h-[58%] md:h-[68%] w-auto object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)]"
+                style={{
+                  transform: `translateY(${(i % 2 === 0 ? -1 : 1) * (6 + i * 2)}px) rotate(${(i - stripCovers.length / 2) * 2}deg)`,
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Dark gradient overlay so text reads clean */}
+        <div className={`absolute inset-0 ${overlayClass}`} />
+
+        {/* TEXT — centered over the image */}
+        <div className={`relative z-10 flex items-center justify-center min-h-[520px] md:min-h-[620px] ${textColor}`}>
+          <div className="w-full max-w-3xl px-6 md:px-10 py-20 md:py-28 text-center">
+            <div className="flex items-center justify-center gap-3">
               <span className={`h-px w-8 ${rule}`} />
               <span className="text-[11px] uppercase tracking-[0.32em] font-medium opacity-90">
                 {eyebrow}
               </span>
+              <span className={`h-px w-8 ${rule}`} />
             </div>
-            <h2 className="font-display font-light text-4xl md:text-5xl lg:text-6xl mt-5 leading-[1.02] tracking-[-0.01em]">
+            <h2 className="font-display font-light text-4xl md:text-6xl lg:text-7xl mt-6 leading-[1.02] tracking-[-0.01em]">
               {title}
             </h2>
-            <p className="mt-5 text-[14px] md:text-[15px] leading-relaxed opacity-80 max-w-sm">
+            <p className="mt-5 text-[14px] md:text-[16px] leading-relaxed opacity-85 max-w-xl mx-auto">
               {description}
             </p>
             <Link
               to={ctaTo}
               search={ctaSearch as never}
-              className={`mt-8 inline-flex items-center gap-2 px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
+              className={`mt-9 inline-flex items-center gap-2 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
             >
               {ctaLabel}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        </div>
-
-        {/* Image panel — single editorial hero with subtle layered cover */}
-        <div className="md:col-span-7 relative bg-secondary overflow-hidden min-h-[280px] md:min-h-0">
-          {heroCover && (
-            <>
-              {/* Soft blurred fill so any aspect looks intentional */}
-              <img
-                src={heroCover}
-                alt=""
-                aria-hidden
-                className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl opacity-60"
-              />
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary/40 via-transparent to-secondary/60" />
-              {/* Crisp hero cover */}
-              <img
-                src={heroCover}
-                alt=""
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[78%] md:h-[80%] w-auto object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.25)]"
-              />
-              {/* Supporting cover, offset for editorial depth */}
-              {supportCover && supportCover !== heroCover && (
-                <img
-                  src={supportCover}
-                  alt=""
-                  className="hidden md:block absolute right-[8%] bottom-[10%] h-[44%] w-auto object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.3)] rotate-[4deg]"
-                />
-              )}
-            </>
-          )}
         </div>
       </div>
     </div>
