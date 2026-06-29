@@ -330,7 +330,9 @@ function Home() {
   const featured = (featuredPool.length ? featuredPool : products).slice(0, 8);
   const [slide, setSlide] = useState(0);
   const [specialFilter, setSpecialFilter] = useState<(typeof SPECIAL_FILTERS)[number]["key"]>("all");
+  const [languageFilter, setLanguageFilter] = useState<"all" | "english" | "arabic" | "urdu" | "other">("all");
   const collectionsRef = useRef<HTMLDivElement>(null);
+  const libraryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const t = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 6000);
