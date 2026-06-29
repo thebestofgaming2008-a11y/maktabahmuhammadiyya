@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { useCatalogProducts } from "@/lib/catalog";
 import type { Product } from "@/lib/products";
 import { productSubjectKeys } from "@/data/products";
-import { Star, ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 
 import heroImage from "@/assets/hero.jpg";
 import heroBooks from "@/assets/hero-books-real.jpg";
