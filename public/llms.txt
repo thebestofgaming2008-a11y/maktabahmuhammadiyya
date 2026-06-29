@@ -1,15 +1,18 @@
 # Maktabah Muhammadiya
 
-Maktabah Muhammadiya is an online Islamic bookshop offering curated Islamic books,
-Arabic and Urdu titles, modest clothing, and selected essentials.
+> Curated Islamic bookshop offering Arabic and Urdu titles, modest clothing, and selected essentials with personal order support.
 
-## Important Pages
+Maktabah Muhammadiya is an online Islamic bookshop. The catalog is organized by
+subject (Aqeedah, Tafsir, Hadith, Fiqh, Seerah, Qur'an, Purification, Character,
+Family, Women's issues, Islamic history) and includes Arabic books, Urdu books,
+and modest clothing.
 
-- Home: https://maktabahmuhammadiya.pages.dev/
-- Shop: https://maktabahmuhammadiya.pages.dev/shop
-- About: https://maktabahmuhammadiya.pages.dev/about
-- Contact: https://maktabahmuhammadiya.pages.dev/contact
-- Sitemap: https://maktabahmuhammadiya.pages.dev/sitemap.xml
+## Pages
+
+- [Home](/): Featured collections, new arrivals, and curated rails.
+- [Shop](/shop): Full catalog with filtering by category, language, price, availability, and rating.
+- [About](/about): About the bookshop, curation approach, and customer support.
+- [Contact](/contact): Order support, WhatsApp channel, Instagram, and FAQ.
 
 ## Catalog Focus
 
@@ -27,4 +30,3 @@ Arabic and Urdu titles, modest clothing, and selected essentials.
 - Arabic books
 - Urdu books
 - Modest clothing
-

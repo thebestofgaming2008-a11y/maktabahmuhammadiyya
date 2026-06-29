@@ -378,9 +378,15 @@ function Home() {
                   <span className="inline-block text-[11px] uppercase tracking-[0.28em] mb-4 opacity-90 font-medium">
                     {s.eyebrow}
                   </span>
-                  <h1 className="font-display text-[34px] md:text-6xl lg:text-[68px] max-w-3xl leading-[1.02]">
-                    {s.title}
-                  </h1>
+                  {i === 0 ? (
+                    <h1 className="font-display text-[34px] md:text-6xl lg:text-[68px] max-w-3xl leading-[1.02]">
+                      {s.title}
+                    </h1>
+                  ) : (
+                    <h2 className="font-display text-[34px] md:text-6xl lg:text-[68px] max-w-3xl leading-[1.02]">
+                      {s.title}
+                    </h2>
+                  )}
                   <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
                     {s.sub}
                   </p>

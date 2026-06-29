@@ -7,4 +7,4 @@ Disallow: /checkout
 Disallow: /track
 Disallow: /search
 
-Sitemap: https://maktabahmuhammadiya.pages.dev/sitemap.xml
+Sitemap: https://maktabahmuhammadiyya.lovable.app/sitemap.xml
