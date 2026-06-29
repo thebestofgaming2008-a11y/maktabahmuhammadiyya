@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { useCatalogProducts } from "@/lib/catalog";
 import type { Product } from "@/lib/products";
 import { productSubjectKeys } from "@/data/products";
-import { Star, ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 
 import heroImage from "@/assets/hero.jpg";
 import heroBooks from "@/assets/hero-books-real.jpg";
@@ -688,48 +688,52 @@ function Home() {
 
 
 
-      {/* REVIEWS */}
-      <section className="bg-secondary/50 border-y">
+      {/* WHATSAPP SUPPORT */}
+      <section className="bg-secondary/40 border-y">
         <div className="container-prose py-14 md:py-20">
-          <div className="text-center mb-10 reveal">
-            <div className="inline-flex items-center gap-1 mb-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-5 w-5 fill-current text-accent" />
-              ))}
+          <div className="grid md:grid-cols-2 gap-10 items-center reveal">
+            <div>
+              <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
+                Talk to us
+              </span>
+              <h2 className="font-display text-3xl md:text-5xl mt-2 leading-[1.05]">
+                Need help choosing a book?
+              </h2>
+              <p className="text-muted-foreground mt-4 text-sm md:text-base leading-relaxed max-w-md">
+                Ask about availability, editions, shipping or recommendations. We reply personally
+                on WhatsApp — usually within a few hours.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <a
+                  href="https://whatsapp.com/channel/0029VbB3VMzCBtx88CK0Hm3Y"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#25D366] text-white px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.14em] hover:brightness-95 transition"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Chat on WhatsApp
+                </a>
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center gap-2 border border-foreground/20 px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.14em] hover:bg-foreground hover:text-background transition"
+                >
+                  All contact options
+                </Link>
+              </div>
             </div>
-            <h2 className="font-display text-3xl md:text-4xl">Built for careful readers</h2>
-            <p className="text-muted-foreground mt-2 text-sm">
-              Curated titles, clear browsing and personal order support.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-4">
-            {[
-              {
-                name: "Subject browsing",
-                text: "Customers can find books by Quran, Tafsir, Hadith, Aqeedah, Fiqh and more.",
-              },
-              {
-                name: "Order support",
-                text: "Availability, payment and delivery details are handled with care.",
-              },
-              {
-                name: "Curated catalog",
-                text: "Every section is arranged to make the right title easier to find.",
-              },
-            ].map((r) => (
-              <figure
-                key={r.name}
-                className="bg-card rounded-lg p-5 border reveal transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
-              >
-                <div className="flex gap-1 text-accent mb-3">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-current" />
-                  ))}
-                </div>
-                <blockquote className="text-sm leading-relaxed">{r.text}</blockquote>
-                <figcaption className="mt-3 text-xs text-muted-foreground">{r.name}</figcaption>
-              </figure>
-            ))}
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { t: "Replies in hours", d: "Real person, not a bot" },
+                { t: "Order help", d: "Availability & shipping" },
+                { t: "Recommendations", d: "By subject or level" },
+                { t: "Worldwide", d: "We ship globally" },
+              ].map((b) => (
+                <li key={b.t} className="bg-card border rounded-lg p-4">
+                  <p className="text-[11px] uppercase tracking-[0.16em] font-semibold">{b.t}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{b.d}</p>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
