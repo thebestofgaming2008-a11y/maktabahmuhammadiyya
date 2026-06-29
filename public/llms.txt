@@ -5,11 +5,11 @@ Arabic and Urdu titles, modest clothing, and selected essentials.
 
 ## Important Pages
 
-- Home: https://maktabahmuhammadiya.pages.dev/
-- Shop: https://maktabahmuhammadiya.pages.dev/shop
-- About: https://maktabahmuhammadiya.pages.dev/about
-- Contact: https://maktabahmuhammadiya.pages.dev/contact
-- Sitemap: https://maktabahmuhammadiya.pages.dev/sitemap.xml
+- Home: https://maktabahmuhammadiyya.lovable.app/
+- Shop: https://maktabahmuhammadiyya.lovable.app/shop
+- About: https://maktabahmuhammadiyya.lovable.app/about
+- Contact: https://maktabahmuhammadiyya.lovable.app/contact
+- Sitemap: https://maktabahmuhammadiyya.lovable.app/sitemap.xml
 
 ## Catalog Focus
 
