@@ -595,36 +595,16 @@ function Home() {
       {/* SPECIAL ITEMS — brown contrast + image banner */}
       {baseSpecial.length > 0 && (
         <section className="bg-primary text-primary-foreground pb-14 md:pb-20">
-          <div className="relative w-full h-[42vh] min-h-[320px] md:h-[56vh] md:min-h-[460px] overflow-hidden reveal">
-            <img
-              src={subjectClothing}
-              alt="Special items"
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/60 to-primary/15" />
-            <div className="relative h-full container-prose flex items-center">
-              <div className="max-w-xl">
-                <span className="text-[11px] md:text-xs uppercase tracking-[0.28em] opacity-85 font-medium">
-                  Special items
-                </span>
-                <h2 className="font-display text-4xl md:text-6xl lg:text-7xl mt-3 leading-[0.98]">
-                  Niqab, jilbab, kufi &amp; pens
-                </h2>
-                <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
-                  A small, considered selection beyond the bookshelf.
-                </p>
-                <Link
-                  to="/shop"
-                  search={{ c: "clothing" } as never}
-                  className="mt-6 inline-flex items-center gap-2 bg-primary-foreground text-primary px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition hover:bg-primary-foreground/90"
-                >
-                  Shop all special
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
+          <MosaicBanner
+            products={baseSpecial.slice(0, 8)}
+            eyebrow="Special items"
+            title="Niqab, jilbab, kufi & pens"
+            description="A small, considered selection beyond the bookshelf."
+            ctaLabel="Shop all special"
+            ctaTo="/shop"
+            ctaSearch={{ c: "clothing" }}
+            tone="brand"
+          />
 
           <div className="container-prose mt-8 md:mt-10">
             {/* Filter chips */}
