@@ -684,7 +684,7 @@ function Home() {
           </div>
 
           {specialItems.length > 0 ? (
-            <div className="pb-14 md:pb-20 [&_*]:!text-primary-foreground/0 [&_h2]:!text-primary-foreground">
+            <div className="pb-14 md:pb-20">
               {/* product cards keep their own contrast — wrap to invert only chrome */}
               <div className="text-primary-foreground">
                 <div
