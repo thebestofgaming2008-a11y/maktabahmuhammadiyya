@@ -417,21 +417,29 @@ function Home() {
   const otherLanguages = otherLanguageMatches;
   const moreBooks = [...booksOnly].reverse();
 
-  // Special items: niqab, jilbab, kufi, pen
-  const specialRegex = /(niqab|jilbab|jilbāb|khimar|kufi|kufiyya|topi|pen|miswak)/i;
-  const specialItems = products
-    .filter((p) => {
-      const haystack = [
-        p.title,
-        p.category,
-        p.categoryId ?? "",
-        ...(p.tags ?? []),
-      ]
-        .join(" ")
-        .toLowerCase();
-      return specialRegex.test(haystack) || p.topCategory === "clothing" || p.topCategory === "children";
-    })
-    .slice(0, 10);
+  // Special items pool: niqab, jilbab, kufi, pen
+  const baseSpecial = products.filter((p) => {
+    const haystack = [p.title, p.category, p.categoryId ?? "", ...(p.tags ?? [])]
+      .join(" ")
+      .toLowerCase();
+    return (
+      SPECIAL_FILTERS[0].regex.test(haystack) ||
+      p.topCategory === "clothing" ||
+      p.topCategory === "children"
+    );
+  });
+  const activeSpecial = SPECIAL_FILTERS.find((f) => f.key === specialFilter)!;
+  const specialItems =
+    specialFilter === "all"
+      ? baseSpecial.slice(0, 12)
+      : baseSpecial
+          .filter((p) => {
+            const haystack = [p.title, p.category, p.categoryId ?? "", ...(p.tags ?? [])]
+              .join(" ")
+              .toLowerCase();
+            return activeSpecial.regex.test(haystack);
+          })
+          .slice(0, 12);
 
   return (
     <div>
