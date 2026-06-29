@@ -89,16 +89,8 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-// Round-trip helper: scroll by one card width
-function getCardStep(el: HTMLDivElement) {
-  const first = el.querySelector<HTMLElement>("[data-rail-item]");
-  if (!first) return el.clientWidth * 0.8;
-  const style = window.getComputedStyle(el);
-  const gap = parseFloat(style.columnGap || style.gap || "16") || 16;
-  return first.getBoundingClientRect().width + gap;
-}
+// (Legacy rail helpers removed — homepage rails are plain horizontal scrollers.)
 
-// (Legacy ProductRail / InfiniteRail removed — rails are now inlined per section.)
 
 
 const SPECIAL_FILTERS = [
