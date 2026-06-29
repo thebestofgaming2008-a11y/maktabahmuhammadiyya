@@ -612,21 +612,105 @@ function Home() {
         </div>
       </section>
 
-      {/* LANGUAGE SECTIONS */}
-      <ProductRail
-        eyebrow="English"
-        title="English books"
-        desc="Translations, contemporary works and study guides."
-        items={english}
-        seeAllTo="/shop"
-      />
-      <ProductRail
-        eyebrow="Other languages"
-        title="Arabic, Urdu & more"
-        desc="Non-English titles for native readers and students."
-        items={otherLanguages}
-        seeAllTo="/shop"
-      />
+      {/* THE LIBRARY — unified language-filterable rail */}
+      <section className="py-12 md:py-20 border-t border-border/60">
+        <div className="container-prose">
+          <div className="flex flex-col gap-6 reveal md:flex-row md:items-end md:justify-between">
+            <div className="max-w-xl">
+              <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
+                The library
+              </span>
+              <h2 className="font-display text-[28px] md:text-4xl mt-1.5 leading-[1.05]">
+                Browse books by language
+              </h2>
+              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                One bookshelf, every language. Filter to find the right edition for you.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => libraryRef.current?.scrollBy({ left: -getCardStep(libraryRef.current), behavior: "smooth" })}
+                aria-label="Scroll left"
+                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => libraryRef.current?.scrollBy({ left: getCardStep(libraryRef.current!), behavior: "smooth" })}
+                aria-label="Scroll right"
+                className="h-10 w-10 rounded-full border border-border flex items-center justify-center hover:bg-muted active:scale-95 transition-all"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Filter chips */}
+          <div className="mt-6 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
+            <div className="flex gap-2 border-b border-border">
+              {visibleLanguageFilters.map((f) => {
+                const active = languageFilter === f.key;
+                const count = libraryCounts[f.key];
+                return (
+                  <button
+                    key={f.key}
+                    onClick={() => setLanguageFilter(f.key)}
+                    className={`shrink-0 inline-flex items-center gap-2 px-1 pb-3 -mb-px text-[12px] font-semibold uppercase tracking-[0.14em] border-b-2 transition ${
+                      active
+                        ? "border-foreground text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {f.label}
+                    <span className={`text-[10px] font-medium normal-case tracking-normal ${active ? "text-muted-foreground" : "text-muted-foreground/70"}`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div
+          ref={libraryRef}
+          className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(1rem,calc((100vw-72rem)/2))] scroll-pl-4"
+          style={{ direction: "ltr" }}
+        >
+          {libraryItems.length ? (
+            <>
+              {libraryItems.map((p) => (
+                <div
+                  key={p.slug}
+                  data-rail-item
+                  className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
+                >
+                  <ProductCard product={p} />
+                </div>
+              ))}
+              <Link
+                to="/shop"
+                data-rail-item
+                className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px] aspect-[4/5] rounded-lg bg-secondary/40 flex flex-col items-center justify-center gap-3 text-foreground hover:bg-secondary/70 transition-colors group"
+              >
+                <span className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                  <ArrowRight className="h-5 w-5" />
+                </span>
+                <span className="font-display text-lg text-center px-3">See all</span>
+                <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Browse the shop
+                </span>
+              </Link>
+              <div className="shrink-0 w-1 md:hidden" />
+            </>
+          ) : (
+            <div className="container-prose py-8 text-sm text-muted-foreground">
+              No titles for this language yet — try another filter.
+            </div>
+          )}
+        </div>
+      </section>
+
 
       {/* SPECIAL ITEMS — brown contrast section */}
       {baseSpecial.length > 0 && (
