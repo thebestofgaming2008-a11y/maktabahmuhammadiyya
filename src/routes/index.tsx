@@ -321,6 +321,14 @@ const SPECIAL_FILTERS = [
   { key: "pen", label: "Pen", regex: /(pen|miswak)/i },
 ] as const;
 
+const LANGUAGE_FILTERS = [
+  { key: "all", label: "All books" },
+  { key: "english", label: "English" },
+  { key: "arabic", label: "Arabic" },
+  { key: "urdu", label: "Urdu" },
+] as const;
+type LanguageKey = (typeof LANGUAGE_FILTERS)[number]["key"];
+
 function Home() {
   const { products, loading } = useCatalogProducts();
   const booksOnly = products.filter((product) => product.topCategory === "books");
