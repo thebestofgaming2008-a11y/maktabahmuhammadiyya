@@ -327,14 +327,45 @@ function addressPreview(order: AdminOrder) {
   return lines.length ? lines.join(" · ") : "No shipping address saved";
 }
 
-function whatsappPhone(phone?: string | null) {
+const WHATSAPP_COUNTRY_PREFIX: Record<string, string> = {
+  belgium: "32",
+  india: "91",
+  "united kingdom": "44",
+  uk: "44",
+  "united states": "1",
+  usa: "1",
+  canada: "1",
+  netherlands: "31",
+  france: "33",
+  germany: "49",
+  spain: "34",
+  italy: "39",
+  morocco: "212",
+  pakistan: "92",
+  bangladesh: "880",
+  "united arab emirates": "971",
+  uae: "971",
+  "saudi arabia": "966",
+  qatar: "974",
+  kuwait: "965",
+  oman: "968",
+  bahrain: "973",
+};
+
+function whatsappPhone(phone?: string | null, country?: string | null) {
+  const raw = String(phone ?? "").trim();
   const digits = (phone ?? "").replace(/\D/g, "");
-  if (!digits) return null;
-  return digits.startsWith("00") ? digits.slice(2) : digits;
+  if (digits.length < 8) return null;
+  if (raw.startsWith("+")) return digits;
+  if (digits.startsWith("00")) return digits.slice(2);
+  const countryPrefix = WHATSAPP_COUNTRY_PREFIX[String(country ?? "").trim().toLowerCase()];
+  if (countryPrefix && !digits.startsWith(countryPrefix)) return `${countryPrefix}${digits.replace(/^0+/, "")}`;
+  return digits;
 }
 
 function trackingWhatsappUrl(order: AdminOrder, form: OrderFulfillmentState) {
-  const phone = whatsappPhone(order.customer_phone);
+  const address = orderShippingAddress(order);
+  const phone = whatsappPhone(order.customer_phone || address?.phone, address?.country);
   if (!phone) return null;
   const orderLabel = order.order_number ?? order.id.slice(0, 8);
   const carrier = form.carrier.trim() || "courier";
@@ -743,7 +774,8 @@ function AdminDashboard({ signOut }: { signOut: () => Promise<void> }) {
         };
       }
       const nextStatus = form.status === "processing" ? "shipped" : form.status;
-      if (nextStatus !== fulfillmentStatus({ ...order, ...patch })) {
+      const shouldUpdateStatus = nextStatus !== "shipped" && nextStatus !== fulfillmentStatus({ ...order, ...patch });
+      if (shouldUpdateStatus) {
         const saved = await updateOrderStatus(order.id, nextStatus);
         if (!saved) throw new Error("Order status update failed");
         patch = { ...patch, status: nextStatus };
@@ -755,8 +787,12 @@ function AdminDashboard({ signOut }: { signOut: () => Promise<void> }) {
         description: order.order_number ?? order.id.slice(0, 8),
       });
       void refreshNotifications();
-    } catch {
-      toast({ title: "Could not send tracking", variant: "destructive" });
+    } catch (error) {
+      toast({
+        title: "Could not send tracking",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -3649,7 +3685,10 @@ function OrderDetailsDialog({
       setSavingStatus(false);
     }
   };
-  const canSendTracking = Boolean(form.trackingNumber.trim() && order.customer_phone);
+  const canSendTracking = Boolean(
+    form.trackingNumber.trim() &&
+      whatsappPhone(order.customer_phone || shippingAddress?.phone, shippingAddress?.country),
+  );
   const statusChanged = form.status !== fulfillmentStatus(order);
   return (
     <div
@@ -3833,9 +3872,9 @@ function OrderDetailsDialog({
               >
                 {saving ? "Opening WhatsApp..." : "Send tracking on WhatsApp"}
               </button>
-              {!order.customer_phone && (
+              {!whatsappPhone(order.customer_phone || shippingAddress?.phone, shippingAddress?.country) && (
                 <p className="mt-2 text-[11px] text-red-600">
-                  Customer phone is required before tracking can be sent.
+                  Customer WhatsApp number with country code is required before tracking can be sent.
                 </p>
               )}
             </div>
