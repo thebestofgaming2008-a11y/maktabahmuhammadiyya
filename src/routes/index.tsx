@@ -198,9 +198,25 @@ function Home() {
   const [languageFilter, setLanguageFilter] = useState<"all" | "english" | "arabic" | "urdu" | "other">("all");
   const collectionsRef = useRef<HTMLDivElement>(null);
   const libraryRef = useRef<HTMLDivElement>(null);
+  const heroScrollerRef = useRef<HTMLDivElement>(null);
+  const [slideCount, setSlideCount] = useState(1);
+  const [userPaused, setUserPaused] = useState(false);
 
-  // Hero is static; slide is user-controlled via dots only — no auto-rotation, no animations.
+  // Auto-rotate hero every 5s; resets to 0 after last
+  useEffect(() => {
+    if (slideCount <= 1 || userPaused) return;
+    const id = window.setInterval(() => {
+      setSlide((s) => (s + 1) % slideCount);
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [slideCount, userPaused]);
 
+  // Sync horizontal scroll position to current slide
+  useEffect(() => {
+    const el = heroScrollerRef.current;
+    if (!el) return;
+    el.scrollTo({ left: slide * el.clientWidth, behavior: "smooth" });
+  }, [slide]);
 
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)");
@@ -225,6 +241,7 @@ function Home() {
     document.body.classList.add("is-landing");
     return () => document.body.classList.remove("is-landing");
   }, []);
+
 
 
   const byHomepagePriority = (a: Product, b: Product) =>
