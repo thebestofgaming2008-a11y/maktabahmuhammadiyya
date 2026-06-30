@@ -328,70 +328,116 @@ function Home() {
 
   return (
     <div>
-      {/* HERO CAROUSEL */}
-      <section className="relative">
-        <div className="relative h-[68vh] min-h-[460px] md:h-[78vh] md:max-h-[720px] overflow-hidden">
-          {heroSlides.map((s, i) => (
-            <div
-              key={i}
-              className={`absolute inset-0 transition-opacity duration-1000 ${i === slide ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-            >
-              <img
-                src={s.image}
-                alt={s.title}
-                className={`absolute inset-0 w-full h-full object-cover ${i === slide ? "ken-burns" : ""}`}
-                style={{ objectPosition: s.position }}
-                fetchPriority={i === 0 ? "high" : "low"}
-              />
-              {/* Cleaner single overlay: subtle vignette bottom-left */}
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/30 to-transparent md:bg-[linear-gradient(100deg,rgba(20,12,4,0.62)_0%,rgba(20,12,4,0.28)_42%,rgba(20,12,4,0)_70%)]" />
-              <div className="absolute inset-0 flex flex-col justify-end">
-                <div
-                  key={`${i}-${slide}`}
-                  className="container-prose pb-14 md:pb-24 text-background hero-rise"
-                >
-                  <span className="inline-block text-[11px] uppercase tracking-[0.28em] mb-4 opacity-90 font-medium">
+      {/* HERO — static, simple, transparent product on a cream/brown panel */}
+      {(() => {
+        const bookCovers = booksOnly
+          .slice(0, 3)
+          .map((p) => p.images?.[0])
+          .filter((src): src is string => Boolean(src));
+        const dynamicSlides: Array<HeroSlide & { covers?: string[] }> = [
+          ...heroSlides,
+          {
+            eyebrow: "Islamic books",
+            title: "Build a library you can return to.",
+            sub: "Aqeedah, Tafsir, Hadith, Seerah and carefully chosen study titles.",
+            cta: "Browse books",
+            category: "books",
+            product: bookCovers[0] ?? "",
+            bg: "cream",
+            covers: bookCovers,
+          },
+        ];
+        const s = dynamicSlides[slide % dynamicSlides.length] ?? dynamicSlides[0];
+        const isBrown = s.bg === "brown";
+        const panel = isBrown
+          ? "bg-primary text-primary-foreground"
+          : "bg-secondary/50 text-foreground";
+        const rule = isBrown ? "bg-primary-foreground/40" : "bg-foreground/30";
+        const ctaClass = isBrown
+          ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+          : "bg-foreground text-background hover:bg-foreground/90";
+        const subColor = isBrown ? "text-primary-foreground/80" : "text-muted-foreground";
+        const covers = s.covers ?? [s.product].filter(Boolean);
+
+        return (
+          <section className={`relative ${panel}`}>
+            <div className="container-prose grid md:grid-cols-2 items-center gap-10 md:gap-12 py-12 md:py-20 lg:py-24">
+              {/* TEXT */}
+              <div className="order-2 md:order-1 max-w-xl">
+                <div className="flex items-center gap-3">
+                  <span className={`h-px w-8 ${rule}`} />
+                  <span className="text-[11px] uppercase tracking-[0.28em] font-medium">
                     {s.eyebrow}
                   </span>
-                  {i === 0 ? (
-                    <h1 className="font-display text-[34px] md:text-6xl lg:text-[68px] max-w-3xl leading-[1.02]">
-                      {s.title}
-                    </h1>
-                  ) : (
-                    <h2 className="font-display text-[34px] md:text-6xl lg:text-[68px] max-w-3xl leading-[1.02]">
-                      {s.title}
-                    </h2>
-                  )}
-                  <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
-                    {s.sub}
-                  </p>
-                  <div className="mt-7 flex flex-wrap gap-3">
-                    <Link
-                      to="/shop"
-                      search={{ c: s.category } as never}
-                      className="inline-flex items-center gap-2 bg-background text-foreground rounded-none px-8 py-3.5 text-[12px] font-semibold uppercase tracking-[0.16em] transition hover:bg-foreground hover:text-background"
-                    >
-                      {s.cta}
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
+                </div>
+                <h1 className="font-display text-[36px] md:text-6xl lg:text-[64px] mt-5 leading-[1.02] tracking-[-0.01em]">
+                  {s.title}
+                </h1>
+                <p className={`mt-5 text-[15px] md:text-base leading-relaxed max-w-md ${subColor}`}>
+                  {s.sub}
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    to="/shop"
+                    search={{ c: s.category } as never}
+                    className={`inline-flex items-center gap-2 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
+                  >
+                    {s.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </div>
               </div>
-            </div>
-          ))}
 
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-            {heroSlides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setSlide(i)}
-                aria-label={`Go to slide ${i + 1}`}
-                className={`h-1 rounded-full transition-all duration-500 ${i === slide ? "w-8 bg-background" : "w-4 bg-background/50 hover:bg-background/75"}`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+              {/* PRODUCT */}
+              <div className="order-1 md:order-2 relative h-[320px] sm:h-[400px] md:h-[480px] lg:h-[540px]">
+                {covers.length > 1 ? (
+                  <div className="absolute inset-0 flex items-end justify-center gap-3 sm:gap-5">
+                    {covers.slice(0, 3).map((src, i) => {
+                      const isCenter = i === 1;
+                      return (
+                        <img
+                          key={`${src}-${i}`}
+                          src={src}
+                          alt=""
+                          aria-hidden
+                          className={`object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
+                            isCenter ? "h-full" : "h-[80%]"
+                          }`}
+                        />
+                      );
+                    })}
+                  </div>
+                ) : covers[0] ? (
+                  <img
+                    src={covers[0]}
+                    alt={s.title}
+                    className="absolute inset-0 m-auto h-full w-full object-contain drop-shadow-[0_30px_50px_rgba(40,24,12,0.3)]"
+                  />
+                ) : null}
+              </div>
+            </div>
+
+            {/* Slide dots */}
+            {dynamicSlides.length > 1 && (
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                {dynamicSlides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSlide(i)}
+                    aria-label={`Go to slide ${i + 1}`}
+                    className={`h-1 rounded-full transition-all ${
+                      i === (slide % dynamicSlides.length)
+                        ? `w-8 ${isBrown ? "bg-primary-foreground" : "bg-foreground"}`
+                        : `w-4 ${isBrown ? "bg-primary-foreground/40" : "bg-foreground/30"} hover:opacity-80`
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        );
+      })()}
+
 
       {/* Guarantee strip — cream, no dividers */}
       <section className="border-b border-border/60 bg-background">
