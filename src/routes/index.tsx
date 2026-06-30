@@ -6,9 +6,7 @@ import type { Product } from "@/lib/products";
 import { productSubjectKeys } from "@/data/products";
 import { ArrowRight, MessageCircle } from "lucide-react";
 
-import heroImage from "@/assets/hero.jpg";
-import heroBooks from "@/assets/hero-books-real.jpg";
-import heroStudy from "@/assets/hero-study-real.jpg";
+import niqabHero from "@/assets/niqab-transparent.png.asset.json";
 import { seo } from "@/lib/seo";
 import subjectAqeedah from "@/assets/subjects/aqeedah.webp";
 import subjectArabic from "@/assets/subjects/arabic.webp";
@@ -22,33 +20,25 @@ import subjectQuran from "@/assets/subjects/quran.webp";
 import subjectSeerah from "@/assets/subjects/seerah.webp";
 import subjectTafsir from "@/assets/subjects/tafsir.webp";
 
-const heroSlides = [
+type HeroSlide = {
+  eyebrow: string;
+  title: string;
+  sub: string;
+  cta: string;
+  category: string;
+  product: string; // transparent png URL
+  bg: "cream" | "brown";
+};
+
+const heroSlides: HeroSlide[] = [
   {
-    image: heroImage,
     eyebrow: "Modest clothing",
-    title: "Niqabs and essentials, carefully selected.",
+    title: "Niqabs & jilbabs, carefully selected.",
     sub: "Simple, modest pieces alongside a curated Islamic bookshop.",
     cta: "Shop clothing",
     category: "clothing",
-    position: "center",
-  },
-  {
-    image: heroBooks,
-    eyebrow: "Islamic books",
-    title: "Build a library you can return to.",
-    sub: "Aqeedah, Tafsir, Hadith, Seerah and carefully chosen study titles.",
-    cta: "Browse books",
-    category: "books",
-    position: "72% center",
-  },
-  {
-    image: heroStudy,
-    eyebrow: "Study collections",
-    title: "Find the right title by subject.",
-    sub: "Browse clear categories so every customer reaches the correct book faster.",
-    cta: "Explore subjects",
-    category: "aqeedah",
-    position: "72% center",
+    product: niqabHero.url,
+    bg: "cream",
   },
 ];
 
@@ -91,9 +81,9 @@ export const Route = createFileRoute("/")({
 
 // (Legacy rail helpers removed — homepage rails are plain horizontal scrollers.)
 
-type MosaicTone = "dark" | "brand";
+type BannerTone = "cream" | "brown";
 
-function MosaicBanner({
+function ProductBanner({
   products,
   eyebrow,
   title,
@@ -101,7 +91,7 @@ function MosaicBanner({
   ctaLabel,
   ctaTo,
   ctaSearch,
-  tone = "dark",
+  tone = "cream",
 }: {
   products: Product[];
   eyebrow: string;
@@ -110,95 +100,80 @@ function MosaicBanner({
   ctaLabel: string;
   ctaTo: string;
   ctaSearch?: Record<string, string>;
-  tone?: MosaicTone;
+  tone?: BannerTone;
 }) {
-  // Pick the strongest single hero cover + one supporting cover for depth.
   const covers = products
     .map((p) => p.images?.[0])
-    .filter((src): src is string => Boolean(src));
-  const heroCover = covers[0];
+    .filter((src): src is string => Boolean(src))
+    .slice(0, 4);
 
-  const isBrand = tone === "brand";
-  const panelBg = isBrand ? "bg-primary text-primary-foreground" : "bg-foreground text-background";
-  const ctaClass = isBrand
+  const isBrown = tone === "brown";
+  const panel = isBrown
+    ? "bg-primary text-primary-foreground"
+    : "bg-secondary/50 text-foreground";
+  const ruleColor = isBrown ? "bg-primary-foreground/40" : "bg-foreground/30";
+  const ctaClass = isBrown
     ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-    : "bg-background text-foreground hover:bg-background/90";
-  const rule = isBrand ? "bg-primary-foreground/30" : "bg-background/30";
-
-  // Build a strip of covers for the background collage
-  const stripCovers = covers.slice(0, 6);
-
-  const overlayClass = isBrand
-    ? "bg-[linear-gradient(180deg,rgba(58,32,16,0.55)_0%,rgba(58,32,16,0.78)_60%,rgba(58,32,16,0.92)_100%)]"
-    : "bg-[linear-gradient(180deg,rgba(20,12,4,0.45)_0%,rgba(20,12,4,0.72)_60%,rgba(20,12,4,0.88)_100%)]";
-  const textColor = isBrand ? "text-primary-foreground" : "text-background";
+    : "bg-foreground text-background hover:bg-foreground/90";
+  const subColor = isBrown ? "text-primary-foreground/80" : "text-muted-foreground";
 
   return (
-    <div className="relative w-full reveal overflow-hidden">
-      <div className="relative min-h-[520px] md:min-h-[620px]">
-        {/* BACKGROUND — blurred hero cover for color + atmosphere */}
-        {heroCover ? (
-          <img
-            src={heroCover}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl"
-          />
-        ) : (
-          <div className={`absolute inset-0 ${panelBg}`} />
-        )}
-
-        {/* Mid-layer: subtle floating covers strip behind the text */}
-        {stripCovers.length > 0 && (
-          <div className="absolute inset-0 flex items-center justify-center gap-4 md:gap-6 px-4 opacity-[0.55] md:opacity-60">
-            {stripCovers.map((src, i) => (
-              <img
-                key={`${src}-${i}`}
-                src={src}
-                alt=""
-                aria-hidden
-                className="h-[58%] md:h-[68%] w-auto object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)]"
-                style={{
-                  transform: `translateY(${(i % 2 === 0 ? -1 : 1) * (6 + i * 2)}px) rotate(${(i - stripCovers.length / 2) * 2}deg)`,
-                }}
-              />
-            ))}
+    <div className={`w-full ${panel}`}>
+      <div className="container-prose grid md:grid-cols-2 items-center gap-10 md:gap-16 py-14 md:py-24">
+        {/* TEXT */}
+        <div className="order-2 md:order-1 max-w-lg">
+          <div className="flex items-center gap-3">
+            <span className={`h-px w-8 ${ruleColor}`} />
+            <span className="text-[11px] uppercase tracking-[0.28em] font-medium">
+              {eyebrow}
+            </span>
           </div>
-        )}
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl mt-5 leading-[1.04] tracking-[-0.01em]">
+            {title}
+          </h2>
+          <p className={`mt-5 text-[15px] leading-relaxed ${subColor}`}>
+            {description}
+          </p>
+          <Link
+            to={ctaTo}
+            search={ctaSearch as never}
+            className={`mt-8 inline-flex items-center gap-2 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
+          >
+            {ctaLabel}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
 
-        {/* Dark gradient overlay so text reads clean */}
-        <div className={`absolute inset-0 ${overlayClass}`} />
-
-        {/* TEXT — centered over the image */}
-        <div className={`relative z-10 flex items-center justify-center min-h-[520px] md:min-h-[620px] ${textColor}`}>
-          <div className="w-full max-w-3xl px-6 md:px-10 py-20 md:py-28 text-center">
-            <div className="flex items-center justify-center gap-3">
-              <span className={`h-px w-8 ${rule}`} />
-              <span className="text-[11px] uppercase tracking-[0.32em] font-medium opacity-90">
-                {eyebrow}
-              </span>
-              <span className={`h-px w-8 ${rule}`} />
+        {/* PRODUCT COMPOSITION — transparent product images */}
+        <div className="order-1 md:order-2 relative h-[280px] sm:h-[340px] md:h-[440px] lg:h-[480px]">
+          {covers.length > 0 && (
+            <div className="absolute inset-0 flex items-end justify-center gap-3 sm:gap-5">
+              {covers.map((src, i) => {
+                const total = covers.length;
+                // center one bigger, side ones smaller (staggered shelf)
+                const isCenter = i === Math.floor(total / 2);
+                return (
+                  <img
+                    key={`${src}-${i}`}
+                    src={src}
+                    alt=""
+                    aria-hidden
+                    loading="lazy"
+                    className={`object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
+                      isCenter ? "h-full" : "h-[78%] md:h-[82%]"
+                    }`}
+                    style={{ maxWidth: `${100 / total}%` }}
+                  />
+                );
+              })}
             </div>
-            <h2 className="font-display font-light text-4xl md:text-6xl lg:text-7xl mt-6 leading-[1.02] tracking-[-0.01em]">
-              {title}
-            </h2>
-            <p className="mt-5 text-[14px] md:text-[16px] leading-relaxed opacity-85 max-w-xl mx-auto">
-              {description}
-            </p>
-            <Link
-              to={ctaTo}
-              search={ctaSearch as never}
-              className={`mt-9 inline-flex items-center gap-2 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
-            >
-              {ctaLabel}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
 
 
 
@@ -224,10 +199,8 @@ function Home() {
   const collectionsRef = useRef<HTMLDivElement>(null);
   const libraryRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const t = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 6000);
-    return () => clearInterval(t);
-  }, []);
+  // Hero is static; slide is user-controlled via dots only — no auto-rotation, no animations.
+
 
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)");
@@ -353,70 +326,116 @@ function Home() {
 
   return (
     <div>
-      {/* HERO CAROUSEL */}
-      <section className="relative">
-        <div className="relative h-[68vh] min-h-[460px] md:h-[78vh] md:max-h-[720px] overflow-hidden">
-          {heroSlides.map((s, i) => (
-            <div
-              key={i}
-              className={`absolute inset-0 transition-opacity duration-1000 ${i === slide ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-            >
-              <img
-                src={s.image}
-                alt={s.title}
-                className={`absolute inset-0 w-full h-full object-cover ${i === slide ? "ken-burns" : ""}`}
-                style={{ objectPosition: s.position }}
-                fetchPriority={i === 0 ? "high" : "low"}
-              />
-              {/* Cleaner single overlay: subtle vignette bottom-left */}
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/30 to-transparent md:bg-[linear-gradient(100deg,rgba(20,12,4,0.62)_0%,rgba(20,12,4,0.28)_42%,rgba(20,12,4,0)_70%)]" />
-              <div className="absolute inset-0 flex flex-col justify-end">
-                <div
-                  key={`${i}-${slide}`}
-                  className="container-prose pb-14 md:pb-24 text-background hero-rise"
-                >
-                  <span className="inline-block text-[11px] uppercase tracking-[0.28em] mb-4 opacity-90 font-medium">
+      {/* HERO — static, simple, transparent product on a cream/brown panel */}
+      {(() => {
+        const bookCovers = booksOnly
+          .slice(0, 3)
+          .map((p) => p.images?.[0])
+          .filter((src): src is string => Boolean(src));
+        const dynamicSlides: Array<HeroSlide & { covers?: string[] }> = [
+          ...heroSlides,
+          {
+            eyebrow: "Islamic books",
+            title: "Build a library you can return to.",
+            sub: "Aqeedah, Tafsir, Hadith, Seerah and carefully chosen study titles.",
+            cta: "Browse books",
+            category: "books",
+            product: bookCovers[0] ?? "",
+            bg: "cream",
+            covers: bookCovers,
+          },
+        ];
+        const s = dynamicSlides[slide % dynamicSlides.length] ?? dynamicSlides[0];
+        const isBrown = s.bg === "brown";
+        const panel = isBrown
+          ? "bg-primary text-primary-foreground"
+          : "bg-secondary/50 text-foreground";
+        const rule = isBrown ? "bg-primary-foreground/40" : "bg-foreground/30";
+        const ctaClass = isBrown
+          ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+          : "bg-foreground text-background hover:bg-foreground/90";
+        const subColor = isBrown ? "text-primary-foreground/80" : "text-muted-foreground";
+        const covers = s.covers ?? [s.product].filter(Boolean);
+
+        return (
+          <section className={`relative ${panel}`}>
+            <div className="container-prose grid md:grid-cols-2 items-center gap-10 md:gap-12 py-12 md:py-20 lg:py-24">
+              {/* TEXT */}
+              <div className="order-2 md:order-1 max-w-xl">
+                <div className="flex items-center gap-3">
+                  <span className={`h-px w-8 ${rule}`} />
+                  <span className="text-[11px] uppercase tracking-[0.28em] font-medium">
                     {s.eyebrow}
                   </span>
-                  {i === 0 ? (
-                    <h1 className="font-display text-[34px] md:text-6xl lg:text-[68px] max-w-3xl leading-[1.02]">
-                      {s.title}
-                    </h1>
-                  ) : (
-                    <h2 className="font-display text-[34px] md:text-6xl lg:text-[68px] max-w-3xl leading-[1.02]">
-                      {s.title}
-                    </h2>
-                  )}
-                  <p className="mt-4 max-w-md text-sm md:text-base opacity-90 leading-relaxed">
-                    {s.sub}
-                  </p>
-                  <div className="mt-7 flex flex-wrap gap-3">
-                    <Link
-                      to="/shop"
-                      search={{ c: s.category } as never}
-                      className="inline-flex items-center gap-2 bg-background text-foreground rounded-none px-8 py-3.5 text-[12px] font-semibold uppercase tracking-[0.16em] transition hover:bg-foreground hover:text-background"
-                    >
-                      {s.cta}
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
+                </div>
+                <h1 className="font-display text-[36px] md:text-6xl lg:text-[64px] mt-5 leading-[1.02] tracking-[-0.01em]">
+                  {s.title}
+                </h1>
+                <p className={`mt-5 text-[15px] md:text-base leading-relaxed max-w-md ${subColor}`}>
+                  {s.sub}
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    to="/shop"
+                    search={{ c: s.category } as never}
+                    className={`inline-flex items-center gap-2 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
+                  >
+                    {s.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </div>
               </div>
-            </div>
-          ))}
 
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-            {heroSlides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setSlide(i)}
-                aria-label={`Go to slide ${i + 1}`}
-                className={`h-1 rounded-full transition-all duration-500 ${i === slide ? "w-8 bg-background" : "w-4 bg-background/50 hover:bg-background/75"}`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+              {/* PRODUCT */}
+              <div className="order-1 md:order-2 relative h-[320px] sm:h-[400px] md:h-[480px] lg:h-[540px]">
+                {covers.length > 1 ? (
+                  <div className="absolute inset-0 flex items-end justify-center gap-3 sm:gap-5">
+                    {covers.slice(0, 3).map((src, i) => {
+                      const isCenter = i === 1;
+                      return (
+                        <img
+                          key={`${src}-${i}`}
+                          src={src}
+                          alt=""
+                          aria-hidden
+                          className={`object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
+                            isCenter ? "h-full" : "h-[80%]"
+                          }`}
+                        />
+                      );
+                    })}
+                  </div>
+                ) : covers[0] ? (
+                  <img
+                    src={covers[0]}
+                    alt={s.title}
+                    className="absolute inset-0 m-auto h-full w-full object-contain drop-shadow-[0_30px_50px_rgba(40,24,12,0.3)]"
+                  />
+                ) : null}
+              </div>
+            </div>
+
+            {/* Slide dots */}
+            {dynamicSlides.length > 1 && (
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                {dynamicSlides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSlide(i)}
+                    aria-label={`Go to slide ${i + 1}`}
+                    className={`h-1 rounded-full transition-all ${
+                      i === (slide % dynamicSlides.length)
+                        ? `w-8 ${isBrown ? "bg-primary-foreground" : "bg-foreground"}`
+                        : `w-4 ${isBrown ? "bg-primary-foreground/40" : "bg-foreground/30"} hover:opacity-80`
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        );
+      })()}
+
 
       {/* Guarantee strip — cream, no dividers */}
       <section className="border-b border-border/60 bg-background">
@@ -523,14 +542,14 @@ function Home() {
 
       {/* THE LIBRARY — mosaic banner of real book covers + horizontal rail */}
       <section className="pb-12 md:pb-20 border-t border-border/60">
-        <MosaicBanner
+        <ProductBanner
           products={libraryAll.slice(0, 8)}
           eyebrow="The library"
           title="Books by language"
           description="English, Arabic, Urdu and beyond — filter to find your edition."
           ctaLabel="Shop the library"
           ctaTo="/shop"
-          tone="dark"
+          tone="cream"
         />
 
         <div className="container-prose mt-8 md:mt-10">
@@ -600,14 +619,14 @@ function Home() {
       {/* SETS / BUNDLES — image banner + rail */}
       {setsItems.length > 0 && (
         <section className="pb-12 md:pb-20 border-t border-border/60">
-          <MosaicBanner
+          <ProductBanner
             products={setsItems.slice(0, 8)}
             eyebrow="Sets & bundles"
             title="Build a shelf in one order"
             description="Multi-volume sets and curated bundles, ready to ship together."
             ctaLabel="Shop all sets"
             ctaTo="/shop"
-            tone="dark"
+            tone="cream"
           />
           <div
             className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
@@ -631,7 +650,7 @@ function Home() {
       {/* SPECIAL ITEMS — brown contrast + image banner */}
       {baseSpecial.length > 0 && (
         <section className="bg-primary text-primary-foreground pb-14 md:pb-20">
-          <MosaicBanner
+          <ProductBanner
             products={baseSpecial.slice(0, 8)}
             eyebrow="Special items"
             title="Niqab, jilbab, kufi & pens"
@@ -639,7 +658,7 @@ function Home() {
             ctaLabel="Shop all special"
             ctaTo="/shop"
             ctaSearch={{ c: "clothing" }}
-            tone="brand"
+            tone="brown"
           />
 
           <div className="container-prose mt-8 md:mt-10">
