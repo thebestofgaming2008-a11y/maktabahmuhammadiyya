@@ -6,9 +6,7 @@ import type { Product } from "@/lib/products";
 import { productSubjectKeys } from "@/data/products";
 import { ArrowRight, MessageCircle } from "lucide-react";
 
-import heroImage from "@/assets/hero.jpg";
-import heroBooks from "@/assets/hero-books-real.jpg";
-import heroStudy from "@/assets/hero-study-real.jpg";
+import niqabHero from "@/assets/niqab-transparent.png.asset.json";
 import { seo } from "@/lib/seo";
 import subjectAqeedah from "@/assets/subjects/aqeedah.webp";
 import subjectArabic from "@/assets/subjects/arabic.webp";
@@ -22,33 +20,25 @@ import subjectQuran from "@/assets/subjects/quran.webp";
 import subjectSeerah from "@/assets/subjects/seerah.webp";
 import subjectTafsir from "@/assets/subjects/tafsir.webp";
 
-const heroSlides = [
+type HeroSlide = {
+  eyebrow: string;
+  title: string;
+  sub: string;
+  cta: string;
+  category: string;
+  product: string; // transparent png URL
+  bg: "cream" | "brown";
+};
+
+const heroSlides: HeroSlide[] = [
   {
-    image: heroImage,
     eyebrow: "Modest clothing",
-    title: "Niqabs and essentials, carefully selected.",
+    title: "Niqabs & jilbabs, carefully selected.",
     sub: "Simple, modest pieces alongside a curated Islamic bookshop.",
     cta: "Shop clothing",
     category: "clothing",
-    position: "center",
-  },
-  {
-    image: heroBooks,
-    eyebrow: "Islamic books",
-    title: "Build a library you can return to.",
-    sub: "Aqeedah, Tafsir, Hadith, Seerah and carefully chosen study titles.",
-    cta: "Browse books",
-    category: "books",
-    position: "72% center",
-  },
-  {
-    image: heroStudy,
-    eyebrow: "Study collections",
-    title: "Find the right title by subject.",
-    sub: "Browse clear categories so every customer reaches the correct book faster.",
-    cta: "Explore subjects",
-    category: "aqeedah",
-    position: "72% center",
+    product: niqabHero.url,
+    bg: "cream",
   },
 ];
 
