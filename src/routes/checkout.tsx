@@ -6,6 +6,7 @@ import { api } from "../../convex/_generated/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/lib/cart";
 import { seo } from "@/lib/seo";
+import { convex } from "@/integrations/convex/client";
 
 export const Route = createFileRoute("/checkout")({
   head: () =>
@@ -28,6 +29,17 @@ type CustomerForm = {
   state: string;
   postal_code: string;
   country: string;
+};
+
+type CheckoutProduct = {
+  id: string;
+  name?: string | null;
+  slug?: string | null;
+  price?: number | null;
+  price_inr?: number | null;
+  sale_price_inr?: number | null;
+  cover_image_url?: string | null;
+  images?: string[] | null;
 };
 
 const emptyCustomer: CustomerForm = {
@@ -60,7 +72,7 @@ function Checkout() {
   const totalLabel = fmt(total);
 
   const canCreateBackendOrder = useMemo(
-    () => detailed.every((item) => Boolean(item.product.id)),
+    () => detailed.every((item) => Boolean(item.slug)),
     [detailed],
   );
 
@@ -167,20 +179,41 @@ function Checkout() {
 
     setSubmitting(true);
     try {
+      const freshProducts = await Promise.all(
+        detailed.map(
+          (item) =>
+            convex.query(api.products.getProductBySlug, {
+              slug: item.slug,
+            }) as Promise<CheckoutProduct | null>,
+        ),
+      );
+      if (freshProducts.some((product) => !product?.id)) {
+        setError("This cart contains unavailable items. Please refresh the shop and try again.");
+        return;
+      }
+
       const draftMessage = buildMessage();
       const order: any = await createWhatsAppOrder({
-        cart: detailed.map((item) => ({
-          cartKey: `${item.slug}:${item.size ?? ""}:${item.color}`,
-          productId: item.product.id!,
-          qty: item.qty,
-          name: item.product.title,
-          price: item.product.price,
-          priceInr: item.product.price,
-          image: item.product.images[0] ?? null,
-          slug: item.slug,
-          selectedColor: item.color,
-          selectedSize: item.size ?? null,
-        })),
+        cart: detailed.map((item, index) => {
+          const product = freshProducts[index]!;
+          const price = Number(
+            product.sale_price_inr ?? product.price_inr ?? product.price ?? item.product.price,
+          );
+          const image =
+            product.cover_image_url ?? product.images?.[0] ?? item.product.images[0] ?? null;
+          return {
+            cartKey: `${product.slug ?? item.slug}:${item.size ?? ""}:${item.color}`,
+            productId: product.id,
+            qty: item.qty,
+            name: product.name ?? item.product.title,
+            price,
+            priceInr: price,
+            image,
+            slug: product.slug ?? item.slug,
+            selectedColor: item.color,
+            selectedSize: item.size ?? null,
+          };
+        }),
         customer,
         whatsappMessage: draftMessage,
       });

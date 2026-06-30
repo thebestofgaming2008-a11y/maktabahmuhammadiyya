@@ -129,12 +129,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CartCtx>(() => {
     const catalogBySlug = new Map(
-      [...catalog, ...products].map((product) => [product.slug, product]),
+      [...products, ...catalog].map((product) => [product.slug, product]),
     );
     const detailed = items
       .map((it) => {
-        const product =
-          it.product?.id && it.product?.images?.length ? it.product : catalogBySlug.get(it.slug);
+        const product = catalogBySlug.get(it.slug) ?? it.product;
         return product ? { ...it, product, lineTotal: product.price * it.qty } : null;
       })
       .filter(Boolean) as CartCtx["detailed"];

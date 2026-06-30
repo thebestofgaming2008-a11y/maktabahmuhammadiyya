@@ -382,7 +382,7 @@ export const LOCAL_PRODUCTS = [
     "category": "books",
     "category_id": "character-development",
     "color_options": [],
-    "cover_image_url": "https://maktabahmuhammadiya.pages.dev/api/media/object/media/1782061794755-15c92292-23bb-4214-a734-0d5a14144c2c-image-photoroom.png#image-Photoroom.png",
+    "cover_image_url": "/product-images/maktaba/09-shop-images-webp/maktaba-shop-image-010.webp",
     "id": "k973gkhp7130bhq4enpve9wq4s88taya",
     "in_stock": true,
     "is_active": true,
@@ -409,7 +409,7 @@ export const LOCAL_PRODUCTS = [
       "English"
     ],
     "images": [
-      "https://maktabahmuhammadiya.pages.dev/api/media/object/media/1782061794755-15c92292-23bb-4214-a734-0d5a14144c2c-image-photoroom.png#image-Photoroom.png"
+      "/product-images/maktaba/09-shop-images-webp/maktaba-shop-image-010.webp"
     ],
     "description": "The Islamic Awakening by Shaykh Muhammad ibn Salih al-Uthaymeen. A selected English title covering Character Development, prepared for WhatsApp ordering through Maktabah Muhammadiya.",
     "rating": null,
@@ -1949,7 +1949,7 @@ export const LOCAL_PRODUCTS = [
     "category": "books",
     "category_id": "purification",
     "color_options": [],
-    "cover_image_url": "https://maktabahmuhammadiya.pages.dev/api/media/object/media/1782061349138-92c56fa1-c816-4a9e-bde3-61ded7821f81-image.png#image.png",
+    "cover_image_url": "/product-images/maktaba/09-shop-images-webp/maktaba-shop-image-056.webp",
     "id": "k975qh96hf73ggzps2qjqrq0qn88vxgd",
     "in_stock": true,
     "is_active": true,
@@ -1976,7 +1976,7 @@ export const LOCAL_PRODUCTS = [
       "English"
     ],
     "images": [
-      "https://maktabahmuhammadiya.pages.dev/api/media/object/media/1782061349138-92c56fa1-c816-4a9e-bde3-61ded7821f81-image.png#image.png"
+      "/product-images/maktaba/09-shop-images-webp/maktaba-shop-image-056.webp"
     ],
     "description": "Fortress of the Muslim by Sa'id bin Ali bin Wahf al-Qahtani. A selected English title covering Du'a & Adhkar, prepared for WhatsApp ordering through Maktabah Muhammadiya.",
     "rating": null,
