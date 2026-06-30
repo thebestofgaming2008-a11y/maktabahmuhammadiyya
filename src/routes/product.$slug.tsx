@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 import {
   Check,
@@ -15,6 +16,7 @@ import { useCart } from "@/lib/cart";
 import { useCatalogProduct, useCatalogProducts } from "@/lib/catalog";
 import { BOOK_SUBJECTS, CATEGORIES } from "@/data/products";
 import { absoluteUrl, BRAND_SEARCH_NAME, seo, titleFromSlug } from "@/lib/seo";
+import { api } from "../../convex/_generated/api";
 
 export const Route = createFileRoute("/product/$slug")({
   loader: ({ params }) => {
@@ -64,14 +66,10 @@ function ProductPage() {
   const [showStickyCart, setShowStickyCart] = useState(false);
   const [footerVisible, setFooterVisible] = useState(false);
   const mainAddRef = useRef<HTMLButtonElement>(null);
-  const publishedReviews: Array<{
-    _id: string;
-    rating: number;
-    title?: string | null;
-    body: string;
-    author_name?: string | null;
-    created_at?: number | null;
-  }> = [];
+  const publishedReviews = useQuery(
+    api.reviews.listPublishedForProduct,
+    product?.id ? { productId: product.id } : "skip",
+  );
 
   useEffect(() => {
     if (!product) return;
@@ -271,7 +269,7 @@ function ProductPage() {
   ];
 
   return (
-    <div className="page-soft-enter pb-28 md:pb-24">
+    <div className="page-soft-enter pb-28 md:pb-0">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, breadcrumbSchema]) }}
@@ -396,7 +394,7 @@ function ProductPage() {
               <div>
                 <div className="mb-2 text-sm font-medium">Size</div>
                 <div className="flex flex-wrap gap-2">
-                  {product.sizes?.map((option) => (
+                  {product.sizes.map((option) => (
                     <button
                       key={option}
                       type="button"
@@ -471,12 +469,6 @@ function ProductPage() {
             </div>
           </div>
 
-          <p className="border-b py-4 text-xs leading-relaxed text-muted-foreground">
-            <span className="font-semibold text-foreground">Shipping note:</span> Shipping charges
-            are calculated at the time of dispatch and confirmed before payment. Rates for
-            international customers may differ based on destination and weight.
-          </p>
-
           <div className="divide-y border-b">
             {sections.map((section) => (
               <div key={section.id} id={section.id === "reviews" ? "reviews" : undefined}>
@@ -537,106 +529,28 @@ function ProductPage() {
       ) : null}
 
       {shouldShowStickyCart ? (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border/70 bg-background/95 px-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-12px_34px_-18px_rgba(86,56,24,0.32)] backdrop-blur animate-in slide-in-from-bottom-3 fade-in duration-200">
-          <div className="container-prose flex items-center gap-3 md:gap-4">
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 px-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2.5 shadow-[0_-12px_34px_-18px_rgba(86,56,24,0.32)] backdrop-blur md:hidden animate-in slide-in-from-bottom-3 fade-in duration-200">
+          <div className="mx-auto flex max-w-lg items-center gap-3">
             <img
               src={activeImage}
               alt=""
-              className="h-11 w-10 shrink-0 rounded-md border bg-white object-contain p-1 md:h-14 md:w-12"
+              className="h-11 w-10 shrink-0 rounded-md border bg-white object-contain p-1"
             />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold md:text-sm">{product.title}</p>
+              <p className="truncate text-xs font-semibold">{product.title}</p>
               <p className="text-xs tabular-nums text-muted-foreground">
                 {fmt(product.price * qty)}
               </p>
             </div>
-
-            {hasSizeChoices ? (
-              <select
-                value={size ?? ""}
-                onChange={(e) => setSize(e.target.value)}
-                aria-label="Size"
-                className="hidden md:block h-10 rounded-md border border-border bg-background px-2 text-sm"
-              >
-                <option value="" disabled>
-                  Size
-                </option>
-                {product.sizes?.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            ) : null}
-
-            {hasColorChoices ? (
-              <select
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                aria-label="Colour"
-                className="hidden md:block h-10 rounded-md border border-border bg-background px-2 text-sm"
-              >
-                {product.colors.map((c) => (
-                  <option key={c.name} value={c.name}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            ) : null}
-
-            <div className="hidden md:inline-flex h-10 items-center rounded-md border border-border">
-              <button
-                type="button"
-                onClick={() => setQty(Math.max(1, qty - 1))}
-                aria-label="Decrease quantity"
-                className="grid h-10 w-9 place-items-center hover:bg-muted"
-              >
-                <Minus className="h-3.5 w-3.5" />
-              </button>
-              <span className="w-7 text-center text-sm tabular-nums">{qty}</span>
-              <button
-                type="button"
-                onClick={() => setQty(qty + 1)}
-                aria-label="Increase quantity"
-                className="grid h-10 w-9 place-items-center hover:bg-muted"
-              >
-                <Plus className="h-3.5 w-3.5" />
-              </button>
-            </div>
-
             <button
               type="button"
               onClick={addToCart}
               disabled={!product.inStock}
-              className="btn-cta flex h-11 shrink-0 items-center justify-center rounded-md bg-primary px-5 text-sm font-semibold uppercase tracking-[0.1em] text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60 md:h-12 md:px-8"
+              className="btn-cta flex h-11 shrink-0 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {!product.inStock ? "Sold out" : added ? "Added" : "Add to cart"}
+              {product.inStock ? "Add" : "Out"}
             </button>
           </div>
-
-          {relatedFallback.length > 0 ? (
-            <div className="container-prose hidden items-center gap-4 overflow-x-auto pt-2 text-xs text-muted-foreground lg:flex">
-              <span className="shrink-0 font-semibold uppercase tracking-[0.18em]">
-                Pair with
-              </span>
-              {relatedFallback.slice(0, 3).map((r) => (
-                <Link
-                  key={r.slug}
-                  to="/product/$slug"
-                  params={{ slug: r.slug }}
-                  className="flex shrink-0 items-center gap-2 transition hover:text-foreground"
-                >
-                  <img
-                    src={r.images[0]}
-                    alt=""
-                    className="h-7 w-6 rounded border bg-white object-contain p-0.5"
-                  />
-                  <span className="max-w-[160px] truncate">{r.title}</span>
-                  <span className="tabular-nums text-foreground">{fmt(r.price)}</span>
-                </Link>
-              ))}
-            </div>
-          ) : null}
         </div>
       ) : null}
     </div>

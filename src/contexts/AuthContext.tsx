@@ -1,4 +1,15 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
+import { useMutation, useQuery } from "convex/react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from "react";
+import { api } from "../../convex/_generated/api";
 
 type Profile = {
   id: string;
@@ -34,62 +45,115 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-
-const demoUser: User = {
-  id: "lovable-demo-admin",
-  email: "demo@maktabahmuhammadiya.local",
-  name: "Demo Admin",
-  isAdmin: true,
-};
-
-const demoProfile: Profile = {
-  id: "lovable-demo-profile",
-  user_id: demoUser.id,
-  email: demoUser.email,
-  full_name: demoUser.name ?? "Demo Admin",
-  phone: "",
-  preferred_currency: "INR",
-  marketing_consent: true,
-};
+const pendingNameKey = "maktabah_pending_full_name";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(demoUser);
+  const { isLoading, isAuthenticated } = useConvexAuth();
+  const { signIn: convexSignIn, signOut: convexSignOut } = useAuthActions();
+  const ensureCurrentProfile = useMutation(api.users.ensureCurrentProfile);
+  const currentUser = useQuery(api.users.currentUser, isAuthenticated ? {} : "skip");
+  const currentProfile = useQuery(api.users.currentProfile, isAuthenticated ? {} : "skip");
+  const ensuredUserRef = useRef<string | null>(null);
 
-  const signIn = useCallback(async (email: string) => {
-    setUser({
-      ...demoUser,
-      email: email.trim().toLowerCase() || demoUser.email,
-      name: email.trim() || demoUser.name,
-    });
-    return { error: null };
-  }, []);
+  const user = currentUser ?? null;
+  const profile = currentProfile ?? null;
+  const loading = isLoading || (isAuthenticated && currentUser === undefined);
+  const isAdmin = Boolean(user?.isAdmin);
 
-  const signUp = useCallback(async (email: string, _password: string, fullName?: string) => {
-    setUser({
-      ...demoUser,
-      email: email.trim().toLowerCase() || demoUser.email,
-      name: fullName?.trim() || email.trim() || demoUser.name,
-    });
-    return { error: null };
-  }, []);
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id || ensuredUserRef.current === user.id) return;
+    ensuredUserRef.current = user.id;
+    const fullName = window.localStorage.getItem(pendingNameKey) ?? undefined;
+    void ensureCurrentProfile({ fullName: fullName?.trim() || undefined })
+      .then(() => window.localStorage.removeItem(pendingNameKey))
+      .catch(() => {
+        ensuredUserRef.current = null;
+      });
+  }, [ensureCurrentProfile, isAuthenticated, user?.id]);
 
-  const requestPasswordReset = useCallback(async () => ({ error: null }), []);
-  const resetPassword = useCallback(async () => ({ error: null }), []);
-  const signOut = useCallback(async () => setUser(null), []);
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      try {
+        await convexSignIn("password", {
+          email: email.trim().toLowerCase(),
+          password,
+          flow: "signIn",
+        });
+        return { error: null };
+      } catch (err) {
+        return { error: err instanceof Error ? err : new Error("Unable to sign in.") };
+      }
+    },
+    [convexSignIn],
+  );
 
-  const value = useMemo<AuthContextValue>(
+  const signUp = useCallback(
+    async (email: string, password: string, fullName?: string) => {
+      try {
+        if (fullName?.trim()) window.localStorage.setItem(pendingNameKey, fullName.trim());
+        await convexSignIn("password", {
+          email: email.trim().toLowerCase(),
+          password,
+          flow: "signUp",
+        });
+        return { error: null };
+      } catch (err) {
+        window.localStorage.removeItem(pendingNameKey);
+        return { error: err instanceof Error ? err : new Error("Unable to create account.") };
+      }
+    },
+    [convexSignIn],
+  );
+
+  const requestPasswordReset = useCallback(
+    async (email: string) => {
+      try {
+        await convexSignIn("password", {
+          email: email.trim().toLowerCase(),
+          flow: "reset",
+        });
+        return { error: null };
+      } catch (err) {
+        return { error: err instanceof Error ? err : new Error("Unable to send reset code.") };
+      }
+    },
+    [convexSignIn],
+  );
+
+  const resetPassword = useCallback(
+    async (email: string, code: string, newPassword: string) => {
+      try {
+        await convexSignIn("password", {
+          email: email.trim().toLowerCase(),
+          code: code.trim(),
+          newPassword,
+          flow: "reset-verification",
+        });
+        return { error: null };
+      } catch (err) {
+        return { error: err instanceof Error ? err : new Error("Unable to reset password.") };
+      }
+    },
+    [convexSignIn],
+  );
+
+  const signOut = useCallback(async () => {
+    await convexSignOut();
+  }, [convexSignOut]);
+
+  const value = useMemo(
     () => ({
       user,
-      profile: user ? { ...demoProfile, email: user.email, full_name: user.name ?? user.email } : null,
-      isAdmin: Boolean(user?.isAdmin),
-      loading: false,
+      profile,
+      isAdmin,
+      loading,
       signIn,
       signUp,
       requestPasswordReset,
       resetPassword,
       signOut,
     }),
-    [requestPasswordReset, resetPassword, signIn, signOut, signUp, user],
+    [user, profile, isAdmin, loading, signIn, signUp, requestPasswordReset, resetPassword, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

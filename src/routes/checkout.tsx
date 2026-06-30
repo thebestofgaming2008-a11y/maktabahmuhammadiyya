@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useMutation } from "convex/react";
+import { useMemo, useState, type FormEvent } from "react";
 import { ArrowLeft, Check, Lock, MessageCircle, ShieldCheck } from "lucide-react";
+import { api } from "../../convex/_generated/api";
 import { useCart } from "@/lib/cart";
 import { seo } from "@/lib/seo";
 
@@ -44,6 +46,7 @@ const whatsappPhone = String(import.meta.env.VITE_WHATSAPP_ORDER_PHONE ?? "").re
 
 function Checkout() {
   const { detailed, subtotal, clear, fmt } = useCart();
+  const createWhatsAppOrder = useMutation(api.orders.createWhatsAppOrderRequest);
   const [customer, setCustomer] = useState<CustomerForm>(emptyCustomer);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -52,7 +55,10 @@ function Checkout() {
   const total = subtotal;
   const totalLabel = fmt(total);
 
-  const canCreateBackendOrder = detailed.every((item) => Boolean(item.product.id));
+  const canCreateBackendOrder = useMemo(
+    () => detailed.every((item) => Boolean(item.product.id)),
+    [detailed],
+  );
 
   const update = (key: keyof CustomerForm, value: string) => {
     setCustomer((current) => ({ ...current, [key]: value }));
@@ -104,7 +110,24 @@ function Checkout() {
 
     setSubmitting(true);
     try {
-      const orderNumber = `DEMO-${Date.now().toString().slice(-6)}`;
+      const draftMessage = buildMessage();
+      const order: any = await createWhatsAppOrder({
+        cart: detailed.map((item) => ({
+          cartKey: `${item.slug}:${item.size ?? ""}:${item.color}`,
+          productId: item.product.id!,
+          qty: item.qty,
+          name: item.product.title,
+          price: item.product.price,
+          priceInr: item.product.price,
+          image: item.product.images[0] ?? null,
+          slug: item.slug,
+          selectedColor: item.color,
+          selectedSize: item.size ?? null,
+        })),
+        customer,
+        whatsappMessage: draftMessage,
+      });
+      const orderNumber = order?.order_number ?? order?.orderNumber;
       const finalMessage = buildMessage();
 
       try {

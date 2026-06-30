@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQuery } from "convex/react";
 import { CheckCircle2, MessageCircle, PackageSearch, Send, Star, Truck } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
+import { api } from "../../convex/_generated/api";
 import { seo } from "@/lib/seo";
-import { LOCAL_PRODUCTS } from "@/data/products.generated";
 
 export const Route = createFileRoute("/track")({
   head: () =>
@@ -20,7 +21,7 @@ function TrackOrder() {
   const [orderNumber, setOrderNumber] = useState("");
   const [email, setEmail] = useState("");
   const [lookup, setLookup] = useState<{ orderNumber: string; email: string } | null>(null);
-  const order = lookup ? buildDemoOrder(lookup.orderNumber) : null;
+  const order = useQuery(api.orders.getByNumber, lookup ?? "skip");
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -81,6 +82,18 @@ function TrackOrder() {
           Track
         </button>
       </form>
+
+      {lookup && order === undefined ? (
+        <div className="mx-auto mt-6 max-w-3xl rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="h-24 animate-pulse rounded-xl bg-muted" />
+        </div>
+      ) : null}
+
+      {lookup && order === null ? (
+        <div className="mx-auto mt-6 max-w-3xl rounded-2xl border border-dashed bg-white p-6 text-center text-sm text-muted-foreground">
+          No order was found for that order number and email.
+        </div>
+      ) : null}
 
       {order ? <OrderResult order={order} email={lookup?.email ?? email} /> : null}
     </main>
@@ -158,6 +171,7 @@ function TrackedItem({
   email: string;
   canReview: boolean;
 }) {
+  const submitReview = useMutation(api.reviews.submitForOrder);
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [body, setBody] = useState("");
@@ -166,6 +180,14 @@ function TrackedItem({
     event.preventDefault();
     if (!item.product_id) return;
     try {
+      await submitReview({
+        orderNumber,
+        email,
+        productId: item.product_id,
+        rating,
+        body,
+        title: null,
+      });
       toast.success("Review sent");
       setOpen(false);
       setBody("");
@@ -287,36 +309,4 @@ function money(value: unknown) {
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(Number.isFinite(amount) ? amount : 0);
-}
-
-function buildDemoOrder(orderNumber: string) {
-  const products = LOCAL_PRODUCTS.slice(0, 2);
-  const items = products.map((product, index) => {
-    const quantity = index + 1;
-    const unit = product.price_inr ?? product.price ?? 0;
-    return {
-      id: `${product.id}-${index}`,
-      product_id: product.id,
-      product_name: product.name,
-      product_image_url: product.cover_image_url,
-      quantity,
-      unit_price: unit,
-      subtotal: unit * quantity,
-      selected_color: "Default",
-      selected_size: null,
-    };
-  });
-  const total = items.reduce((sum, item) => sum + item.subtotal, 0);
-  return {
-    order_number: orderNumber.startsWith("#") ? orderNumber : `#${orderNumber}`,
-    status: "requested",
-    payment_status: "MOCKED_PAID",
-    shipping_payment_status: "confirmed_on_whatsapp",
-    total,
-    total_inr: total,
-    tracking_carrier: "Demo courier",
-    tracking_number: "MM-DEMO",
-    tracking_url: "",
-    items,
-  };
 }

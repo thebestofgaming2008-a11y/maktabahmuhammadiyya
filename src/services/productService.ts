@@ -1,4 +1,5 @@
-import { LOCAL_PRODUCTS } from "@/data/products.generated";
+import { api } from "../../convex/_generated/api";
+import { convex } from "@/integrations/convex/client";
 
 export interface Product {
   id: string;
@@ -140,6 +141,18 @@ function readActiveProductsCache(): Product[] | null {
   }
 }
 
+async function fetchEdgeCatalog(cacheBust = false): Promise<unknown> {
+  const version = cacheBust
+    ? `maktabah-second-shop-20260622-${Date.now()}`
+    : "maktabah-second-shop-20260622";
+  const response = await fetch(`/api/catalog/products?v=${encodeURIComponent(version)}`, {
+    headers: { accept: "application/json" },
+    cache: cacheBust ? "no-store" : "default",
+  });
+  if (!response.ok) throw new Error("Catalog edge cache unavailable.");
+  return response.json();
+}
+
 function normalizeProductList(raw: unknown): Product[] {
   if (!Array.isArray(raw)) throw new Error("Catalog response was not an array.");
   const products = raw.map(normalize);
@@ -180,11 +193,36 @@ export async function listActiveProducts(): Promise<Product[]> {
   if (cached) return cached;
   if (activeProductsInFlight) return activeProductsInFlight;
 
-  activeProductsInFlight = Promise.resolve(LOCAL_PRODUCTS)
+  const request =
+    typeof window !== "undefined"
+      ? fetchEdgeCatalog()
+      : convex.query(api.products.listActiveProducts, {});
+
+  activeProductsInFlight = request
     .then((raw) => {
-      const products = normalizeProductList(raw).filter((product) => product.is_active !== false);
+      const products = normalizeProductList(raw);
       writeActiveProductsCache(products);
       return products;
+    })
+    .catch(async () => {
+      if (typeof window !== "undefined") {
+        try {
+          const products = normalizeProductList(await fetchEdgeCatalog(true));
+          writeActiveProductsCache(products);
+          return products;
+        } catch {
+          // Fall through to Convex as the final source of truth.
+        }
+      }
+      try {
+        const products = (
+          (await convex.query(api.products.listActiveProducts, {})) as Product[]
+        ).map(normalize);
+        writeActiveProductsCache(products);
+        return products;
+      } catch {
+        return [];
+      }
     })
     .finally(() => {
       activeProductsInFlight = null;
@@ -207,13 +245,57 @@ export function clearProductListCache() {
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  const products = await listActiveProducts();
-  return products.find((product) => product.id === id) ?? null;
+  try {
+    const product =
+      typeof window !== "undefined"
+        ? ((await fetch(
+            `/api/catalog/product?id=${encodeURIComponent(id)}&v=${encodeURIComponent(Date.now().toString())}`,
+            {
+              headers: { accept: "application/json" },
+              cache: "no-store",
+            },
+          ).then((response) => {
+            if (!response.ok) throw new Error("Product cache unavailable.");
+            return response.json();
+          })) as Product | null)
+        : ((await convex.query(api.products.getProductById, { id })) as Product | null);
+    return product ? normalize(product) : null;
+  } catch {
+    try {
+      const product = (await convex.query(api.products.getProductById, { id })) as Product | null;
+      return product ? normalize(product) : null;
+    } catch {
+      return null;
+    }
+  }
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const products = await listActiveProducts();
-  return products.find((product) => product.slug === slug) ?? null;
+  try {
+    const product =
+      typeof window !== "undefined"
+        ? ((await fetch(
+            `/api/catalog/product?slug=${encodeURIComponent(slug)}&v=${encodeURIComponent(Date.now().toString())}`,
+            {
+              headers: { accept: "application/json" },
+              cache: "no-store",
+            },
+          ).then((response) => {
+            if (!response.ok) throw new Error("Product cache unavailable.");
+            return response.json();
+          })) as Product | null)
+        : ((await convex.query(api.products.getProductBySlug, { slug })) as Product | null);
+    return product ? normalize(product) : null;
+  } catch {
+    try {
+      const product = (await convex.query(api.products.getProductBySlug, {
+        slug,
+      })) as Product | null;
+      return product ? normalize(product) : null;
+    } catch {
+      return null;
+    }
+  }
 }
 
 export async function listFeatured(limit = 8): Promise<Product[]> {
@@ -246,5 +328,9 @@ export async function listByIds(ids: string[]): Promise<Product[]> {
   if (ids.every((id) => byId.has(id))) {
     return ids.map((id) => byId.get(id)).filter(Boolean) as Product[];
   }
-  return [];
+  try {
+    return ((await convex.query(api.products.listByIds, { ids })) as Product[]).map(normalize);
+  } catch {
+    return [];
+  }
 }

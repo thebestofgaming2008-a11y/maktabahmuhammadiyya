@@ -1,14 +1,56 @@
-import { LOCAL_PRODUCTS } from "@/data/products.generated";
+import { api } from "../../convex/_generated/api";
+import { convex } from "@/integrations/convex/client";
 import type { Product } from "./productService";
 
-export const PRODUCT_BUCKET = "local-product-images";
+export const PRODUCT_BUCKET = "product-images";
 
-export interface ProductInput extends Partial<Product> {
+export interface ProductInput {
   name: string;
+  slug?: string | null;
+  short_description?: string | null;
+  description?: string | null;
+  author?: string | null;
+  publisher?: string | null;
+  language?: string | null;
+  pages?: number | null;
+  isbn?: string | null;
+  binding?: string | null;
+  edition?: string | null;
+  weight_g?: number | null;
+  length_cm?: number | null;
+  width_cm?: number | null;
+  height_cm?: number | null;
+  shipping_class?: string | null;
+  weight_source_url?: string | null;
+  weight_confidence?: string | null;
+  price?: number;
   price_inr: number;
+  sale_price?: number | null;
+  sale_price_inr?: number | null;
+  sku?: string | null;
+  stock_quantity?: number | null;
+  category?: string | null;
+  category_id?: string | null;
+  cover_image_url?: string | null;
+  images?: string[];
+  linked_product_ids?: string[];
+  variant_label?: string | null;
+  color_options?: string[] | null;
+  size_options?: string[] | null;
+  option_types?: Array<{ name: string; values: string[] }> | null;
+  badge?: string | null;
+  is_active?: boolean;
+  is_featured?: boolean;
+  show_in_category_section?: boolean;
+  is_bestseller?: boolean;
+  is_new_arrival?: boolean;
+  is_on_sale?: boolean;
+  tags?: string[];
 }
 
-let productRows: Product[] = LOCAL_PRODUCTS.map((product) => ({ ...product }));
+export async function listAllProducts(): Promise<Product[]> {
+  return (await convex.query(api.products.listAllProducts, {})) as Product[];
+}
 
 function slugify(s: string): string {
   return s
@@ -19,90 +61,114 @@ function slugify(s: string): string {
     .slice(0, 80);
 }
 
-export async function listAllProducts(): Promise<Product[]> {
-  return productRows;
-}
-
 export async function createProduct(input: ProductInput): Promise<Product | null> {
-  const product = {
-    id: `local-${Date.now()}`,
-    slug: input.slug || slugify(input.name),
-    short_description: input.short_description ?? "",
-    description: input.description ?? input.short_description ?? "",
-    author: input.author ?? null,
-    publisher: input.publisher ?? null,
-    language: input.language ?? "English",
-    pages: input.pages ?? null,
-    isbn: input.isbn ?? null,
-    binding: input.binding ?? null,
-    edition: input.edition ?? null,
-    weight_g: input.weight_g ?? null,
-    length_cm: input.length_cm ?? null,
-    width_cm: input.width_cm ?? null,
-    height_cm: input.height_cm ?? null,
-    shipping_class: input.shipping_class ?? null,
-    weight_source_url: input.weight_source_url ?? null,
-    weight_confidence: input.weight_confidence ?? null,
+  const payload = {
+    ...input,
+    slug: input.slug || slugify(input.name) || null,
     price: input.price ?? input.price_inr,
-    sale_price: input.sale_price ?? null,
-    sale_price_inr: input.sale_price_inr ?? null,
-    sku: input.sku ?? null,
-    stock_quantity: input.stock_quantity ?? 999,
-    category: input.category ?? "books",
-    category_id: input.category_id ?? input.category ?? "books",
-    tags: input.tags ?? ["Books"],
-    cover_image_url: input.cover_image_url ?? null,
-    images: input.images ?? [input.cover_image_url].filter(Boolean) as string[],
-    linked_product_ids: input.linked_product_ids ?? [],
-    variant_label: input.variant_label ?? null,
-    color_options: input.color_options ?? [],
-    size_options: input.size_options ?? [],
-    option_types: input.option_types ?? [],
-    badge: input.badge ?? null,
-    rating: input.rating ?? null,
-    reviews_count: input.reviews_count ?? 0,
-    is_active: input.is_active ?? true,
-    is_featured: input.is_featured ?? false,
-    show_in_category_section: input.show_in_category_section ?? false,
-    is_new_arrival: input.is_new_arrival ?? false,
-    is_bestseller: input.is_bestseller ?? false,
-    is_on_sale: input.is_on_sale ?? false,
-    in_stock: input.in_stock ?? true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    search_text: null,
-    name: input.name,
-    price_inr: input.price_inr,
-  } satisfies Product;
-  productRows = [product, ...productRows];
-  return product;
+  };
+  return (await convex.mutation(api.products.createProduct, payload)) as Product | null;
 }
 
 export async function updateProduct(
   id: string,
   patch: Partial<ProductInput>,
 ): Promise<Product | null> {
-  let updated: Product | null = null;
-  productRows = productRows.map((product) => {
-    if (product.id !== id) return product;
-    updated = { ...product, ...patch, updated_at: new Date().toISOString() } as Product;
-    return updated;
-  });
-  return updated;
+  const next: Record<string, unknown> = { ...patch };
+  if (patch.price_inr != null && patch.price == null) next.price = patch.price_inr;
+  return (await convex.mutation(api.products.updateProduct, { id, patch: next })) as Product | null;
 }
 
 export async function deleteProduct(id: string): Promise<boolean> {
-  productRows = productRows.filter((product) => product.id !== id);
-  return true;
+  return await convex.mutation(api.products.deleteProduct, { id });
 }
 
-export async function refreshPublicCatalog(_product?: unknown) {
-  return;
+export async function refreshPublicCatalog(product?: Pick<Product, "id" | "slug"> | null) {
+  if (typeof window === "undefined") return;
+  const version = Date.now().toString();
+  const requests = [`/api/catalog/products?refresh=${encodeURIComponent(version)}`];
+  if (product?.id)
+    requests.push(
+      `/api/catalog/product?id=${encodeURIComponent(product.id)}&refresh=${encodeURIComponent(version)}`,
+    );
+  if (product?.slug)
+    requests.push(
+      `/api/catalog/product?slug=${encodeURIComponent(product.slug)}&refresh=${encodeURIComponent(version)}`,
+    );
+
+  await Promise.allSettled(
+    requests.map((url) =>
+      fetch(url, {
+        cache: "no-store",
+        headers: { accept: "application/json" },
+      }),
+    ),
+  );
 }
 
 export async function uploadProductImage(file: File): Promise<string | null> {
-  return URL.createObjectURL(file);
+  const contentType = inferProductMediaType(file);
+  if (file.size > 25 * 1024 * 1024) {
+    throw new Error("Product media must be 25 MB or smaller.");
+  }
+  if (!contentType) {
+    throw new Error(
+      "Upload JPG, PNG, WebP, AVIF, GIF, MP4, or WebM. HEIC/HEIF phone photos must be exported as JPG first.",
+    );
+  }
+
+  const media = await convex.action(api.media.createProductMediaUpload, {
+    fileName: file.name || "product-media",
+    contentType,
+    size: file.size,
+  });
+  const result = await fetch(media.uploadUrl, {
+    method: media.method ?? "POST",
+    headers: media.headers,
+    body: file,
+  });
+  if (!result.ok) {
+    const payload = (await result.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(payload?.error || `Upload failed with status ${result.status}.`);
+  }
+  const payload = (await result.json().catch(() => null)) as { url?: string } | null;
+  const url = media.publicUrl || payload?.url;
+  if (!url) throw new Error("Upload finished, but no media URL was returned.");
+  return `${url}#${encodeURIComponent(file.name)}`;
 }
+
+function inferProductMediaType(file: File) {
+  const declared = file.type === "image/jpg" ? "image/jpeg" : file.type;
+  if (SUPPORTED_PRODUCT_MEDIA_TYPES.has(declared)) return declared;
+
+  const extension = file.name.toLowerCase().split(".").pop() ?? "";
+  return PRODUCT_MEDIA_TYPES_BY_EXTENSION[extension] ?? null;
+}
+
+const SUPPORTED_PRODUCT_MEDIA_TYPES = new Set([
+  "image/avif",
+  "image/gif",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "video/mp4",
+  "video/webm",
+]);
+
+const PRODUCT_MEDIA_TYPES_BY_EXTENSION: Record<string, string | null> = {
+  avif: "image/avif",
+  gif: "image/gif",
+  jpeg: "image/jpeg",
+  jpg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  mp4: "video/mp4",
+  webm: "video/webm",
+  heic: null,
+  heif: null,
+  mov: null,
+  m4v: null,
+};
 
 export interface ShippingRate {
   id: string;
@@ -136,49 +202,34 @@ export interface AdminShippingAddress {
 }
 
 export async function listShippingRates(): Promise<ShippingRate[]> {
-  return [
-    {
-      id: "local-worldwide",
-      carrier: "WhatsApp confirmation",
-      zone: "Worldwide",
-      method: "Manual quote",
-      base_fee: 0,
-      per_item_fee: 0,
-      per_weight_fee: 0,
-      is_active: true,
-      updated_at: new Date().toISOString(),
-    },
-  ];
+  let rows = (await convex.query(api.admin.listShippingRates, {})) as ShippingRate[];
+  if (!rows.length) {
+    await convex.mutation(api.admin.seedShippingDefaults, {});
+    rows = (await convex.query(api.admin.listShippingRates, {})) as ShippingRate[];
+  }
+  return rows;
 }
 
 export async function updateShippingRate(
   id: string,
   patch: Partial<ShippingRate>,
 ): Promise<ShippingRate | null> {
-  return { ...(await listShippingRates())[0], id, ...patch };
+  return (await convex.mutation(api.admin.updateShippingRate, {
+    id,
+    patch,
+  })) as ShippingRate | null;
 }
 
 export async function getStoreSettings(): Promise<Record<string, unknown>> {
-  return {
-    brandName: "Maktabah Muhammadiya",
-    whatsappOnly: true,
-    redesignExport: true,
-  };
+  return (await convex.query(api.admin.getStoreSettings, {})) as Record<string, unknown>;
 }
 
-export async function saveStoreSettings(_settings?: unknown): Promise<boolean> {
-  return true;
+export async function saveStoreSettings(settings: Record<string, unknown>): Promise<boolean> {
+  return await convex.mutation(api.admin.saveStoreSettings, { settings });
 }
 
 export async function listAdminNotifications(): Promise<AdminNotification[]> {
-  return [
-    {
-      id: "local-redesign",
-      title: "Lovable redesign export",
-      body: "This admin is backed by local demo data only.",
-      section: "settings",
-    },
-  ];
+  return (await convex.query(api.admin.notifications, {})) as AdminNotification[];
 }
 
 export interface AdminOrder {
@@ -215,38 +266,7 @@ export interface AdminOrder {
 }
 
 export async function listAllOrders(limit = 100): Promise<AdminOrder[]> {
-  const sample = LOCAL_PRODUCTS[0];
-  return [
-    {
-      id: "local-order-1",
-      order_number: "#DEMO-001",
-      user_id: "local-user",
-      customer_email: "customer@example.com",
-      customer_name: "Demo Customer",
-      customer_phone: "+91 00000 00000",
-      status: "requested",
-      payment_status: "pending_whatsapp",
-      shipping_payment_status: "confirmed_on_whatsapp",
-      customer_country_type: "international",
-      shipping_address: { country: "India", city: "Demo City", address_line_1: "Demo address" },
-      total: sample?.price_inr ?? 0,
-      total_inr: sample?.price_inr ?? 0,
-      created_at: new Date().toISOString(),
-      items: sample
-        ? [
-            {
-              id: "local-item-1",
-              product_id: sample.id,
-              product_name: sample.name,
-              product_image_url: sample.cover_image_url,
-              quantity: 1,
-              unit_price: sample.price_inr,
-              subtotal: sample.price_inr,
-            },
-          ]
-        : [],
-    },
-  ].slice(0, limit);
+  return (await convex.query(api.orders.listAll, { limit })) as AdminOrder[];
 }
 
 export interface PaymentRecovery {
@@ -261,15 +281,21 @@ export interface PaymentRecovery {
 }
 
 export async function listPaymentRecoveries(): Promise<PaymentRecovery[]> {
-  return [];
+  return (await convex.query(api.orders.listPaymentRecoveries, {})) as PaymentRecovery[];
 }
 
-export async function updateOrderStatus(_id?: string, _status?: string): Promise<boolean> {
-  return true;
+export async function updateOrderStatus(id: string, status: string): Promise<boolean> {
+  return await convex.mutation(api.orders.updateStatus, { id, status });
 }
 
-export async function updateOrderTracking(_id?: string, _patch?: unknown): Promise<AdminOrder | null> {
-  return (await listAllOrders(1))[0] ?? null;
+export async function updateOrderTracking(
+  id: string,
+  payload: { carrier?: string | null; trackingNumber: string; trackingUrl?: string | null },
+): Promise<AdminOrder | null> {
+  return (await convex.mutation(api.orders.updateTracking, {
+    id,
+    ...payload,
+  })) as AdminOrder | null;
 }
 
 export interface AdminCustomer {
@@ -283,19 +309,8 @@ export interface AdminCustomer {
   created_at: string | null;
 }
 
-export async function listAllCustomers(_limit?: number): Promise<AdminCustomer[]> {
-  return [
-    {
-      id: "local-customer-1",
-      user_id: "local-user",
-      email: "customer@example.com",
-      full_name: "Demo Customer",
-      phone: "+91 00000 00000",
-      total_orders: 1,
-      total_spent: LOCAL_PRODUCTS[0]?.price_inr ?? 0,
-      created_at: new Date().toISOString(),
-    },
-  ];
+export async function listAllCustomers(limit = 200): Promise<AdminCustomer[]> {
+  return (await convex.query(api.users.listCustomers, { limit })) as AdminCustomer[];
 }
 
 export interface AdminReview {
@@ -313,23 +328,8 @@ export interface AdminReview {
   created_at: string | null;
 }
 
-export async function listAllReviews(_limit?: number): Promise<AdminReview[]> {
-  return [
-    {
-      id: "local-review-1",
-      product_id: LOCAL_PRODUCTS[0]?.id ?? "local-product",
-      user_id: null,
-      customer_name: "Demo Customer",
-      customer_email: "customer@example.com",
-      rating: 5,
-      title: null,
-      body: "Beautifully packed and easy to order.",
-      media_urls: [],
-      status: "published",
-      admin_note: null,
-      created_at: new Date().toISOString(),
-    },
-  ];
+export async function listAllReviews(limit = 200): Promise<AdminReview[]> {
+  return (await convex.query(api.reviews.listAll, { limit })) as AdminReview[];
 }
 
 export async function createAdminReview(input: {
@@ -341,22 +341,17 @@ export async function createAdminReview(input: {
   body?: string | null;
   status?: "pending" | "published" | "hidden";
 }): Promise<AdminReview | null> {
-  return {
-    id: `local-review-${Date.now()}`,
-    product_id: input.productId,
-    user_id: null,
-    customer_name: input.customerName ?? "Demo Customer",
-    customer_email: input.customerEmail ?? null,
-    rating: input.rating,
-    title: input.title ?? null,
-    body: input.body ?? null,
-    media_urls: [],
-    status: input.status ?? "published",
-    admin_note: null,
-    created_at: new Date().toISOString(),
-  };
+  return (await convex.mutation(api.reviews.createAdmin, input)) as AdminReview | null;
 }
 
-export async function updateReviewStatus(_id?: string, _status?: string): Promise<boolean> {
-  return true;
+export async function updateReviewStatus(
+  id: string,
+  status: "pending" | "published" | "hidden",
+  adminNote?: string | null,
+): Promise<boolean> {
+  return await convex.mutation(api.reviews.updateStatus, {
+    id,
+    status,
+    adminNote: adminNote ?? null,
+  });
 }

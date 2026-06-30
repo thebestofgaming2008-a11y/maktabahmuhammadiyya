@@ -128,7 +128,7 @@ export function Header() {
                     onClick={() => setSearchOpen(false)}
                     tabIndex={-1}
                   />
-                  <div className="absolute right-0 top-full z-50 mt-3 w-[88vw] max-w-[420px] origin-top-right overflow-hidden rounded-2xl border border-border/70 bg-popover/95 text-popover-foreground shadow-pop backdrop-blur-xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
+                  <div className="fixed left-3 right-3 top-[104px] z-50 origin-top overflow-hidden rounded-2xl border border-border/70 bg-popover/95 text-popover-foreground shadow-pop backdrop-blur-xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200 md:absolute md:left-auto md:right-0 md:top-full md:mt-3 md:w-[420px] md:max-w-[calc(100vw-2rem)] md:origin-top-right">
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();

@@ -145,9 +145,9 @@ function ProductBanner({
         </div>
 
         {/* PRODUCT COMPOSITION — transparent product images */}
-        <div className="order-1 md:order-2 relative h-[280px] sm:h-[340px] md:h-[440px] lg:h-[480px]">
+        <div className="order-1 md:order-2 relative h-[280px] sm:h-[340px] md:h-[440px] lg:h-[480px] min-w-0 overflow-hidden">
           {covers.length > 0 && (
-            <div className="absolute inset-0 flex items-end justify-center gap-3 sm:gap-5">
+            <div className="absolute inset-0 flex items-end justify-center gap-2 sm:gap-4 px-2">
               {covers.map((src, i) => {
                 const total = covers.length;
                 // center one bigger, side ones smaller (staggered shelf)
@@ -159,10 +159,10 @@ function ProductBanner({
                     alt=""
                     aria-hidden
                     loading="lazy"
-                    className={`object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
+                    className={`min-w-0 object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
                       isCenter ? "h-full" : "h-[78%] md:h-[82%]"
                     }`}
-                    style={{ maxWidth: `${100 / total}%` }}
+                    style={{ maxWidth: `calc(${100 / total}% - 0.75rem)` }}
                   />
                 );
               })}
@@ -387,9 +387,9 @@ function Home() {
               </div>
 
               {/* PRODUCT */}
-              <div className="order-1 md:order-2 relative h-[320px] sm:h-[400px] md:h-[480px] lg:h-[540px]">
+              <div className="order-1 md:order-2 relative h-[320px] sm:h-[400px] md:h-[480px] lg:h-[540px] min-w-0 overflow-hidden">
                 {covers.length > 1 ? (
-                  <div className="absolute inset-0 flex items-end justify-center gap-3 sm:gap-5">
+                  <div className="absolute inset-0 flex items-end justify-center gap-2 sm:gap-4 px-2">
                     {covers.slice(0, 3).map((src, i) => {
                       const isCenter = i === 1;
                       return (
@@ -398,7 +398,7 @@ function Home() {
                           src={src}
                           alt=""
                           aria-hidden
-                          className={`object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
+                          className={`min-w-0 max-w-[31%] object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
                             isCenter ? "h-full" : "h-[80%]"
                           }`}
                         />
