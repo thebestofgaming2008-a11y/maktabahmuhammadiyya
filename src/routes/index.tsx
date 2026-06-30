@@ -5,7 +5,14 @@ import { useCart } from "@/lib/cart";
 import { useCatalogProducts } from "@/lib/catalog";
 import type { Product } from "@/lib/products";
 import { productSubjectKeys } from "@/data/products";
-import { ArrowRight, ChevronDown, MessageCircle, ShoppingBag } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  MessageCircle,
+  ShoppingBag,
+} from "lucide-react";
 
 import niqabHero from "@/assets/niqab-transparent.png.asset.json";
 import { seo } from "@/lib/seo";
@@ -366,6 +373,10 @@ function Home() {
   );
   const selectedSet =
     setProducts.find((product) => product.slug === selectedSetSlug) ?? setProducts[0] ?? null;
+  const selectedSetIndex = Math.max(
+    0,
+    setProducts.findIndex((product) => product.slug === selectedSet?.slug),
+  );
 
   useEffect(() => {
     if (!setProducts.length) return;
@@ -385,6 +396,12 @@ function Home() {
     });
     setOpen(true);
   };
+  const selectSetByOffset = (offset: number) => {
+    if (!setProducts.length) return;
+    const nextIndex = (selectedSetIndex + offset + setProducts.length) % setProducts.length;
+    setSelectedSetSlug(setProducts[nextIndex].slug);
+    setFeaturedSetOpen(null);
+  };
   const featuredSetDescription =
     cleanFeaturedDescription(selectedSet?.description) ||
     "A complete Tafseer set for building a serious home library.";
@@ -400,6 +417,16 @@ function Home() {
   const featuredSetSections = [
     { id: "description", title: "Description", body: featuredSetDescription },
     { id: "details", title: "Product details", body: featuredSetDetails || "Details coming soon." },
+    {
+      id: "reviews",
+      title: "Reviews",
+      body:
+        selectedSet && selectedSet.reviews > 0
+          ? `${Number(selectedSet.rating || 0).toFixed(1)} out of 5 stars from ${selectedSet.reviews} customer ${
+              selectedSet.reviews === 1 ? "review" : "reviews"
+            }.`
+          : "No reviews yet.",
+    },
   ];
 
 
@@ -769,38 +796,51 @@ function Home() {
                     loading="lazy"
                     className="absolute inset-0 h-full w-full object-contain p-7 transition duration-500"
                   />
+                  {setProducts.length > 1 ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => selectSetByOffset(-1)}
+                        className="absolute left-3 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-background/90 text-foreground shadow-sm transition hover:bg-foreground hover:text-background"
+                        aria-label="Previous set"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => selectSetByOffset(1)}
+                        className="absolute right-3 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-background/90 text-foreground shadow-sm transition hover:bg-foreground hover:text-background"
+                        aria-label="Next set"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </>
+                  ) : null}
                 </div>
                 {setProducts.length > 1 ? (
-                  <div
-                    className="mt-3 flex gap-2 overflow-x-auto pb-1 no-scrollbar"
-                    style={{ direction: "ltr" }}
-                    aria-label="Choose a set"
-                  >
-                    {setProducts.map((product) => {
-                      const active = product.slug === selectedSet.slug;
-                      return (
-                        <button
-                          key={product.slug}
-                          type="button"
-                          onClick={() => {
-                            setSelectedSetSlug(product.slug);
-                            setFeaturedSetOpen(null);
-                          }}
-                          className={`flex h-20 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-background transition md:h-24 md:w-20 ${
-                            active
-                              ? "border-foreground shadow-sm"
-                              : "border-border/80 opacity-70 hover:opacity-100"
-                          }`}
-                          aria-label={`View ${product.title}`}
-                        >
-                          <img
-                            src={product.images[0]}
-                            alt=""
-                            className="h-full w-full object-contain p-1.5"
+                  <div className="mt-4 flex items-center justify-between gap-4">
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                      {selectedSetIndex + 1} / {setProducts.length}
+                    </p>
+                    <div className="flex items-center gap-2" aria-label="Choose a set">
+                      {setProducts.map((product, index) => {
+                        const active = product.slug === selectedSet.slug;
+                        return (
+                          <button
+                            key={product.slug}
+                            type="button"
+                            onClick={() => {
+                              setSelectedSetSlug(product.slug);
+                              setFeaturedSetOpen(null);
+                            }}
+                            className={`h-1.5 rounded-full transition-all ${
+                              active ? "w-8 bg-foreground" : "w-3 bg-foreground/25 hover:bg-foreground/50"
+                            }`}
+                            aria-label={`View set ${index + 1}`}
                           />
-                        </button>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 ) : null}
               </div>
