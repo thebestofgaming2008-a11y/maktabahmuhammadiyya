@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ProductCard } from "@/components/ProductCard";
+import { useCart } from "@/lib/cart";
 import { useCatalogProducts } from "@/lib/catalog";
 import type { Product } from "@/lib/products";
 import { productSubjectKeys } from "@/data/products";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle, ShoppingBag } from "lucide-react";
 
 import niqabHero from "@/assets/niqab-transparent.png.asset.json";
 import { seo } from "@/lib/seo";
@@ -92,6 +93,7 @@ function ProductBanner({
   ctaTo,
   ctaSearch,
   tone = "cream",
+  imageSrc,
 }: {
   products: Product[];
   eyebrow: string;
@@ -101,6 +103,7 @@ function ProductBanner({
   ctaTo: string;
   ctaSearch?: Record<string, string>;
   tone?: BannerTone;
+  imageSrc?: string;
 }) {
   const covers = products
     .map((p) => p.images?.[0])
@@ -146,7 +149,15 @@ function ProductBanner({
 
         {/* PRODUCT COMPOSITION — transparent product images */}
         <div className="order-1 md:order-2 relative h-[280px] sm:h-[340px] md:h-[440px] lg:h-[480px] min-w-0 overflow-hidden">
-          {covers.length > 0 && (
+          {imageSrc ? (
+            <img
+              src={imageSrc}
+              alt=""
+              aria-hidden
+              loading="lazy"
+              className="absolute inset-0 m-auto h-full w-full object-contain"
+            />
+          ) : covers.length > 0 ? (
             <div className="absolute inset-0 flex items-end justify-center gap-2 sm:gap-4 px-2">
               {covers.map((src, i) => {
                 const total = covers.length;
@@ -167,11 +178,35 @@ function ProductBanner({
                 );
               })}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
   );
+}
+
+function isStoreProcessCopy(value?: string | null) {
+  return /\b(whatsapp|admin|order\s+(request|support|through|via|on)|ordered?\s+(through|via|on)|availability|payment(?:\s+details)?|shipping(?:\s+details)?|confirmation|confirmed before|dispatch)\b/i.test(
+    String(value ?? ""),
+  );
+}
+
+function cleanFeaturedDescription(value?: string | null) {
+  const raw = String(value ?? "")
+    .replace(/\s+/g, " ")
+    .replace(/\s*,?\s*prepared for WhatsApp ordering through Maktabah Muhammadiya\.?/gi, ".")
+    .replace(/\bA selected (English|Arabic|Urdu|Hindi) title covering\b/gi, "A $1 title covering")
+    .replace(/\s+([.,!?])/g, "$1")
+    .replace(/\.{2,}/g, ".")
+    .trim();
+  if (!raw) return "";
+  const cleaned = raw
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => sentence && !isStoreProcessCopy(sentence))
+    .join(" ")
+    .trim();
+  return cleaned || (isStoreProcessCopy(raw) ? "" : raw);
 }
 
 
@@ -188,6 +223,7 @@ const SPECIAL_FILTERS = [
 
 function Home() {
   const { products, loading } = useCatalogProducts();
+  const { add, setOpen, fmt } = useCart();
   const booksOnly = products.filter((product) => product.topCategory === "books");
   const featuredPool = products.filter(
     (product) => product.isNewArrival || product.isFeatured || product.showInCategorySection,
@@ -312,6 +348,7 @@ function Home() {
           .slice(0, 12);
 
   // Sets / bundles: any product whose title, tags or category hint at a bundle
+  const setsFeatured = products.find((product) => product.slug === "tafseer-as-sadi-10-volume-set");
   const setsItems = products
     .filter((p) => {
       const haystack = [p.title, p.category, p.categoryId ?? "", ...(p.tags ?? [])]
@@ -321,7 +358,19 @@ function Home() {
         haystack,
       );
     })
+    .filter((product) => product.slug !== setsFeatured?.slug)
     .slice(0, 8);
+  const addFeaturedSet = () => {
+    if (!setsFeatured) return;
+    add({
+      slug: setsFeatured.slug,
+      product: setsFeatured,
+      color: setsFeatured.colors[0]?.name ?? "Default",
+      size: setsFeatured.sizes?.[0],
+      qty: 1,
+    });
+    setOpen(true);
+  };
 
 
   return (
@@ -551,6 +600,7 @@ function Home() {
           ctaLabel="Shop the library"
           ctaTo="/shop"
           tone="cream"
+          imageSrc="/product-images/maktaba/banners/language-books.png"
         />
 
         <div className="container-prose mt-8 md:mt-10">
@@ -617,33 +667,89 @@ function Home() {
         </div>
       </section>
 
-      {/* SETS / BUNDLES — image banner + rail */}
-      {setsItems.length > 0 && (
+      {/* SETS / BUNDLES - featured set + rail */}
+      {(setsFeatured || setsItems.length > 0) && (
         <section className="pb-12 md:pb-20 border-t border-border/60">
-          <ProductBanner
-            products={setsItems.slice(0, 8)}
-            eyebrow="Sets & bundles"
-            title="Build a shelf in one order"
-            description="Multi-volume sets and curated bundles, ready to ship together."
-            ctaLabel="Shop all sets"
-            ctaTo="/shop"
-            tone="cream"
-          />
-          <div
-            className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
-            style={{ direction: "ltr" }}
-          >
-            {setsItems.map((p) => (
-              <div
-                key={p.slug}
-                data-rail-item
-                className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
-              >
-                <ProductCard product={p} />
+          {setsFeatured ? (
+            <div className="bg-secondary/50">
+              <div className="container-prose grid items-center gap-10 py-14 md:grid-cols-[1.05fr_0.95fr] md:py-24">
+                <div className="order-2 max-w-xl md:order-1">
+                  <div className="flex items-center gap-3">
+                    <span className="h-px w-8 bg-foreground/30" />
+                    <span className="text-[11px] font-medium uppercase tracking-[0.28em]">
+                      Sets & bundles
+                    </span>
+                  </div>
+                  <h2 className="mt-5 font-display text-4xl leading-[1.04] tracking-[-0.01em] md:text-5xl lg:text-6xl">
+                    {setsFeatured.title}
+                  </h2>
+                  {setsFeatured.author ? (
+                    <p className="mt-3 text-sm uppercase tracking-[0.14em] text-muted-foreground">
+                      {setsFeatured.author}
+                    </p>
+                  ) : null}
+                  <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
+                    {cleanFeaturedDescription(setsFeatured.description) ||
+                      "A complete Tafseer set for building a serious home library."}
+                  </p>
+                  <div className="mt-6 text-2xl font-semibold tabular-nums">
+                    {fmt(setsFeatured.price)}
+                  </div>
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={addFeaturedSet}
+                      disabled={!setsFeatured.inStock}
+                      className="inline-flex items-center justify-center gap-2 bg-foreground px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-background transition hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <ShoppingBag className="h-4 w-4" />
+                      {setsFeatured.inStock ? "Add to cart" : "Sold out"}
+                    </button>
+                    <Link
+                      to="/product/$slug"
+                      params={{ slug: setsFeatured.slug }}
+                      className="inline-flex items-center justify-center gap-2 border border-foreground/20 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition hover:border-foreground hover:bg-background"
+                    >
+                      View details
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
+                <Link
+                  to="/product/$slug"
+                  params={{ slug: setsFeatured.slug }}
+                  className="order-1 block md:order-2"
+                  aria-label={setsFeatured.title}
+                >
+                  <div className="relative h-[320px] overflow-hidden rounded-lg bg-background md:h-[480px] lg:h-[540px]">
+                    <img
+                      src={setsFeatured.images[0]}
+                      alt={setsFeatured.title}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-contain p-8 transition duration-500 hover:scale-[1.03]"
+                    />
+                  </div>
+                </Link>
               </div>
-            ))}
-            <div className="shrink-0 w-1 md:hidden" />
-          </div>
+            </div>
+          ) : null}
+          {setsItems.length > 0 ? (
+            <div
+              className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
+              style={{ direction: "ltr" }}
+            >
+              {setsItems.map((p) => (
+                <div
+                  key={p.slug}
+                  data-rail-item
+                  className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
+                >
+                  <ProductCard product={p} />
+                </div>
+              ))}
+              <div className="shrink-0 w-1 md:hidden" />
+            </div>
+          ) : null}
         </section>
       )}
 
@@ -766,3 +872,4 @@ function Home() {
     </div>
   );
 }
+
