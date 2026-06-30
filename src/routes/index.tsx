@@ -155,7 +155,7 @@ function ProductBanner({
               alt=""
               aria-hidden
               loading="lazy"
-              className="absolute inset-0 m-auto h-full w-full object-contain"
+              className="absolute inset-0 m-auto h-full w-full scale-[1.14] object-contain md:scale-100"
             />
           ) : covers.length > 0 ? (
             <div className="absolute inset-0 flex items-end justify-center gap-2 sm:gap-4 px-2">
@@ -527,7 +527,7 @@ function Home() {
         </div>
         <div
           ref={collectionsRef}
-          className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
+          className="rail-prose flex gap-4 md:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2"
           style={{ direction: "ltr" }}
         >
           {collections.map((s) => (
@@ -600,7 +600,7 @@ function Home() {
           ctaLabel="Shop the library"
           ctaTo="/shop"
           tone="cream"
-          imageSrc="/product-images/maktaba/banners/language-books.png"
+          imageSrc="/product-images/maktaba/banners/language-books-cropped.png"
         />
 
         <div className="container-prose mt-8 md:mt-10">
@@ -633,7 +633,7 @@ function Home() {
 
         <div
           ref={libraryRef}
-          className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
+          className="rail-prose mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2"
           style={{ direction: "ltr" }}
         >
           {libraryItems.length ? (
@@ -735,7 +735,7 @@ function Home() {
           ) : null}
           {setsItems.length > 0 ? (
             <div
-              className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
+              className="rail-prose mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2"
               style={{ direction: "ltr" }}
             >
               {setsItems.map((p) => (
@@ -794,7 +794,7 @@ function Home() {
 
           {specialItems.length > 0 ? (
             <div
-              className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
+              className="rail-prose mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2"
               style={{ direction: "ltr" }}
             >
               {specialItems.map((p) => (
