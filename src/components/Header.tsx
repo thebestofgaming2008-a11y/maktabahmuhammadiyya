@@ -123,12 +123,12 @@ export function Header() {
                 <>
                   <button
                     type="button"
-                    className="fixed inset-0 z-40 cursor-default bg-foreground/20 md:bg-transparent"
+                    className="fixed inset-0 z-40 cursor-default"
                     aria-label="Close search"
                     onClick={() => setSearchOpen(false)}
                     tabIndex={-1}
                   />
-                  <div className="fixed left-3 right-3 top-[58px] z-50 md:absolute md:left-auto md:right-0 md:top-full md:mt-3 md:w-[420px] origin-top-right overflow-hidden rounded-2xl border border-border/70 bg-popover/95 text-popover-foreground shadow-pop backdrop-blur-xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
+                  <div className="absolute right-0 top-full z-50 mt-3 w-[88vw] max-w-[420px] origin-top-right overflow-hidden rounded-2xl border border-border/70 bg-popover/95 text-popover-foreground shadow-pop backdrop-blur-xl animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();

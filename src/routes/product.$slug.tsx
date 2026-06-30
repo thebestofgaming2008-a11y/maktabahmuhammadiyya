@@ -88,11 +88,9 @@ function ProductPage() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // Show sticky bar whenever the main Add to Cart button has scrolled out above the viewport
-        const r = entry.boundingClientRect;
-        setShowStickyCart(!entry.isIntersecting && r.bottom < 0);
+        setShowStickyCart(!entry.isIntersecting && entry.boundingClientRect.top < 0);
       },
-      { threshold: 0 },
+      { threshold: 0.1 },
     );
 
     observer.observe(button);
@@ -103,15 +101,14 @@ function ProductPage() {
     const footer = document.querySelector("footer");
     if (!footer) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => setFooterVisible(entry.isIntersecting),
-      { rootMargin: "0px 0px 0px 0px", threshold: 0.05 },
-    );
+    const observer = new IntersectionObserver(([entry]) => setFooterVisible(entry.isIntersecting), {
+      rootMargin: "0px 0px 140px 0px",
+      threshold: 0,
+    });
 
     observer.observe(footer);
     return () => observer.disconnect();
   }, []);
-
 
   if (loading && !product) {
     return (

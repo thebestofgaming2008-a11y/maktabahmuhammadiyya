@@ -198,25 +198,9 @@ function Home() {
   const [languageFilter, setLanguageFilter] = useState<"all" | "english" | "arabic" | "urdu" | "other">("all");
   const collectionsRef = useRef<HTMLDivElement>(null);
   const libraryRef = useRef<HTMLDivElement>(null);
-  const heroScrollerRef = useRef<HTMLDivElement>(null);
-  const [slideCount, setSlideCount] = useState(1);
-  const [userPaused, setUserPaused] = useState(false);
 
-  // Auto-rotate hero every 5s; resets to 0 after last
-  useEffect(() => {
-    if (slideCount <= 1 || userPaused) return;
-    const id = window.setInterval(() => {
-      setSlide((s) => (s + 1) % slideCount);
-    }, 5000);
-    return () => window.clearInterval(id);
-  }, [slideCount, userPaused]);
+  // Hero is static; slide is user-controlled via dots only — no auto-rotation, no animations.
 
-  // Sync horizontal scroll position to current slide
-  useEffect(() => {
-    const el = heroScrollerRef.current;
-    if (!el) return;
-    el.scrollTo({ left: slide * el.clientWidth, behavior: "smooth" });
-  }, [slide]);
 
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)");
@@ -241,7 +225,6 @@ function Home() {
     document.body.classList.add("is-landing");
     return () => document.body.classList.remove("is-landing");
   }, []);
-
 
 
   const byHomepagePriority = (a: Product, b: Product) =>
@@ -343,13 +326,9 @@ function Home() {
 
   return (
     <div>
-      {/* HERO — auto-rotating, scroll-snap horizontal carousel */}
+      {/* HERO — static, simple, transparent product on a cream/brown panel */}
       {(() => {
         const bookCovers = booksOnly
-          .slice(0, 3)
-          .map((p) => p.images?.[0])
-          .filter((src): src is string => Boolean(src));
-        const setsCovers = setsItems
           .slice(0, 3)
           .map((p) => p.images?.[0])
           .filter((src): src is string => Boolean(src));
@@ -365,136 +344,89 @@ function Home() {
             bg: "cream",
             covers: bookCovers,
           },
-          ...(setsCovers.length
-            ? [
-                {
-                  eyebrow: "Sets & bundles",
-                  title: "Build a shelf in one order.",
-                  sub: "Multi-volume sets and curated bundles, ready to ship together.",
-                  cta: "Shop sets",
-                  category: "books",
-                  product: setsCovers[0] ?? "",
-                  bg: "brown" as const,
-                  covers: setsCovers,
-                },
-              ]
-            : []),
         ];
-        if (slideCount !== dynamicSlides.length) {
-          // Sync count on first render after data load
-          setTimeout(() => setSlideCount(dynamicSlides.length), 0);
-        }
+        const s = dynamicSlides[slide % dynamicSlides.length] ?? dynamicSlides[0];
+        const isBrown = s.bg === "brown";
+        const panel = isBrown
+          ? "bg-primary text-primary-foreground"
+          : "bg-secondary/50 text-foreground";
+        const rule = isBrown ? "bg-primary-foreground/40" : "bg-foreground/30";
+        const ctaClass = isBrown
+          ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+          : "bg-foreground text-background hover:bg-foreground/90";
+        const subColor = isBrown ? "text-primary-foreground/80" : "text-muted-foreground";
+        const covers = s.covers ?? [s.product].filter(Boolean);
 
         return (
-          <section className="relative">
-            <div
-              ref={heroScrollerRef}
-              onTouchStart={() => setUserPaused(true)}
-              onScroll={(e) => {
-                const el = e.currentTarget;
-                const idx = Math.round(el.scrollLeft / el.clientWidth);
-                if (idx !== slide) setSlide(idx);
-              }}
-              className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar"
-              style={{ scrollbarWidth: "none" }}
-            >
-              {dynamicSlides.map((s, idx) => {
-                const isBrown = s.bg === "brown";
-                const panel = isBrown
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary/50 text-foreground";
-                const rule = isBrown ? "bg-primary-foreground/40" : "bg-foreground/30";
-                const ctaClass = isBrown
-                  ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-                  : "bg-foreground text-background hover:bg-foreground/90";
-                const subColor = isBrown
-                  ? "text-primary-foreground/80"
-                  : "text-muted-foreground";
-                const covers = s.covers ?? [s.product].filter(Boolean);
-                return (
-                  <div
-                    key={idx}
-                    className={`shrink-0 w-full snap-start snap-always ${panel}`}
+          <section className={`relative ${panel}`}>
+            <div className="container-prose grid md:grid-cols-2 items-center gap-10 md:gap-12 py-12 md:py-20 lg:py-24">
+              {/* TEXT */}
+              <div className="order-2 md:order-1 max-w-xl">
+                <div className="flex items-center gap-3">
+                  <span className={`h-px w-8 ${rule}`} />
+                  <span className="text-[11px] uppercase tracking-[0.28em] font-medium">
+                    {s.eyebrow}
+                  </span>
+                </div>
+                <h1 className="font-display text-[36px] md:text-6xl lg:text-[64px] mt-5 leading-[1.02] tracking-[-0.01em]">
+                  {s.title}
+                </h1>
+                <p className={`mt-5 text-[15px] md:text-base leading-relaxed max-w-md ${subColor}`}>
+                  {s.sub}
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    to="/shop"
+                    search={{ c: s.category } as never}
+                    className={`inline-flex items-center gap-2 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
                   >
-                    <div className="container-prose grid md:grid-cols-2 items-center gap-8 md:gap-12 py-10 md:py-20 lg:py-24">
-                      <div className="order-2 md:order-1 max-w-xl">
-                        <div className="flex items-center gap-3">
-                          <span className={`h-px w-8 ${rule}`} />
-                          <span className="text-[11px] uppercase tracking-[0.28em] font-medium">
-                            {s.eyebrow}
-                          </span>
-                        </div>
-                        {idx === 0 ? (
-                          <h1 className="font-display text-[34px] md:text-6xl lg:text-[64px] mt-4 md:mt-5 leading-[1.02] tracking-[-0.01em]">
-                            {s.title}
-                          </h1>
-                        ) : (
-                          <h2 className="font-display text-[34px] md:text-6xl lg:text-[64px] mt-4 md:mt-5 leading-[1.02] tracking-[-0.01em]">
-                            {s.title}
-                          </h2>
-                        )}
-                        <p className={`mt-4 md:mt-5 text-[14px] md:text-base leading-relaxed max-w-md ${subColor}`}>
-                          {s.sub}
-                        </p>
-                        <div className="mt-6 md:mt-8 flex flex-wrap gap-3">
-                          <Link
-                            to="/shop"
-                            search={{ c: s.category } as never}
-                            className={`inline-flex items-center gap-2 px-7 md:px-8 py-3.5 md:py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
-                          >
-                            {s.cta}
-                            <ArrowRight className="h-4 w-4" />
-                          </Link>
-                        </div>
-                      </div>
+                    {s.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
 
-                      <div className="order-1 md:order-2 relative h-[220px] sm:h-[320px] md:h-[460px] lg:h-[520px]">
-                        {covers.length > 1 ? (
-                          <div className="absolute inset-0 flex items-end justify-center gap-2 sm:gap-4 md:gap-5 px-2">
-                            {covers.slice(0, 3).map((src, i) => {
-                              const isCenter = i === 1;
-                              return (
-                                <img
-                                  key={`${src}-${i}`}
-                                  src={src}
-                                  alt=""
-                                  aria-hidden
-                                  className={`max-w-[33%] object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
-                                    isCenter ? "h-full" : "h-[80%]"
-                                  }`}
-                                />
-                              );
-                            })}
-                          </div>
-                        ) : covers[0] ? (
-                          <img
-                            src={covers[0]}
-                            alt={s.title}
-                            className="absolute inset-0 m-auto h-full w-auto max-w-[80%] object-contain drop-shadow-[0_30px_50px_rgba(40,24,12,0.3)]"
-                          />
-                        ) : null}
-                      </div>
-                    </div>
+              {/* PRODUCT */}
+              <div className="order-1 md:order-2 relative h-[320px] sm:h-[400px] md:h-[480px] lg:h-[540px]">
+                {covers.length > 1 ? (
+                  <div className="absolute inset-0 flex items-end justify-center gap-3 sm:gap-5">
+                    {covers.slice(0, 3).map((src, i) => {
+                      const isCenter = i === 1;
+                      return (
+                        <img
+                          key={`${src}-${i}`}
+                          src={src}
+                          alt=""
+                          aria-hidden
+                          className={`object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
+                            isCenter ? "h-full" : "h-[80%]"
+                          }`}
+                        />
+                      );
+                    })}
                   </div>
-                );
-              })}
+                ) : covers[0] ? (
+                  <img
+                    src={covers[0]}
+                    alt={s.title}
+                    className="absolute inset-0 m-auto h-full w-full object-contain drop-shadow-[0_30px_50px_rgba(40,24,12,0.3)]"
+                  />
+                ) : null}
+              </div>
             </div>
 
             {/* Slide dots */}
             {dynamicSlides.length > 1 && (
-              <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                 {dynamicSlides.map((_, i) => (
                   <button
                     key={i}
-                    onClick={() => {
-                      setUserPaused(true);
-                      setSlide(i);
-                    }}
+                    onClick={() => setSlide(i)}
                     aria-label={`Go to slide ${i + 1}`}
                     className={`h-1 rounded-full transition-all ${
                       i === (slide % dynamicSlides.length)
-                        ? "w-8 bg-foreground"
-                        : "w-4 bg-foreground/30 hover:opacity-80"
+                        ? `w-8 ${isBrown ? "bg-primary-foreground" : "bg-foreground"}`
+                        : `w-4 ${isBrown ? "bg-primary-foreground/40" : "bg-foreground/30"} hover:opacity-80`
                     }`}
                   />
                 ))}
@@ -503,7 +435,6 @@ function Home() {
           </section>
         );
       })()}
-
 
 
       {/* Guarantee strip — cream, no dividers */}
@@ -609,22 +540,22 @@ function Home() {
         </div>
       </section>
 
-      {/* THE LIBRARY — language tabs + horizontal rail */}
-      <section className="pt-14 md:pt-20 pb-12 md:pb-20 border-t border-border/60">
-        <div className="container-prose">
-          <div className="reveal">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
-              The library
-            </p>
-            <h2 className="font-display text-3xl md:text-5xl mt-2 leading-[1.05] tracking-[-0.01em] uppercase">
-              Books by language
-            </h2>
-            <span className="block h-px w-full bg-accent/70 mt-4" />
-          </div>
+      {/* THE LIBRARY — mosaic banner of real book covers + horizontal rail */}
+      <section className="pb-12 md:pb-20 border-t border-border/60">
+        <ProductBanner
+          products={libraryAll.slice(0, 8)}
+          eyebrow="The library"
+          title="Books by language"
+          description="English, Arabic, Urdu and beyond — filter to find your edition."
+          ctaLabel="Shop the library"
+          ctaTo="/shop"
+          tone="cream"
+        />
 
-          {/* Filter tabs */}
-          <div className="mt-5 -mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
-            <div className="flex gap-1">
+        <div className="container-prose mt-8 md:mt-10">
+          {/* Filter chips */}
+          <div className="-mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
+            <div className="flex gap-2 border-b border-border">
               {visibleLanguageFilters.map((f) => {
                 const active = languageFilter === f.key;
                 const count = libraryCounts[f.key];
@@ -632,14 +563,14 @@ function Home() {
                   <button
                     key={f.key}
                     onClick={() => setLanguageFilter(f.key)}
-                    className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.14em] rounded-full border transition ${
+                    className={`shrink-0 inline-flex items-center gap-2 px-1 pb-3 -mb-px text-[12px] font-semibold uppercase tracking-[0.14em] border-b-2 transition ${
                       active
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                        ? "border-foreground text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {f.label}
-                    <span className={`text-[10px] font-medium normal-case tracking-normal ${active ? "opacity-80" : "opacity-60"}`}>
+                    <span className={`text-[10px] font-medium normal-case tracking-normal ${active ? "text-muted-foreground" : "text-muted-foreground/70"}`}>
                       {count}
                     </span>
                   </button>
@@ -685,18 +616,18 @@ function Home() {
         </div>
       </section>
 
-      {/* SETS / BUNDLES — minimal header + rail */}
+      {/* SETS / BUNDLES — image banner + rail */}
       {setsItems.length > 0 && (
-        <section className="pt-14 md:pt-20 pb-12 md:pb-20 border-t border-border/60">
-          <div className="container-prose reveal">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
-              Sets & bundles
-            </p>
-            <h2 className="font-display text-3xl md:text-5xl mt-2 leading-[1.05] tracking-[-0.01em] uppercase">
-              Build a shelf in one order
-            </h2>
-            <span className="block h-px w-full bg-accent/70 mt-4" />
-          </div>
+        <section className="pb-12 md:pb-20 border-t border-border/60">
+          <ProductBanner
+            products={setsItems.slice(0, 8)}
+            eyebrow="Sets & bundles"
+            title="Build a shelf in one order"
+            description="Multi-volume sets and curated bundles, ready to ship together."
+            ctaLabel="Shop all sets"
+            ctaTo="/shop"
+            tone="cream"
+          />
           <div
             className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
             style={{ direction: "ltr" }}
@@ -716,20 +647,22 @@ function Home() {
       )}
 
 
-      {/* SPECIAL ITEMS — brown, minimal: title + filter chips + products */}
+      {/* SPECIAL ITEMS — brown contrast + image banner */}
       {baseSpecial.length > 0 && (
-        <section className="bg-primary text-primary-foreground pt-14 md:pt-20 pb-14 md:pb-20">
-          <div className="container-prose reveal">
-            <p className="text-[11px] uppercase tracking-[0.22em] font-medium opacity-80">
-              Special items
-            </p>
-            <h2 className="font-display text-3xl md:text-5xl mt-2 leading-[1.05] tracking-[-0.01em] uppercase">
-              Beyond the bookshelf
-            </h2>
-            <span className="block h-px w-full bg-primary-foreground/40 mt-4" />
-          </div>
+        <section className="bg-primary text-primary-foreground pb-14 md:pb-20">
+          <ProductBanner
+            products={baseSpecial.slice(0, 8)}
+            eyebrow="Special items"
+            title="Niqab, jilbab, kufi & pens"
+            description="A small, considered selection beyond the bookshelf."
+            ctaLabel="Shop all special"
+            ctaTo="/shop"
+            ctaSearch={{ c: "clothing" }}
+            tone="brown"
+          />
 
-          <div className="container-prose mt-5">
+          <div className="container-prose mt-8 md:mt-10">
+            {/* Filter chips */}
             <div className="-mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto no-scrollbar">
               <div className="flex gap-2">
                 {SPECIAL_FILTERS.map((f) => {
@@ -738,7 +671,7 @@ function Home() {
                     <button
                       key={f.key}
                       onClick={() => setSpecialFilter(f.key)}
-                      className={`shrink-0 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] rounded-full border transition ${
+                      className={`shrink-0 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] border transition ${
                         active
                           ? "bg-primary-foreground text-primary border-primary-foreground"
                           : "border-primary-foreground/30 text-primary-foreground/85 hover:border-primary-foreground"
@@ -779,21 +712,54 @@ function Home() {
       )}
 
 
-      {/* HELP — single line + WhatsApp button */}
-      <section className="border-t border-border/60 bg-background">
-        <div className="container-prose py-12 md:py-16 flex flex-col md:flex-row items-center justify-center gap-5 md:gap-8 text-center md:text-left">
-          <p className="font-display text-3xl md:text-4xl tracking-[-0.01em]">
-            Need help?
-          </p>
-          <a
-            href="https://whatsapp.com/channel/0029VbB3VMzCBtx88CK0Hm3Y"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 bg-[#25D366] text-white px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.14em] hover:brightness-95 transition rounded-full"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Chat on WhatsApp
-          </a>
+
+      {/* WHATSAPP SUPPORT */}
+      <section className="bg-secondary/40 border-y">
+        <div className="container-prose py-14 md:py-20">
+          <div className="grid md:grid-cols-2 gap-10 items-center reveal">
+            <div>
+              <span className="text-[11px] uppercase tracking-[0.22em] text-accent font-medium">
+                Talk to us
+              </span>
+              <h2 className="font-display text-3xl md:text-5xl mt-2 leading-[1.05]">
+                Need help choosing a book?
+              </h2>
+              <p className="text-muted-foreground mt-4 text-sm md:text-base leading-relaxed max-w-md">
+                Ask about availability, editions, shipping or recommendations. We reply personally
+                on WhatsApp — usually within a few hours.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <a
+                  href="https://whatsapp.com/channel/0029VbB3VMzCBtx88CK0Hm3Y"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#25D366] text-white px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.14em] hover:brightness-95 transition"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Chat on WhatsApp
+                </a>
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center gap-2 border border-foreground/20 px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.14em] hover:bg-foreground hover:text-background transition"
+                >
+                  All contact options
+                </Link>
+              </div>
+            </div>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { t: "Replies in hours", d: "Real person, not a bot" },
+                { t: "Order help", d: "Availability & shipping" },
+                { t: "Recommendations", d: "By subject or level" },
+                { t: "Worldwide", d: "We ship globally" },
+              ].map((b) => (
+                <li key={b.t} className="bg-card border rounded-lg p-4">
+                  <p className="text-[11px] uppercase tracking-[0.16em] font-semibold">{b.t}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{b.d}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
     </div>
