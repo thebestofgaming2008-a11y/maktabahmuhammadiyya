@@ -101,6 +101,7 @@ function ProductBanner({
   ctaSearch,
   tone = "cream",
   imageSrc,
+  imageOnly = false,
 }: {
   products: Product[];
   eyebrow: string;
@@ -111,6 +112,7 @@ function ProductBanner({
   ctaSearch?: Record<string, string>;
   tone?: BannerTone;
   imageSrc?: string;
+  imageOnly?: boolean;
 }) {
   const covers = products
     .map((p) => p.images?.[0])
@@ -126,6 +128,23 @@ function ProductBanner({
     ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
     : "bg-foreground text-background hover:bg-foreground/90";
   const subColor = isBrown ? "text-primary-foreground/80" : "text-muted-foreground";
+
+  if (imageOnly && imageSrc) {
+    return (
+      <div className={`w-full ${panel}`}>
+        <div className="container-prose py-6 md:py-10">
+          <div className="relative h-[130px] overflow-hidden md:h-[220px]">
+            <img
+              src={imageSrc}
+              alt={title}
+              loading="lazy"
+              className="absolute inset-0 m-auto h-full w-full object-contain"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`w-full ${panel}`}>
@@ -658,6 +677,7 @@ function Home() {
           ctaTo="/shop"
           tone="cream"
           imageSrc="/product-images/maktaba/banners/language-books-cropped.png"
+          imageOnly
         />
 
         <div className="container-prose mt-8 md:mt-10">
