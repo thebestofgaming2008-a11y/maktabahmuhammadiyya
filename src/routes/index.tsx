@@ -159,7 +159,7 @@ function ProductBanner({
                     alt=""
                     aria-hidden
                     loading="lazy"
-                    className={`min-w-0 object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
+                    className={`min-w-0 object-contain ${
                       isCenter ? "h-full" : "h-[78%] md:h-[82%]"
                     }`}
                     style={{ maxWidth: `calc(${100 / total}% - 0.75rem)` }}
@@ -329,6 +329,7 @@ function Home() {
       {/* HERO — static, simple, transparent product on a cream/brown panel */}
       {(() => {
         const bookCovers = booksOnly
+          .filter((product) => product.slug !== "where-is-allah")
           .slice(0, 3)
           .map((p) => p.images?.[0])
           .filter((src): src is string => Boolean(src));
@@ -398,7 +399,7 @@ function Home() {
                           src={src}
                           alt=""
                           aria-hidden
-                          className={`min-w-0 max-w-[31%] object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
+                          className={`min-w-0 max-w-[31%] object-contain ${
                             isCenter ? "h-full" : "h-[80%]"
                           }`}
                         />
@@ -409,7 +410,7 @@ function Home() {
                   <img
                     src={covers[0]}
                     alt={s.title}
-                    className="absolute inset-0 m-auto h-full w-full object-contain drop-shadow-[0_30px_50px_rgba(40,24,12,0.3)]"
+                    className="absolute inset-0 m-auto h-full w-full object-contain"
                   />
                 ) : null}
               </div>
