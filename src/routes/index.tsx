@@ -81,9 +81,9 @@ export const Route = createFileRoute("/")({
 
 // (Legacy rail helpers removed — homepage rails are plain horizontal scrollers.)
 
-type MosaicTone = "dark" | "brand";
+type BannerTone = "cream" | "brown";
 
-function MosaicBanner({
+function ProductBanner({
   products,
   eyebrow,
   title,
@@ -91,7 +91,7 @@ function MosaicBanner({
   ctaLabel,
   ctaTo,
   ctaSearch,
-  tone = "dark",
+  tone = "cream",
 }: {
   products: Product[];
   eyebrow: string;
@@ -100,95 +100,80 @@ function MosaicBanner({
   ctaLabel: string;
   ctaTo: string;
   ctaSearch?: Record<string, string>;
-  tone?: MosaicTone;
+  tone?: BannerTone;
 }) {
-  // Pick the strongest single hero cover + one supporting cover for depth.
   const covers = products
     .map((p) => p.images?.[0])
-    .filter((src): src is string => Boolean(src));
-  const heroCover = covers[0];
+    .filter((src): src is string => Boolean(src))
+    .slice(0, 4);
 
-  const isBrand = tone === "brand";
-  const panelBg = isBrand ? "bg-primary text-primary-foreground" : "bg-foreground text-background";
-  const ctaClass = isBrand
+  const isBrown = tone === "brown";
+  const panel = isBrown
+    ? "bg-primary text-primary-foreground"
+    : "bg-secondary/50 text-foreground";
+  const ruleColor = isBrown ? "bg-primary-foreground/40" : "bg-foreground/30";
+  const ctaClass = isBrown
     ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-    : "bg-background text-foreground hover:bg-background/90";
-  const rule = isBrand ? "bg-primary-foreground/30" : "bg-background/30";
-
-  // Build a strip of covers for the background collage
-  const stripCovers = covers.slice(0, 6);
-
-  const overlayClass = isBrand
-    ? "bg-[linear-gradient(180deg,rgba(58,32,16,0.55)_0%,rgba(58,32,16,0.78)_60%,rgba(58,32,16,0.92)_100%)]"
-    : "bg-[linear-gradient(180deg,rgba(20,12,4,0.45)_0%,rgba(20,12,4,0.72)_60%,rgba(20,12,4,0.88)_100%)]";
-  const textColor = isBrand ? "text-primary-foreground" : "text-background";
+    : "bg-foreground text-background hover:bg-foreground/90";
+  const subColor = isBrown ? "text-primary-foreground/80" : "text-muted-foreground";
 
   return (
-    <div className="relative w-full reveal overflow-hidden">
-      <div className="relative min-h-[520px] md:min-h-[620px]">
-        {/* BACKGROUND — blurred hero cover for color + atmosphere */}
-        {heroCover ? (
-          <img
-            src={heroCover}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl"
-          />
-        ) : (
-          <div className={`absolute inset-0 ${panelBg}`} />
-        )}
-
-        {/* Mid-layer: subtle floating covers strip behind the text */}
-        {stripCovers.length > 0 && (
-          <div className="absolute inset-0 flex items-center justify-center gap-4 md:gap-6 px-4 opacity-[0.55] md:opacity-60">
-            {stripCovers.map((src, i) => (
-              <img
-                key={`${src}-${i}`}
-                src={src}
-                alt=""
-                aria-hidden
-                className="h-[58%] md:h-[68%] w-auto object-contain drop-shadow-[0_30px_60px_rgba(0,0,0,0.45)]"
-                style={{
-                  transform: `translateY(${(i % 2 === 0 ? -1 : 1) * (6 + i * 2)}px) rotate(${(i - stripCovers.length / 2) * 2}deg)`,
-                }}
-              />
-            ))}
+    <div className={`w-full ${panel}`}>
+      <div className="container-prose grid md:grid-cols-2 items-center gap-10 md:gap-16 py-14 md:py-24">
+        {/* TEXT */}
+        <div className="order-2 md:order-1 max-w-lg">
+          <div className="flex items-center gap-3">
+            <span className={`h-px w-8 ${ruleColor}`} />
+            <span className="text-[11px] uppercase tracking-[0.28em] font-medium">
+              {eyebrow}
+            </span>
           </div>
-        )}
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl mt-5 leading-[1.04] tracking-[-0.01em]">
+            {title}
+          </h2>
+          <p className={`mt-5 text-[15px] leading-relaxed ${subColor}`}>
+            {description}
+          </p>
+          <Link
+            to={ctaTo}
+            search={ctaSearch as never}
+            className={`mt-8 inline-flex items-center gap-2 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
+          >
+            {ctaLabel}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
 
-        {/* Dark gradient overlay so text reads clean */}
-        <div className={`absolute inset-0 ${overlayClass}`} />
-
-        {/* TEXT — centered over the image */}
-        <div className={`relative z-10 flex items-center justify-center min-h-[520px] md:min-h-[620px] ${textColor}`}>
-          <div className="w-full max-w-3xl px-6 md:px-10 py-20 md:py-28 text-center">
-            <div className="flex items-center justify-center gap-3">
-              <span className={`h-px w-8 ${rule}`} />
-              <span className="text-[11px] uppercase tracking-[0.32em] font-medium opacity-90">
-                {eyebrow}
-              </span>
-              <span className={`h-px w-8 ${rule}`} />
+        {/* PRODUCT COMPOSITION — transparent product images */}
+        <div className="order-1 md:order-2 relative h-[280px] sm:h-[340px] md:h-[440px] lg:h-[480px]">
+          {covers.length > 0 && (
+            <div className="absolute inset-0 flex items-end justify-center gap-3 sm:gap-5">
+              {covers.map((src, i) => {
+                const total = covers.length;
+                // center one bigger, side ones smaller (staggered shelf)
+                const isCenter = i === Math.floor(total / 2);
+                return (
+                  <img
+                    key={`${src}-${i}`}
+                    src={src}
+                    alt=""
+                    aria-hidden
+                    loading="lazy"
+                    className={`object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
+                      isCenter ? "h-full" : "h-[78%] md:h-[82%]"
+                    }`}
+                    style={{ maxWidth: `${100 / total}%` }}
+                  />
+                );
+              })}
             </div>
-            <h2 className="font-display font-light text-4xl md:text-6xl lg:text-7xl mt-6 leading-[1.02] tracking-[-0.01em]">
-              {title}
-            </h2>
-            <p className="mt-5 text-[14px] md:text-[16px] leading-relaxed opacity-85 max-w-xl mx-auto">
-              {description}
-            </p>
-            <Link
-              to={ctaTo}
-              search={ctaSearch as never}
-              className={`mt-9 inline-flex items-center gap-2 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
-            >
-              {ctaLabel}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
 
 
 
