@@ -343,9 +343,13 @@ function Home() {
 
   return (
     <div>
-      {/* HERO — static, simple, transparent product on a cream/brown panel */}
+      {/* HERO — auto-rotating, scroll-snap horizontal carousel */}
       {(() => {
         const bookCovers = booksOnly
+          .slice(0, 3)
+          .map((p) => p.images?.[0])
+          .filter((src): src is string => Boolean(src));
+        const setsCovers = setsItems
           .slice(0, 3)
           .map((p) => p.images?.[0])
           .filter((src): src is string => Boolean(src));
@@ -361,89 +365,136 @@ function Home() {
             bg: "cream",
             covers: bookCovers,
           },
+          ...(setsCovers.length
+            ? [
+                {
+                  eyebrow: "Sets & bundles",
+                  title: "Build a shelf in one order.",
+                  sub: "Multi-volume sets and curated bundles, ready to ship together.",
+                  cta: "Shop sets",
+                  category: "books",
+                  product: setsCovers[0] ?? "",
+                  bg: "brown" as const,
+                  covers: setsCovers,
+                },
+              ]
+            : []),
         ];
-        const s = dynamicSlides[slide % dynamicSlides.length] ?? dynamicSlides[0];
-        const isBrown = s.bg === "brown";
-        const panel = isBrown
-          ? "bg-primary text-primary-foreground"
-          : "bg-secondary/50 text-foreground";
-        const rule = isBrown ? "bg-primary-foreground/40" : "bg-foreground/30";
-        const ctaClass = isBrown
-          ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-          : "bg-foreground text-background hover:bg-foreground/90";
-        const subColor = isBrown ? "text-primary-foreground/80" : "text-muted-foreground";
-        const covers = s.covers ?? [s.product].filter(Boolean);
+        if (slideCount !== dynamicSlides.length) {
+          // Sync count on first render after data load
+          setTimeout(() => setSlideCount(dynamicSlides.length), 0);
+        }
 
         return (
-          <section className={`relative ${panel}`}>
-            <div className="container-prose grid md:grid-cols-2 items-center gap-10 md:gap-12 py-12 md:py-20 lg:py-24">
-              {/* TEXT */}
-              <div className="order-2 md:order-1 max-w-xl">
-                <div className="flex items-center gap-3">
-                  <span className={`h-px w-8 ${rule}`} />
-                  <span className="text-[11px] uppercase tracking-[0.28em] font-medium">
-                    {s.eyebrow}
-                  </span>
-                </div>
-                <h1 className="font-display text-[36px] md:text-6xl lg:text-[64px] mt-5 leading-[1.02] tracking-[-0.01em]">
-                  {s.title}
-                </h1>
-                <p className={`mt-5 text-[15px] md:text-base leading-relaxed max-w-md ${subColor}`}>
-                  {s.sub}
-                </p>
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <Link
-                    to="/shop"
-                    search={{ c: s.category } as never}
-                    className={`inline-flex items-center gap-2 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
+          <section className="relative">
+            <div
+              ref={heroScrollerRef}
+              onTouchStart={() => setUserPaused(true)}
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                const idx = Math.round(el.scrollLeft / el.clientWidth);
+                if (idx !== slide) setSlide(idx);
+              }}
+              className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar"
+              style={{ scrollbarWidth: "none" }}
+            >
+              {dynamicSlides.map((s, idx) => {
+                const isBrown = s.bg === "brown";
+                const panel = isBrown
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary/50 text-foreground";
+                const rule = isBrown ? "bg-primary-foreground/40" : "bg-foreground/30";
+                const ctaClass = isBrown
+                  ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                  : "bg-foreground text-background hover:bg-foreground/90";
+                const subColor = isBrown
+                  ? "text-primary-foreground/80"
+                  : "text-muted-foreground";
+                const covers = s.covers ?? [s.product].filter(Boolean);
+                return (
+                  <div
+                    key={idx}
+                    className={`shrink-0 w-full snap-start snap-always ${panel}`}
                   >
-                    {s.cta}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
+                    <div className="container-prose grid md:grid-cols-2 items-center gap-8 md:gap-12 py-10 md:py-20 lg:py-24">
+                      <div className="order-2 md:order-1 max-w-xl">
+                        <div className="flex items-center gap-3">
+                          <span className={`h-px w-8 ${rule}`} />
+                          <span className="text-[11px] uppercase tracking-[0.28em] font-medium">
+                            {s.eyebrow}
+                          </span>
+                        </div>
+                        {idx === 0 ? (
+                          <h1 className="font-display text-[34px] md:text-6xl lg:text-[64px] mt-4 md:mt-5 leading-[1.02] tracking-[-0.01em]">
+                            {s.title}
+                          </h1>
+                        ) : (
+                          <h2 className="font-display text-[34px] md:text-6xl lg:text-[64px] mt-4 md:mt-5 leading-[1.02] tracking-[-0.01em]">
+                            {s.title}
+                          </h2>
+                        )}
+                        <p className={`mt-4 md:mt-5 text-[14px] md:text-base leading-relaxed max-w-md ${subColor}`}>
+                          {s.sub}
+                        </p>
+                        <div className="mt-6 md:mt-8 flex flex-wrap gap-3">
+                          <Link
+                            to="/shop"
+                            search={{ c: s.category } as never}
+                            className={`inline-flex items-center gap-2 px-7 md:px-8 py-3.5 md:py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition ${ctaClass}`}
+                          >
+                            {s.cta}
+                            <ArrowRight className="h-4 w-4" />
+                          </Link>
+                        </div>
+                      </div>
 
-              {/* PRODUCT */}
-              <div className="order-1 md:order-2 relative h-[320px] sm:h-[400px] md:h-[480px] lg:h-[540px]">
-                {covers.length > 1 ? (
-                  <div className="absolute inset-0 flex items-end justify-center gap-3 sm:gap-5">
-                    {covers.slice(0, 3).map((src, i) => {
-                      const isCenter = i === 1;
-                      return (
-                        <img
-                          key={`${src}-${i}`}
-                          src={src}
-                          alt=""
-                          aria-hidden
-                          className={`object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
-                            isCenter ? "h-full" : "h-[80%]"
-                          }`}
-                        />
-                      );
-                    })}
+                      <div className="order-1 md:order-2 relative h-[220px] sm:h-[320px] md:h-[460px] lg:h-[520px]">
+                        {covers.length > 1 ? (
+                          <div className="absolute inset-0 flex items-end justify-center gap-2 sm:gap-4 md:gap-5 px-2">
+                            {covers.slice(0, 3).map((src, i) => {
+                              const isCenter = i === 1;
+                              return (
+                                <img
+                                  key={`${src}-${i}`}
+                                  src={src}
+                                  alt=""
+                                  aria-hidden
+                                  className={`max-w-[33%] object-contain drop-shadow-[0_24px_40px_rgba(40,24,12,0.25)] ${
+                                    isCenter ? "h-full" : "h-[80%]"
+                                  }`}
+                                />
+                              );
+                            })}
+                          </div>
+                        ) : covers[0] ? (
+                          <img
+                            src={covers[0]}
+                            alt={s.title}
+                            className="absolute inset-0 m-auto h-full w-auto max-w-[80%] object-contain drop-shadow-[0_30px_50px_rgba(40,24,12,0.3)]"
+                          />
+                        ) : null}
+                      </div>
+                    </div>
                   </div>
-                ) : covers[0] ? (
-                  <img
-                    src={covers[0]}
-                    alt={s.title}
-                    className="absolute inset-0 m-auto h-full w-full object-contain drop-shadow-[0_30px_50px_rgba(40,24,12,0.3)]"
-                  />
-                ) : null}
-              </div>
+                );
+              })}
             </div>
 
             {/* Slide dots */}
             {dynamicSlides.length > 1 && (
-              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+              <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                 {dynamicSlides.map((_, i) => (
                   <button
                     key={i}
-                    onClick={() => setSlide(i)}
+                    onClick={() => {
+                      setUserPaused(true);
+                      setSlide(i);
+                    }}
                     aria-label={`Go to slide ${i + 1}`}
                     className={`h-1 rounded-full transition-all ${
                       i === (slide % dynamicSlides.length)
-                        ? `w-8 ${isBrown ? "bg-primary-foreground" : "bg-foreground"}`
-                        : `w-4 ${isBrown ? "bg-primary-foreground/40" : "bg-foreground/30"} hover:opacity-80`
+                        ? "w-8 bg-foreground"
+                        : "w-4 bg-foreground/30 hover:opacity-80"
                     }`}
                   />
                 ))}
@@ -452,6 +503,7 @@ function Home() {
           </section>
         );
       })()}
+
 
 
       {/* Guarantee strip — cream, no dividers */}
