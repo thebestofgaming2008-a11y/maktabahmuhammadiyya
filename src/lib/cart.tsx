@@ -7,6 +7,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { mapBackendProduct } from "@/lib/catalog";
+import { listActiveProducts } from "@/services/productService";
 import { products, type Product } from "./products";
 
 export type CartItem = {
@@ -60,6 +62,7 @@ function cartStorage() {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [catalog, setCatalog] = useState<Product[]>([]);
   const [open, setOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [currency, setCurrencyState] = useState<CurrencyCode>("INR");
@@ -73,6 +76,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (cur && CURRENCIES.some((x) => x.code === cur)) setCurrencyState(cur);
     } catch {}
     setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    listActiveProducts()
+      .then((rows) => {
+        if (!cancelled) {
+          setCatalog(Array.isArray(rows) ? rows.map((row) => mapBackendProduct(row)) : []);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setCatalog([]);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -109,9 +128,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<CartCtx>(() => {
+    const catalogBySlug = new Map(
+      [...catalog, ...products].map((product) => [product.slug, product]),
+    );
     const detailed = items
       .map((it) => {
-        const product = it.product ?? products.find((p) => p.slug === it.slug)!;
+        const product =
+          it.product?.id && it.product?.images?.length ? it.product : catalogBySlug.get(it.slug);
         return product ? { ...it, product, lineTotal: product.price * it.qty } : null;
       })
       .filter(Boolean) as CartCtx["detailed"];
@@ -145,7 +168,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setCurrency,
       fmt,
     };
-  }, [items, open, currency, setCurrency, fmt]);
+  }, [items, catalog, open, currency, setCurrency, fmt]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

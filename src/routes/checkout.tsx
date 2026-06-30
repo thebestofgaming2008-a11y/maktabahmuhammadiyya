@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation } from "convex/react";
-import { useMemo, useState, type FormEvent } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ArrowLeft, Check, Lock, MessageCircle, ShieldCheck } from "lucide-react";
 import { api } from "../../convex/_generated/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/lib/cart";
 import { seo } from "@/lib/seo";
 
@@ -46,8 +47,11 @@ const whatsappPhone = String(import.meta.env.VITE_WHATSAPP_ORDER_PHONE ?? "").re
 
 function Checkout() {
   const { detailed, subtotal, clear, fmt } = useCart();
+  const { user, profile } = useAuth();
   const createWhatsAppOrder = useMutation(api.orders.createWhatsAppOrderRequest);
+  const savedAddresses = useQuery(api.addresses.listMine, user ? {} : "skip");
   const [customer, setCustomer] = useState<CustomerForm>(emptyCustomer);
+  const [selectedAddressId, setSelectedAddressId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [placed, setPlaced] = useState<{ orderNumber?: string } | null>(null);
@@ -61,8 +65,61 @@ function Checkout() {
   );
 
   const update = (key: keyof CustomerForm, value: string) => {
+    if (
+      key === "address_line_1" ||
+      key === "address_line_2" ||
+      key === "city" ||
+      key === "state" ||
+      key === "postal_code" ||
+      key === "country"
+    ) {
+      setSelectedAddressId("");
+    }
     setCustomer((current) => ({ ...current, [key]: value }));
   };
+
+  const applyAddress = (address: any) => {
+    if (!address) return;
+    setSelectedAddressId(String(address.id ?? ""));
+    setCustomer((current) => ({
+      ...current,
+      name: current.name || String(address.full_name ?? profile?.full_name ?? user?.name ?? ""),
+      phone: current.phone || String(address.phone ?? profile?.phone ?? ""),
+      email: current.email || String(user?.email ?? ""),
+      address_line_1: String(address.address_line_1 ?? ""),
+      address_line_2: String(address.address_line_2 ?? ""),
+      city: String(address.city ?? ""),
+      state: String(address.state ?? ""),
+      postal_code: String(address.postal_code ?? ""),
+      country: String(address.country ?? ""),
+    }));
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    setCustomer((current) => ({
+      ...current,
+      name: current.name || String(profile?.full_name ?? user.name ?? ""),
+      email: current.email || String(user.email ?? ""),
+      phone: current.phone || String(profile?.phone ?? ""),
+    }));
+  }, [profile?.full_name, profile?.phone, user]);
+
+  useEffect(() => {
+    if (!Array.isArray(savedAddresses) || !savedAddresses.length || selectedAddressId) return;
+    const hasAddress = Boolean(
+      customer.address_line_1 || customer.city || customer.postal_code || customer.country,
+    );
+    if (hasAddress) return;
+    applyAddress(savedAddresses.find((address: any) => address.is_default) ?? savedAddresses[0]);
+  }, [
+    savedAddresses,
+    selectedAddressId,
+    customer.address_line_1,
+    customer.city,
+    customer.postal_code,
+    customer.country,
+  ]);
 
   const buildMessage = () => {
     const itemLines = detailed.map((item, index) => {
@@ -240,6 +297,30 @@ function Checkout() {
 
           <section className="rounded-lg border bg-card p-5">
             <h2 className="font-display text-xl mb-4">Delivery address</h2>
+            {Array.isArray(savedAddresses) && savedAddresses.length > 0 ? (
+              <label className="mb-3 block">
+                <span className="text-xs text-muted-foreground">Saved address</span>
+                <select
+                  value={selectedAddressId}
+                  onChange={(event) => {
+                    const address = savedAddresses.find(
+                      (item: any) => String(item.id) === event.target.value,
+                    );
+                    applyAddress(address);
+                  }}
+                  className="mt-1 w-full border border-border rounded-md px-3 py-2.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+                >
+                  <option value="">Enter a new address</option>
+                  {savedAddresses.map((address: any) => (
+                    <option key={address.id} value={address.id}>
+                      {[address.full_name, address.city, address.country]
+                        .filter(Boolean)
+                        .join(" - ")}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
             <div className="space-y-3">
               <Input
                 required
