@@ -5,7 +5,7 @@ import { useCart } from "@/lib/cart";
 import { useCatalogProducts } from "@/lib/catalog";
 import type { Product } from "@/lib/products";
 import { productSubjectKeys } from "@/data/products";
-import { ArrowRight, MessageCircle, ShoppingBag } from "lucide-react";
+import { ArrowRight, ChevronDown, MessageCircle, ShoppingBag } from "lucide-react";
 
 import niqabHero from "@/assets/niqab-transparent.png.asset.json";
 import { seo } from "@/lib/seo";
@@ -232,6 +232,7 @@ function Home() {
   const [slide, setSlide] = useState(0);
   const [specialFilter, setSpecialFilter] = useState<(typeof SPECIAL_FILTERS)[number]["key"]>("all");
   const [languageFilter, setLanguageFilter] = useState<"all" | "english" | "arabic" | "urdu" | "other">("all");
+  const [featuredSetOpen, setFeaturedSetOpen] = useState<string | null>(null);
   const collectionsRef = useRef<HTMLDivElement>(null);
   const libraryRef = useRef<HTMLDivElement>(null);
 
@@ -371,6 +372,22 @@ function Home() {
     });
     setOpen(true);
   };
+  const featuredSetDescription =
+    cleanFeaturedDescription(setsFeatured?.description) ||
+    "A complete Tafseer set for building a serious home library.";
+  const featuredSetDetails = setsFeatured
+    ? [
+        setsFeatured.language ? `Language: ${setsFeatured.language}` : null,
+        "Format: 10 volume set",
+        setsFeatured.tags?.length ? `Subjects: ${setsFeatured.tags.join(", ")}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n")
+    : "";
+  const featuredSetSections = [
+    { id: "description", title: "Description", body: featuredSetDescription },
+    { id: "details", title: "Product details", body: featuredSetDetails || "Details coming soon." },
+  ];
 
 
   return (
@@ -688,10 +705,6 @@ function Home() {
                       {setsFeatured.author}
                     </p>
                   ) : null}
-                  <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-muted-foreground">
-                    {cleanFeaturedDescription(setsFeatured.description) ||
-                      "A complete Tafseer set for building a serious home library."}
-                  </p>
                   <div className="mt-6 text-2xl font-semibold tabular-nums">
                     {fmt(setsFeatured.price)}
                   </div>
@@ -713,6 +726,37 @@ function Home() {
                       View details
                       <ArrowRight className="h-4 w-4" />
                     </Link>
+                  </div>
+                  <div className="mt-8 divide-y border-y border-border/80">
+                    {featuredSetSections.map((section) => (
+                      <div key={section.id}>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFeaturedSetOpen(featuredSetOpen === section.id ? null : section.id)
+                          }
+                          className="flex w-full items-center justify-between py-4 text-left text-sm font-medium"
+                        >
+                          {section.title}
+                          <ChevronDown
+                            className={`h-4 w-4 transition-transform duration-300 ${
+                              featuredSetOpen === section.id ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                        <div
+                          className={`grid transition-all duration-300 ${
+                            featuredSetOpen === section.id
+                              ? "grid-rows-[1fr] pb-4 opacity-100"
+                              : "grid-rows-[0fr] opacity-0"
+                          }`}
+                        >
+                          <div className="overflow-hidden whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                            {section.body}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 <Link
