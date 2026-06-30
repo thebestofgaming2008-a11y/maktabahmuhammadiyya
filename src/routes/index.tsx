@@ -329,10 +329,10 @@ function Home() {
       {/* HERO — static, simple, transparent product on a cream/brown panel */}
       {(() => {
         const bookCovers = booksOnly
-          .filter((product) => product.slug !== "where-is-allah")
           .slice(0, 3)
           .map((p) => p.images?.[0])
           .filter((src): src is string => Boolean(src));
+        const whereIsAllahCover = booksOnly.find((product) => product.slug === "where-is-allah")?.images?.[0];
         const dynamicSlides: Array<HeroSlide & { covers?: string[] }> = [
           ...heroSlides,
           {
@@ -341,9 +341,9 @@ function Home() {
             sub: "Aqeedah, Tafsir, Hadith, Seerah and carefully chosen study titles.",
             cta: "Browse books",
             category: "books",
-            product: bookCovers[0] ?? "",
+            product: whereIsAllahCover ?? bookCovers[0] ?? "",
             bg: "cream",
-            covers: bookCovers,
+            covers: whereIsAllahCover ? [whereIsAllahCover] : bookCovers,
           },
         ];
         const s = dynamicSlides[slide % dynamicSlides.length] ?? dynamicSlides[0];
