@@ -199,10 +199,8 @@ function Home() {
   const collectionsRef = useRef<HTMLDivElement>(null);
   const libraryRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const t = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 6000);
-    return () => clearInterval(t);
-  }, []);
+  // Hero is static; slide is user-controlled via dots only — no auto-rotation, no animations.
+
 
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)");
