@@ -155,7 +155,7 @@ function ProductBanner({
               alt=""
               aria-hidden
               loading="lazy"
-              className="absolute inset-0 m-auto h-full w-full scale-[1.14] object-contain md:scale-100"
+              className="absolute inset-0 m-auto h-full w-full object-contain"
             />
           ) : covers.length > 0 ? (
             <div className="absolute inset-0 flex items-end justify-center gap-2 sm:gap-4 px-2">
