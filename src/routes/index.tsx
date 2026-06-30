@@ -232,6 +232,7 @@ function Home() {
   const [slide, setSlide] = useState(0);
   const [specialFilter, setSpecialFilter] = useState<(typeof SPECIAL_FILTERS)[number]["key"]>("all");
   const [languageFilter, setLanguageFilter] = useState<"all" | "english" | "arabic" | "urdu" | "other">("all");
+  const [selectedSetSlug, setSelectedSetSlug] = useState<string | null>(null);
   const [featuredSetOpen, setFeaturedSetOpen] = useState<string | null>(null);
   const collectionsRef = useRef<HTMLDivElement>(null);
   const libraryRef = useRef<HTMLDivElement>(null);
@@ -349,8 +350,7 @@ function Home() {
           .slice(0, 12);
 
   // Sets / bundles: any product whose title, tags or category hint at a bundle
-  const setsFeatured = products.find((product) => product.slug === "tafseer-as-sadi-10-volume-set");
-  const setsItems = products
+  const setCandidates = products
     .filter((p) => {
       const haystack = [p.title, p.category, p.categoryId ?? "", ...(p.tags ?? [])]
         .join(" ")
@@ -359,27 +359,40 @@ function Home() {
         haystack,
       );
     })
-    .filter((product) => product.slug !== setsFeatured?.slug)
     .slice(0, 8);
-  const addFeaturedSet = () => {
-    if (!setsFeatured) return;
+  const setPrioritySlug = "tafseer-as-sadi-10-volume-set";
+  const setProducts = [...setCandidates].sort((a, b) =>
+    a.slug === setPrioritySlug ? -1 : b.slug === setPrioritySlug ? 1 : a.title.localeCompare(b.title),
+  );
+  const selectedSet =
+    setProducts.find((product) => product.slug === selectedSetSlug) ?? setProducts[0] ?? null;
+
+  useEffect(() => {
+    if (!setProducts.length) return;
+    if (!selectedSetSlug || !setProducts.some((product) => product.slug === selectedSetSlug)) {
+      setSelectedSetSlug(setProducts[0].slug);
+    }
+  }, [selectedSetSlug, setProducts]);
+
+  const addSelectedSet = () => {
+    if (!selectedSet) return;
     add({
-      slug: setsFeatured.slug,
-      product: setsFeatured,
-      color: setsFeatured.colors[0]?.name ?? "Default",
-      size: setsFeatured.sizes?.[0],
+      slug: selectedSet.slug,
+      product: selectedSet,
+      color: selectedSet.colors[0]?.name ?? "Default",
+      size: selectedSet.sizes?.[0],
       qty: 1,
     });
     setOpen(true);
   };
   const featuredSetDescription =
-    cleanFeaturedDescription(setsFeatured?.description) ||
+    cleanFeaturedDescription(selectedSet?.description) ||
     "A complete Tafseer set for building a serious home library.";
-  const featuredSetDetails = setsFeatured
+  const featuredSetDetails = selectedSet
     ? [
-        setsFeatured.language ? `Language: ${setsFeatured.language}` : null,
-        "Format: 10 volume set",
-        setsFeatured.tags?.length ? `Subjects: ${setsFeatured.tags.join(", ")}` : null,
+        selectedSet.language ? `Language: ${selectedSet.language}` : null,
+        selectedSet.badge ? `Format: ${selectedSet.badge}` : null,
+        selectedSet.tags?.length ? `Subjects: ${selectedSet.tags.join(", ")}` : null,
       ]
         .filter(Boolean)
         .join("\n")
@@ -684,116 +697,115 @@ function Home() {
         </div>
       </section>
 
-      {/* SETS / BUNDLES - featured set + rail */}
-      {(setsFeatured || setsItems.length > 0) && (
+      {/* SETS / BUNDLES - compact set inspector */}
+      {selectedSet && (
         <section className="pb-12 md:pb-20 border-t border-border/60">
-          {setsFeatured ? (
-            <div className="bg-secondary/50">
-              <div className="container-prose grid items-center gap-10 py-14 md:grid-cols-[1.05fr_0.95fr] md:py-24">
-                <div className="order-2 max-w-xl md:order-1">
-                  <div className="flex items-center gap-3">
-                    <span className="h-px w-8 bg-foreground/30" />
-                    <span className="text-[11px] font-medium uppercase tracking-[0.28em]">
-                      Sets & bundles
-                    </span>
-                  </div>
-                  <h2 className="mt-5 font-display text-4xl leading-[1.04] tracking-[-0.01em] md:text-5xl lg:text-6xl">
-                    {setsFeatured.title}
-                  </h2>
-                  {setsFeatured.author ? (
-                    <p className="mt-3 text-sm uppercase tracking-[0.14em] text-muted-foreground">
-                      {setsFeatured.author}
-                    </p>
-                  ) : null}
-                  <div className="mt-6 text-2xl font-semibold tabular-nums">
-                    {fmt(setsFeatured.price)}
-                  </div>
-                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                    <button
-                      type="button"
-                      onClick={addFeaturedSet}
-                      disabled={!setsFeatured.inStock}
-                      className="inline-flex items-center justify-center gap-2 bg-foreground px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-background transition hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <ShoppingBag className="h-4 w-4" />
-                      {setsFeatured.inStock ? "Add to cart" : "Sold out"}
-                    </button>
-                    <Link
-                      to="/product/$slug"
-                      params={{ slug: setsFeatured.slug }}
-                      className="inline-flex items-center justify-center gap-2 border border-foreground/20 px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] transition hover:border-foreground hover:bg-background"
-                    >
-                      View details
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
-                  <div className="mt-8 divide-y border-y border-border/80">
-                    {featuredSetSections.map((section) => (
-                      <div key={section.id}>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setFeaturedSetOpen(featuredSetOpen === section.id ? null : section.id)
-                          }
-                          className="flex w-full items-center justify-between py-4 text-left text-sm font-medium"
-                        >
-                          {section.title}
-                          <ChevronDown
-                            className={`h-4 w-4 transition-transform duration-300 ${
-                              featuredSetOpen === section.id ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
-                        <div
-                          className={`grid transition-all duration-300 ${
-                            featuredSetOpen === section.id
-                              ? "grid-rows-[1fr] pb-4 opacity-100"
-                              : "grid-rows-[0fr] opacity-0"
+          <div className="bg-secondary/50">
+            <div className="container-prose grid items-center gap-8 py-12 md:grid-cols-[0.95fr_1.05fr] md:gap-12 md:py-20">
+              <div className="order-2 max-w-xl md:order-1">
+                <div className="flex items-center gap-3">
+                  <span className="h-px w-8 bg-foreground/30" />
+                  <span className="text-[11px] font-medium uppercase tracking-[0.28em]">
+                    Sets & bundles
+                  </span>
+                </div>
+                <h2 className="mt-5 font-display text-3xl leading-[1.04] tracking-[-0.01em] md:text-5xl">
+                  {selectedSet.title}
+                </h2>
+                {selectedSet.author ? (
+                  <p className="mt-3 text-xs uppercase tracking-[0.14em] text-muted-foreground md:text-sm">
+                    {selectedSet.author}
+                  </p>
+                ) : null}
+                <div className="mt-5 text-2xl font-semibold tabular-nums">
+                  {fmt(selectedSet.price)}
+                </div>
+                <button
+                  type="button"
+                  onClick={addSelectedSet}
+                  disabled={!selectedSet.inStock}
+                  className="mt-6 inline-flex w-full items-center justify-center gap-2 bg-foreground px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-background transition hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  {selectedSet.inStock ? "Add to cart" : "Sold out"}
+                </button>
+                <div className="mt-7 divide-y border-y border-border/80">
+                  {featuredSetSections.map((section) => (
+                    <div key={section.id}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFeaturedSetOpen(featuredSetOpen === section.id ? null : section.id)
+                        }
+                        className="flex w-full items-center justify-between py-4 text-left text-sm font-medium"
+                      >
+                        {section.title}
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform duration-300 ${
+                            featuredSetOpen === section.id ? "rotate-180" : ""
                           }`}
-                        >
-                          <div className="overflow-hidden whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                            {section.body}
-                          </div>
+                        />
+                      </button>
+                      <div
+                        className={`grid transition-all duration-300 ${
+                          featuredSetOpen === section.id
+                            ? "grid-rows-[1fr] pb-4 opacity-100"
+                            : "grid-rows-[0fr] opacity-0"
+                        }`}
+                      >
+                        <div className="overflow-hidden whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                          {section.body}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-                <Link
-                  to="/product/$slug"
-                  params={{ slug: setsFeatured.slug }}
-                  className="order-1 block md:order-2"
-                  aria-label={setsFeatured.title}
-                >
-                  <div className="relative h-[320px] overflow-hidden rounded-lg bg-background md:h-[480px] lg:h-[540px]">
-                    <img
-                      src={setsFeatured.images[0]}
-                      alt={setsFeatured.title}
-                      loading="lazy"
-                      className="absolute inset-0 h-full w-full object-contain p-8 transition duration-500 hover:scale-[1.03]"
-                    />
+              </div>
+              <div className="order-1 md:order-2">
+                <div className="relative h-[300px] overflow-hidden rounded-lg bg-background md:h-[500px]">
+                  <img
+                    src={selectedSet.images[0]}
+                    alt={selectedSet.title}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-contain p-7 transition duration-500"
+                  />
+                </div>
+                {setProducts.length > 1 ? (
+                  <div
+                    className="mt-3 flex gap-2 overflow-x-auto pb-1 no-scrollbar"
+                    style={{ direction: "ltr" }}
+                    aria-label="Choose a set"
+                  >
+                    {setProducts.map((product) => {
+                      const active = product.slug === selectedSet.slug;
+                      return (
+                        <button
+                          key={product.slug}
+                          type="button"
+                          onClick={() => {
+                            setSelectedSetSlug(product.slug);
+                            setFeaturedSetOpen(null);
+                          }}
+                          className={`flex h-20 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-background transition md:h-24 md:w-20 ${
+                            active
+                              ? "border-foreground shadow-sm"
+                              : "border-border/80 opacity-70 hover:opacity-100"
+                          }`}
+                          aria-label={`View ${product.title}`}
+                        >
+                          <img
+                            src={product.images[0]}
+                            alt=""
+                            className="h-full w-full object-contain p-1.5"
+                          />
+                        </button>
+                      );
+                    })}
                   </div>
-                </Link>
+                ) : null}
               </div>
             </div>
-          ) : null}
-          {setsItems.length > 0 ? (
-            <div
-              className="rail-prose mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2"
-              style={{ direction: "ltr" }}
-            >
-              {setsItems.map((p) => (
-                <div
-                  key={p.slug}
-                  data-rail-item
-                  className="shrink-0 snap-start w-[44vw] sm:w-[32vw] md:w-[240px] lg:w-[260px]"
-                >
-                  <ProductCard product={p} />
-                </div>
-              ))}
-              <div className="shrink-0 w-1 md:hidden" />
-            </div>
-          ) : null}
+          </div>
         </section>
       )}
 
