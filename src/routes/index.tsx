@@ -544,14 +544,14 @@ function Home() {
 
       {/* THE LIBRARY — mosaic banner of real book covers + horizontal rail */}
       <section className="pb-12 md:pb-20 border-t border-border/60">
-        <MosaicBanner
+        <ProductBanner
           products={libraryAll.slice(0, 8)}
           eyebrow="The library"
           title="Books by language"
           description="English, Arabic, Urdu and beyond — filter to find your edition."
           ctaLabel="Shop the library"
           ctaTo="/shop"
-          tone="dark"
+          tone="cream"
         />
 
         <div className="container-prose mt-8 md:mt-10">
@@ -621,14 +621,14 @@ function Home() {
       {/* SETS / BUNDLES — image banner + rail */}
       {setsItems.length > 0 && (
         <section className="pb-12 md:pb-20 border-t border-border/60">
-          <MosaicBanner
+          <ProductBanner
             products={setsItems.slice(0, 8)}
             eyebrow="Sets & bundles"
             title="Build a shelf in one order"
             description="Multi-volume sets and curated bundles, ready to ship together."
             ctaLabel="Shop all sets"
             ctaTo="/shop"
-            tone="dark"
+            tone="cream"
           />
           <div
             className="mt-6 md:mt-8 flex gap-3 md:gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-2 px-4 md:px-[max(2rem,calc((100vw-72rem)/2))] scroll-pl-4 md:scroll-pl-8"
@@ -652,7 +652,7 @@ function Home() {
       {/* SPECIAL ITEMS — brown contrast + image banner */}
       {baseSpecial.length > 0 && (
         <section className="bg-primary text-primary-foreground pb-14 md:pb-20">
-          <MosaicBanner
+          <ProductBanner
             products={baseSpecial.slice(0, 8)}
             eyebrow="Special items"
             title="Niqab, jilbab, kufi & pens"
@@ -660,7 +660,7 @@ function Home() {
             ctaLabel="Shop all special"
             ctaTo="/shop"
             ctaSearch={{ c: "clothing" }}
-            tone="brand"
+            tone="brown"
           />
 
           <div className="container-prose mt-8 md:mt-10">
