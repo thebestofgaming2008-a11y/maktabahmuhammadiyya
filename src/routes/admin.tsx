@@ -470,7 +470,7 @@ export const Route = createFileRoute("/admin")({
   component: Admin,
 });
 
-export default function Admin() {
+function Admin() {
   const { user, isAdmin, loading, signOut } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
 
