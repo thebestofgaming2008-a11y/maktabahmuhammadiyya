@@ -132,6 +132,7 @@ function cleanUrl(value: string | null | undefined) {
   if (
     /^https?:\/\//i.test(url) ||
     /^\/api\/storage\//i.test(url) ||
+    /^\/api\/media\/file\//i.test(url) ||
     /^\/images\//i.test(url) ||
     /^\/assets\//i.test(url) ||
     /^\/product-images\//i.test(url) ||

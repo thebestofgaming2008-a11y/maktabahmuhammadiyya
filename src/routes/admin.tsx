@@ -91,6 +91,7 @@ import { StarRatingInput } from "@/components/shop/ReviewStars";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 
 const MAKTABA_IMAGE_ROOT = "/product-images/maktaba";
+const DEFAULT_NEW_PRODUCT_STOCK = 999;
 const MAKTABA_PROFESSIONAL_JPG_ROOT = `${MAKTABA_IMAGE_ROOT}/06-professional-staged-jpg`;
 const MAKTABA_PROFESSIONAL_MANIFEST_URL = `${MAKTABA_IMAGE_ROOT}/professional-staged-manifest.json`;
 const MAKTABA_FINAL_JPG_ROOT = `${MAKTABA_IMAGE_ROOT}/04-polished-safe-jpg`;
@@ -873,6 +874,12 @@ function AdminDashboard({ signOut }: { signOut: () => Promise<void> }) {
         null)
       : null;
     const optionGroups = normalizeOptionGroups(form.option_types);
+    const stockValue =
+      form.stock_quantity.trim() === ""
+        ? currentProduct
+          ? Number(currentProduct.stock_quantity ?? 0)
+          : DEFAULT_NEW_PRODUCT_STOCK
+        : Number(form.stock_quantity);
     const payload = {
       name: form.name.trim(),
       slug: form.slug.trim() || null,
@@ -892,7 +899,7 @@ function AdminDashboard({ signOut }: { signOut: () => Promise<void> }) {
       price_inr: Number(form.price_inr) || 0,
       sale_price_inr: Number(form.sale_price_inr) > 0 ? Number(form.sale_price_inr) : null,
       sku: form.sku.trim() || null,
-      stock_quantity: Number(form.stock_quantity) || 0,
+      stock_quantity: Number.isFinite(stockValue) ? stockValue : 0,
       category: topCategory,
       category_id: selectedCategory,
       cover_image_url: form.cover_image_url.trim() || null,
@@ -2346,7 +2353,7 @@ function productToForm(product: Product | null): ProductFormState {
     price_inr: String(product?.price_inr ?? product?.price ?? ""),
     sale_price_inr: String(product?.sale_price_inr ?? product?.sale_price ?? ""),
     sku: product?.sku ?? "",
-    stock_quantity: String(product?.stock_quantity ?? 0),
+    stock_quantity: String(product ? (product.stock_quantity ?? 0) : DEFAULT_NEW_PRODUCT_STOCK),
     category: normalizedCategory,
     variant_group: variantGroupFromTags(product?.tags),
     variant_label: product?.variant_label ?? "",
